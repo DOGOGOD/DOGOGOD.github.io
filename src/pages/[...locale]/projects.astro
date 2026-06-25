@@ -1,0 +1,39 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro';
+import Cover from '@components/Cover.astro';
+import ProjectCard from '@components/ProjectCard.astro';
+import { siteConfig } from '@/config';
+import { i18n } from "astro:config/client";
+import i18nit from '@i18n/translation';
+import projects from '@/data/projects.json';
+
+export async function getStaticPaths() {
+  return i18n?.locales.map(locale => ({
+    params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) }
+  }));
+}
+
+interface Project {
+  name: string;
+  description: string;
+  githubUrl: string;
+  tags: string[];
+  status?: string;
+}
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+const all = projects as Project[];
+const pageTitle = t("header.projects") + " - " + siteConfig.title;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+  <div class="mx-auto w-full max-w-[var(--page-width)]">
+    <Cover title={t("cover.title.projects")} subTitle={t("cover.subTitle.projects")} />
+
+    <div class="mb-12 grid gap-6 sm:grid-cols-2">
+      {all.map((p) => <ProjectCard {...p} />)}
+    </div>
+  </div>
+</MainPageLayout>

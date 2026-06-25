@@ -1,0 +1,84 @@
+:root {
+  /* 布局变量 */
+  --header-width: min(1024px,90vw);
+  --page-width: min(776px, 90vw);
+  --toc-offset-left: calc(50vw + var(--page-width) / 2 + 3rem);
+  --toc-width: calc((100vw - var(--page-width)) / 2 - 3rem);
+  --category-width: min(calc((100vw - var(--page-width)) / 3), 200px);
+}
+
+
+/* 颜色变量 */
+/* --bg-color               页面背景色
+ * --text-color             文字基本色，通过透明度来控制颜色深浅，分为两类
+ *     --text-color:        适用于标题、正文等需要突出显示的内容
+ *     --text-color-70      适用于次要信息、辅助文本等不需要过于突出显示的内容
+ * --link-color             彩色基本色，适用于链接、按钮等颜色突出的地方
+ * --button-hover-color     按钮鼠标悬停背景色
+ * --button-border-color    按钮边框色
+*/
+/*
+ * 纸质样式（Paper Theme）— 灵感来自 guztchian-blog
+ * 暖调的象牙纸、温暖墨水、单一陶土色点缀（Anthropic clay #CC785C）
+ * 颜色值从 guztchian-blog 的设计令牌逐字迁移而来。
+ */
+:root {
+    /* 纸张色 — 暖象牙纸 */
+    --bg-color: #f6f4ee;
+    /* 墨水色 — 暖调近黑色（Warm near-black ink） */
+    --text-color: #211f1c;
+    /* 次要文本 — 暖灰色 */
+    --text-color-70: #6d675f;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    /* 陶土色点缀（Anthropic clay） */
+    --link-color: #cc7a5c;
+    /* 卡片/悬浮表面 — 略暖的提亮白 */
+    --button-hover-color: #fcfbf7;
+    /* 暖调细线（Hairline warm） */
+    --button-border-color: #e3ded3;
+    --border-color: #e3ded3;
+
+    --warning-text-color: #4d3800;
+    --warning-bg-color: #fff7ed;
+    --warning-border-color: #e6a700;
+
+    --danger-text-color: #4b1113;
+    --danger-bg-color: #ffebec;
+    --danger-border-color: #e13238;
+
+    /* 滚动条 — 暖灰调 */
+    --scrollbar-thumb: #d4cfc5;
+    --scrollbar-thumb-hover: #bab5ab;
+    --scrollbar-track: #ede9e0;
+
+    /* 选中背景 — 陶土色半透明 */
+    --selection-bg-color: #cc7a5c2E;
+    --selection-text-color: #211f1c;
+  }
+
+  [data-theme="dark"] {
+    --bg-color: #0a0a0a;
+    --text-color: #ffffff;
+    --text-color-70: #b5b5b5;
+    --shadow-color: rgba(255, 255, 255, 0.15);
+    --link-color: #57ace7;
+    --button-hover-color: #262626;
+    --button-border-color: #3d3d3d;
+    --border-color: #3d3d3d;
+
+    --warning-text-color: #f2d680;
+    --warning-bg-color: #332a00;
+    --warning-border-color: #ad8002;
+
+    --danger-text-color: #f2a0a3;
+    --danger-bg-color: #3b1d1e;
+    --danger-border-color: #e13238;
+
+    /* 滚动条颜色 */
+    --scrollbar-thumb: #4b4c4e;
+    --scrollbar-thumb-hover: #37383a;
+    --scrollbar-track: #1a202c;
+
+    --selection-bg-color: #2f5f80;
+    --selection-text-color: #ffffff;
+  }

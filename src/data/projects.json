@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Guztchian's Blog",
+    "description": "你正在看的这个站点——Astro 岛屿架构，纸面拟态首页，静态部署于 GitHub Pages。",
+    "githubUrl": "https://github.com/DOGOGOD/DOGOGOD.github.io",
+    "tags": ["Astro", "Tailwind", "TypeScript"],
+    "status": "active"
+  },
+  {
+    "name": "WeRead",
+    "description": "微信公众号文章定时爬取与 AI 智能摘要工具。订阅你关注的公众号，定时抓取最新文章，由 AI 自动生成结构化阅读简报。",
+    "githubUrl": "https://github.com/DOGOGOD/WeRead",
+    "tags": ["Python", "Skill", "Playwright"],
+    "status": "maintained"
+  },
+  {
+    "name": "Office-Preview",
+    "description": "Obsidian 插件：在 Obsidian 中预览 Office 文档（Word、Excel、PowerPoint）。",
+    "githubUrl": "https://github.com/DOGOGOD/Office-Preview",
+    "tags": ["TypeScript", "CSS", "Obsidian"],
+    "status": "experiment"
+  },
+  {
+    "name": "MineSweeper",
+    "description": "经典的扫雷游戏，使用 C++ 编写。该项目为C++学习练手项目，旨在帮助初学者理解面向对象编程和游戏开发的基本概念。",
+    "githubUrl": "https://github.com/DOGOGOD/MineSweeper",
+    "tags": ["C++"],
+    "status": "maintained"
+  }
+]
