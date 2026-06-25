@@ -205,12 +205,6 @@
   font-size: 0.9rem;
 }
 
-[data-theme="dark"] .markdown-content pre code {
-  padding: 0;
-  background: none;
-  font-size: 0.9rem;
-}
-
 .markdown-content hr {
   margin: 2rem 0;
   border: none;
@@ -253,13 +247,6 @@
   margin: 1rem auto;
   display: block;
   border-radius: 6px;
-}
-
-.markdown-content hr {
-  margin: 2rem 0;
-  border: none;
-  height: 1px;
-  background: var(--text-color);
 }
 
 .note, .tip, .warning, .important, .caution {
@@ -473,6 +460,7 @@
 .fetch-error {
   background-color: #ffe6e6;
   border: 1px solid #ffcccc;
+  opacity: 0.5;
 }
 
 [data-theme="dark"] .fetch-error {
@@ -625,11 +613,6 @@
     color: inherit;
 }
 
-.fetch-error {
-    opacity: 0.5;
-    border: 1px solid #ff6b6b;
-}
-
 .quote {
     font-family: "LXGW Bright Medium";
     position: relative;
@@ -701,10 +684,10 @@ ruby {
 }
 
 rt {
-  font-size: 0.65em;  
-  color: #888;   
-  user-select: none;  
-  transform: translateY(-2px); 
+  font-size: 0.65em;
+  color: var(--text-color-70);
+  user-select: none;
+  transform: translateY(-2px);
 }
 
 .rainbow-text {
@@ -742,7 +725,7 @@ rt {
 .typst-render .typst-title {
   margin-top: 0.8rem;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-color-70);
   font-family: 'Times New Roman', Times, serif;
 }
 

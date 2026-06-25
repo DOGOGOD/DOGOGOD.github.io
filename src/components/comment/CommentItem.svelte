@@ -214,7 +214,7 @@
         </p>
       {:else}
         <p class="break-words whitespace-pre-wrap overflow-hidden w-full max-w-full min-w-0 text-gray-500">
-          {t('comments.noContent') || '评论内容为空'}
+          {t('comments.noContent')}
         </p>
       {/if}
     </div>

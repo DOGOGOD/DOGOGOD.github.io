@@ -105,7 +105,7 @@ if (profileConfig.indexPage) {
 
     <!-- nav_bar -->
     <div id="nav-bar" class="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2  justify-center items-center text-lg font-bold my-5 z-100">
-        <div id="nav-bar-list" class="transition relative z-10 flex max-w-max flex-1 items-center justify-center rounded-outer p-2 backdrop-blur rounded-xl bg-[color:var(--bg-color)]/20 border border-[var(--bg-color)]">
+        <div id="nav-bar-list" class="transition relative z-10 flex max-w-max flex-1 items-center justify-center rounded-outer p-2 backdrop-blur rounded-xl bg-[var(--bg-color)]/20 border border-[var(--bg-color)]">
           <!-- 首页链接 -->
           <a href={ indexPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
               Astro.url.pathname === indexPage 
@@ -189,10 +189,10 @@ if (profileConfig.indexPage) {
   @media (max-width: 775px) {
     #main-header {
       /* 背景使用带透明度的变量颜色，配合 blur */
-      background-color: rgba(var(--bg-color, 255, 255, 255), 0.7); 
+      background-color: color-mix(in srgb, var(--bg-color) 70%, transparent);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(var(--button-border-color, 0, 0, 0), 0.1);
+      border-bottom: 1px solid color-mix(in srgb, var(--button-border-color) 10%, transparent);
     }
   }
 
@@ -273,7 +273,7 @@ document.addEventListener('astro:page-load', initMobileNav);
 function initLanguageMenu() {
   const languageButton = document.getElementById('language-button');
   const languageMenu = document.getElementById('language-menu');
-  const mobileMenu = document.getElementById('mobile-menu'); // 添加移动端菜单引用
+  const mobileMenu = document.getElementById('mobile-menu-container');
 
   if (!languageButton || languageButton.dataset.bound === 'true') return;
   languageButton.dataset.bound = 'true';
@@ -364,6 +364,7 @@ async function loadAndSearch() {
     document.dispatchEvent(new CustomEvent('pagefind-ready'));
   } catch (error) {
     console.error('Pagefind 加载失败:', error);
+    document.dispatchEvent(new CustomEvent('pagefind-error'));
   } finally {
     window.pagefindLoading = false;
   }

@@ -18,7 +18,7 @@ const translation: Translation = {
             home: "永远年轻，永远热泪盈眶",
             archive: "共 {count} 篇文章",
             projects: "一些我亲手做过的东西",
-            about: "一个极简的Blog模板",
+            about: "永远年轻，永远热泪盈眶",
         }
     },
     toc: "目录",
@@ -32,7 +32,7 @@ const translation: Translation = {
         switchDarkMode: "切换明暗模式",
         backToTop: "回到顶部",
         backToBottom: "回到底部",
-        meun: "菜单",
+        menu: "菜单",
         toc: "目录",
         backToComments: "前往评论区",
     },
@@ -98,6 +98,7 @@ const translation: Translation = {
         list: "列表",
         showMoreReplies: "查看剩余回复",
         collapseReplies: "收起回复",
+        noContent: "评论内容为空",
     },
     langNote: {
         note: "注意：",
@@ -119,6 +120,12 @@ const translation: Translation = {
         light: "切换到 浅色 模式",
         dark: "切换到 深色 模式",
         system: "切换到 跟随系统 模式"
+    },
+    projectStatus: {
+        active: "进行中",
+        maintained: "维护中",
+        experiment: "实验性",
+        archived: "已封存"
     }
 }
 

@@ -1,39 +1,21 @@
 
-Guztchian — 一个人的写作与知识博客，私人笔记本，也是公开作品集。从简约出发，在复杂功能与简约设计之间达到一种平衡。
 
-## ✨ 特性
+你好，我是 **Guztchian**，上海交通大学软件工程专业在读。
 
-* **极简设计**：页面设计简约，黑白为主色调，蓝色进行点缀
-* **深色模式**：支持手动切换或自动跟随系统
-* **文章搜索功能**：使用 [pagefind](https://pagefind.app/) 实现本地化搜索功能
-* **国际化（i18n）**：支持多语言切换，目前支撑简体中文、英文
-* **移动端适配**：组件针对移动端进行优化，拥有和电脑浏览器一样的使用体验
-* **评论功能**：支持本地部署和 Cloudflare 部署，具体参考 [Backend](https://github.com/Motues/Momo-Backend)
-* **丰富的Markdown语法**：支持 Katex，Typst，Alert 组件，Github 卡片，自定义语法等
-* 其他基本功能：文章分类，目录，RSS订阅，文字统计，阅读时间
+用数学描述世界，用代码构建世界，偶尔也用文字理解世界。这个站点是我的笔记本，也是一处安静的落脚地——把技术的思考、项目的进展，和生活里值得留下的片刻，一一记录在这里。
 
+***
 
-## 🚀 快速开始
+我着迷于 AI、Agent、Robotics——那些试图让机器学会感知、判断、行动的努力，让我觉得我们正站在某种历史的边缘。
 
-1. 克隆本项目
-    ```bash
-    git clone https://github.com/Motues/Momo.git
-    cd Guztchian
-    ```
-2. 运行 `pnpm install` 安装依赖（使用 `npm install -g pnpm` 安装 `pnpm`）
-3. 运行 `pnpm dev` 启动开发服务器
+我钟情于 Maths、Physics 与 Space——那些试图理解宇宙奥秘的努力，让我觉得我们人类渺小却又伟大。
 
-## 🔧 配置
+写作于我，是把模糊的直觉逼成清楚句子的过程。很多想法只有在写下来、被自己反驳几次之后，才慢慢站得住脚。这个博客，就是那个过程留下的痕迹。
 
-参考[配置指南](/blog/intro/config)，阅读对应文章获取详细信息。
+***
 
-## 📚 更新
+我希望自己永远保持最初的热烈——对未知保持好奇，对热爱保持赤诚，不因世界的嘈杂而熄灭内心的光。
 
-参考[更新指南](/blog/intro/release)，介绍如何更新项目。
+***
 
-
-## 📚 参考
-
-* [Astro](https://astro.build/)
-* [Fuwari](https://github.com/saicaca/fuwari)
-* [Tyndall](https://github.com/moyuin-aka/tyndall-public)
+想聊聊，或对某篇文章有想法，欢迎在 [GitHub](https://github.com/DOGOGOD) 上找到我。

@@ -30,7 +30,7 @@ export interface Translation {
         switchDarkMode: string;
         backToTop: string;
         backToBottom: string;
-        meun: string;
+        menu: string;
         toc: string;
         backToComments: string;
     }
@@ -96,6 +96,7 @@ export interface Translation {
         list: string;
         showMoreReplies: string;
         collapseReplies: string;
+        noContent: string;
     },
     langNote: {
         note: string;
@@ -117,5 +118,11 @@ export interface Translation {
         light: string;
         dark: string;
         system: string;
+    },
+    projectStatus: {
+        active: string;
+        maintained: string;
+        experiment: string;
+        archived: string;
     }
 }

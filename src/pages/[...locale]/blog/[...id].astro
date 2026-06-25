@@ -1,6 +1,5 @@
 ---
-import '@styles/global.css'
-import { siteConfig, licenseConfig, profileConfig } from '@/config'
+import { siteConfig, licenseConfig } from '@/config'
 import MainPageLayout from '@layouts/MainPageLayout.astro'
 import Markdown from '@components/misc/Markdown.astro'
 import ImageModule from '@components/misc/ImageModule.astro'
@@ -11,7 +10,7 @@ import Comments from '@components/comment/Comments.svelte'
 import Twikoo from '@components/comment/thirdparty/twikoo.astro'
 import BlogNavi from '@components/control/BlogNavi.astro'
 
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 import { i18n } from "astro:config/client";
 import i18nit from '@i18n/translation'
 import { Icon } from "astro-icon/components";
@@ -58,12 +57,10 @@ export async function getStaticPaths() {
     return paths;
 }
 const { entry, prev, next } = Astro.props;
-const { Content, headings } = await render(entry); // 获取渲染后的正文内容
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 
 const pageTitle = entry.data.title + ' - ' + siteConfig.title;
 const image = blogCoverUrl(entry.data.image, entry.id);
-
-const { remarkPluginFrontmatter } = await render(entry);
 ---
 <MainPageLayout title={pageTitle} lang={currentLang} description={entry.data.description}>
     <div class="mx-auto w-full max-w-[var(--page-width)] py-8 md:mt-0 mt-18">

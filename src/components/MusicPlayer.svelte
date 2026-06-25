@@ -138,6 +138,6 @@
   }
 
   .mp-btn:hover {
-    background-color: rgba(33, 31, 28, 0.06);
+    background-color: var(--button-hover-color);
   }
 </style>

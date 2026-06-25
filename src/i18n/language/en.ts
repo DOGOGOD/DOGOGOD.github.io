@@ -15,10 +15,10 @@ const translation: Translation = {
             about: "About",
         },
         subTitle: {
-            home: "Life is colorful!",
+            home: "O ever youthful, O ever weeping",
             archive: "Total of {count} articles",
             projects: "Things I've built with my own hands",
-            about: "A minimalist blog template",
+            about: "O ever youthful, O ever weeping",
         }
     },
     toc: "Contents",
@@ -32,7 +32,7 @@ const translation: Translation = {
         switchDarkMode: "Switch Dark Mode",
         backToTop: "Back to Top",
         backToBottom: "Back to Bottom",
-        meun: "Menu",
+        menu: "Menu",
         toc: "Contents",
         backToComments: "Back to Comments",
     },
@@ -98,6 +98,7 @@ const translation: Translation = {
         list: "List",
         showMoreReplies: "Show more replies",
         collapseReplies: "Collapse",
+        noContent: "No content",
     },
     langNote: {
         note: "Note: ",
@@ -119,6 +120,12 @@ const translation: Translation = {
         light: "Switch to Light Mode",
         dark: "Switch to Dark Mode",
         system: "Switch to System Mode"
+    },
+    projectStatus: {
+        active: "Active",
+        maintained: "Maintained",
+        experiment: "Experimental",
+        archived: "Archived"
     }
 }
 

@@ -1,11 +1,13 @@
 ---
-import type { SearchResult } from "@/global"
 import { baseUrl } from "@utils/url-utils";
-import { getEntry, render } from 'astro:content'
 import { i18n } from "astro:config/client";
 import i18nit from "@i18n/translation";
 
-
+interface SearchResult {
+  url: string;
+  meta: { title: string };
+  excerpt: string;
+}
 
 const currentLang = Astro.currentLocale || i18n!.defaultLocale;
 const t = i18nit(currentLang);
@@ -141,7 +143,7 @@ document.addEventListener('astro:after-swap', initSearchModal);
   }
   
   .modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(0px);
     transition: opacity 0.3s ease-out;
   }
@@ -231,7 +233,7 @@ async function performSearch(query) {
     console.log('Pagefind is not available');
     searchResults.innerHTML = `
       <div class="p-8 text-center text-[var(--text-color-70)]">
-        <p>搜索功能暂时不可用</p>
+        <p>${translations.error}</p>
       </div>
     `;
   }
@@ -261,11 +263,11 @@ function displayResults(results) {
 }
 
 // ========== 初始化逻辑 ==========
-document.addEventListener('pagefindready', () => {
-  // console.log('Pagefind is ready');
+document.addEventListener('pagefind-ready', () => {
+  // Pagefind is ready
 });
-document.addEventListener('pagefindloaderror', () => {
-  console.log('Pagefind failed to load, search functionality will not work');
+document.addEventListener('pagefind-error', () => {
+  console.warn('Pagefind failed to load, search will not work');
 });
 
 document.addEventListener('DOMContentLoaded', initPagefindSearch);

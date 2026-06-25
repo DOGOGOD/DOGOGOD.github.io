@@ -1,20 +1,19 @@
 ---
+import i18nit from '@i18n/translation';
+
 interface Props {
   name: string;
   description: string;
+  descriptionEn?: string;
   githubUrl: string;
   tags: string[];
   status?: string;
+  lang: string;
 }
 
-const { name, description, githubUrl, tags, status } = Astro.props;
-
-const statusLabel: Record<string, string> = {
-  active: '进行中',
-  maintained: '维护中',
-  experiment: '实验性',
-  archived: '已封存',
-};
+const { name, description, descriptionEn, githubUrl, tags, status, lang } = Astro.props;
+const t = i18nit(lang);
+const desc = lang === 'en' && descriptionEn ? descriptionEn : description;
 ---
 
 <article
@@ -32,14 +31,14 @@ const statusLabel: Record<string, string> = {
     {
       status && (
         <span class="mt-1 shrink-0 text-xs opacity-60" style="color: var(--text-color-70);">
-          {statusLabel[status] ?? status}
+          {t(`projectStatus.${status}`)}
         </span>
       )
     }
   </div>
 
   <p class="mt-3 flex-1 text-sm leading-relaxed" style="color: var(--text-color-70);">
-    {description}
+    {desc}
   </p>
 
   <ul class="mt-5 flex flex-wrap gap-2">
@@ -60,7 +59,6 @@ const statusLabel: Record<string, string> = {
     class="mt-5 inline-flex items-center gap-2 text-sm transition-colors duration-200"
     style="color: var(--text-color-70);"
     class:hover-link
-    aria-label={`在新标签页打开 ${name} 的 GitHub 仓库`}
   >
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.07 11.07 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z" />
@@ -73,7 +71,7 @@ const statusLabel: Record<string, string> = {
   .hover-sh:hover {
     border-color: var(--link-color);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px -12px rgba(33, 31, 28, 0.15);
+    box-shadow: 0 8px 24px -12px var(--shadow-color);
   }
   .hover-link:hover {
     color: var(--link-color);

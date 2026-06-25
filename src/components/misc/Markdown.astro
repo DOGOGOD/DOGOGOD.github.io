@@ -379,9 +379,9 @@ const className = Astro.props.class
           pswpModule: () => import('photoswipe')
         });
         lightbox.init();
-        console.log('PhotoSwipe Lightbox initialized');
+        // PhotoSwipe initialized
       }else {
-        console.log('No .markdown-content found, skipping PhotoSwipe Lightbox initialization.');
+        // No markdown content found for PhotoSwipe
       }
     }
 

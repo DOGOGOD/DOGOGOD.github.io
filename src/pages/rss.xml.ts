@@ -2,9 +2,11 @@ import rss from "@astrojs/rss";
 import { getBlogEntrySort } from "../utils/content-utils"
 import { siteConfig, profileConfig } from '../config';
 import type { APIContext } from "astro";
+import { i18n } from "astro:config/client";
 
 export async function GET(context: APIContext) {
-    const blog = await getBlogEntrySort();
+    const defaultLang = i18n?.defaultLocale || "zh-cn";
+    const blog = await getBlogEntrySort(defaultLang);
     return rss({
         title: `${siteConfig.title} - ${siteConfig.subTitle}`,
         description: profileConfig.description,
@@ -13,8 +15,6 @@ export async function GET(context: APIContext) {
             title: post.data.title,
             pubDate: post.data.pubDate,
             description: post.data.description,
-            // 从 `id` 属性计算出 RSS 链接
-            // 这个例子假设所有的文章都被渲染为 `/blog/[id]` 路由
             link: `/blog/${post.id}/`,
         })),
     })

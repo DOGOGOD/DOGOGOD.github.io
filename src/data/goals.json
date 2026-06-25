@@ -1,0 +1,20 @@
+[
+  {
+    "title": "持续更新 Blog",
+    "titleEn": "Keep updating the blog",
+    "desc": "完善博客功能，持续输出技术笔记与思考文章，把学到的东西沉淀下来。",
+    "descEn": "Improve the blog and keep publishing technical notes and reflections — turning what I learn into lasting knowledge."
+  },
+  {
+    "title": "备考期末",
+    "titleEn": "Preparing for final exams",
+    "desc": "全力以赴备战期末考试，查漏补缺，争取好成绩。",
+    "descEn": "Going all out for final exam prep — filling gaps and aiming for solid results."
+  },
+  {
+    "title": "学习强化学习",
+    "titleEn": "Learning reinforcement learning",
+    "desc": "系统学习强化学习理论与算法，结合实践项目加深理解。",
+    "descEn": "Systematically studying RL theory and algorithms, deepening understanding through hands-on projects."
+  }
+]

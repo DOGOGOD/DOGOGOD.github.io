@@ -32,6 +32,11 @@ export type ProfileConfig = {
     avatar: string;
     name: string;
     description: string;
+    intro: {
+        zh: string;
+        en: string;
+    };
+    tags: string[];
     indexPage?: string;
     startYear: number;
     links?: {
