@@ -16,6 +16,12 @@ export type SiteConfig = {
         enable: boolean;
         platform: string;
         backendUrl: string;
+        giscus?: {
+            repo: string;
+            repoId: string;
+            category: string;
+            categoryId: string;
+        };
     };
     theme: {
         AOS: boolean;

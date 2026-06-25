@@ -20,8 +20,14 @@ export const siteConfig: SiteConfig = {
     },
     comments: {
         enable: true, // Whether to enable comments
-        platform: "default", // Comment platform, set "default" to use Momo-backend, also supports "twikoo"
-        backendUrl: "https://api-momo.motues.top" // Backend URL for comments
+        platform: "giscus", // Comment platform
+        backendUrl: "", // Legacy: kept for type compatibility
+        giscus: {
+            repo: "",           // GitHub 仓库，格式: "owner/repo"
+            repoId: "",         // Repository ID，从 giscus.app 获取
+            category: "Announcements",  // Discussions 分类名
+            categoryId: "",     // Category ID，从 giscus.app 获取
+        }
     },
     theme: {
         AOS: true, // Whether to enable AOS (Animate On Scroll) for animations

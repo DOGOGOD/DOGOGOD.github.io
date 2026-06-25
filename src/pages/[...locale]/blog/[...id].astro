@@ -6,8 +6,7 @@ import ImageModule from '@components/misc/ImageModule.astro'
 import FabMenu from '@components/control/FabMenu.astro'
 import TOC from '@components/TOC.svelte'
 import LicenseCard from '@components/misc/LicenseCard.astro'
-import Comments from '@components/comment/Comments.svelte'
-import Twikoo from '@components/comment/thirdparty/twikoo.astro'
+import Giscus from '@components/comment/Giscus.astro'
 import BlogNavi from '@components/control/BlogNavi.astro'
 
 import { render } from 'astro:content'
@@ -74,11 +73,11 @@ const image = blogCoverUrl(entry.data.image, entry.id);
                 <div class="flex flex-wrap items-center justify-center text-sm text-[var(--text-color-70)] mt-2 gap-2">
                     <p class="flex items-center whitespace-nowrap mr-2">
                         <Icon name="fa6-solid:pen-nib" class="mr-1"></Icon> 
-                        <span class="py-1 px-1">{remarkPluginFrontmatter.words || 0} {t("pagecard.words")}</span>
+                        <span class="py-1 px-1">{remarkPluginFrontmatter?.words || 0} {t("pagecard.words")}</span>
                     </p>
                     <p class="flex items-center whitespace-nowrap mr-2">
-                        <Icon name="fa6-solid:clock" class="mr-1"></Icon> 
-                        <span class="py-1 px-1">{remarkPluginFrontmatter.minutes || 0} {t("pagecard.minutes")}</span>
+                        <Icon name="fa6-solid:clock" class="mr-1"></Icon>
+                        <span class="py-1 px-1">{remarkPluginFrontmatter?.minutes || 0} {t("pagecard.minutes")}</span>
                     </p>
                     <p class="flex items-center whitespace-nowrap mr-2">
                         <Icon name="fa6-solid:hashtag" class="mr-1"></Icon> 
@@ -133,12 +132,13 @@ const image = blogCoverUrl(entry.data.image, entry.id);
             <BlogNavi prev={prev} next={next}/>
         }
         {
-            (siteConfig.comments.enable && siteConfig.comments.platform === "default") &&
-            <Comments postSlug={entry.data.slugId} language={currentLang} postTitle={entry.data.title} client:visible/>
-        }
-        {
-            (siteConfig.comments.enable && siteConfig.comments.platform === "twikoo") &&
-            <Twikoo postSlug={entry.data.slugId} language={currentLang} envId={siteConfig.comments.backendUrl}/>
+            (siteConfig.comments.enable && siteConfig.comments.platform === "giscus" && siteConfig.comments.giscus?.repo && siteConfig.comments.giscus?.repoId) &&
+            <Giscus
+                repo={siteConfig.comments.giscus.repo}
+                repoId={siteConfig.comments.giscus.repoId}
+                category={siteConfig.comments.giscus.category}
+                categoryId={siteConfig.comments.giscus.categoryId}
+            />
         }
     </div>
     {

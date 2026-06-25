@@ -15,6 +15,7 @@ export function remarkLqip(options = {}) {
       if (!node.url.startsWith('http') && !node.url.startsWith('/')) {
         const promise = (async () => {
           // 计算图片的绝对路径
+          if (!vfile.path) return;
           const imagePath = path.resolve(path.dirname(vfile.path), node.url);
           // 获取弥散渐变色
           const lqip = await getLqipGradient(imagePath);

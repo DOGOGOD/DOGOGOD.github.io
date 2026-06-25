@@ -270,7 +270,7 @@ tocLinks.forEach(link => {
   // 回到评论区
   if (backComment) {
     backComment.onclick = () => {
-      const comments = document.getElementById('comments');
+      const comments = document.querySelector('.giscus');
       if (comments) {
         comments.scrollIntoView({ behavior: 'smooth' });
       }

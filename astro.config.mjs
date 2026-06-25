@@ -40,7 +40,7 @@ export default defineConfig({
       "simple-icons": ["*"],
       "vscode-icons": ["*"],
       "material-symbols": ["*"],
-      "flue": ["*"],
+      "fluent": ["*"],
     }
   }), svelte()],
   markdown: {

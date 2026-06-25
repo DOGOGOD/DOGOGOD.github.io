@@ -64,11 +64,11 @@ const { remarkPluginFrontmatter } = await render(entry);
         <div class="flex flex-wrap items-center justify-start text-sm text-[var(--text-color-70)] mt-2 gap-2">
             <p class="words flex items-center whitespace-nowrap mr-2">
                 <Icon name="fa6-solid:pen-nib" class="mr-1"></Icon> 
-                <span class="py-1 px-1">{remarkPluginFrontmatter.words || 0} {t("pagecard.words")}</span>
+                <span class="py-1 px-1">{remarkPluginFrontmatter?.words || 0} {t("pagecard.words")}</span>
             </p>
             <p class="reading-time flex items-center whitespace-nowrap mr-2">
-                <Icon name="fa6-solid:clock" class="mr-1"></Icon> 
-                <span class="py-1 px-1">{remarkPluginFrontmatter.minutes || 0} {t("pagecard.minutes")}</span>
+                <Icon name="fa6-solid:clock" class="mr-1"></Icon>
+                <span class="py-1 px-1">{remarkPluginFrontmatter?.minutes || 0} {t("pagecard.minutes")}</span>
             </p>
             <p class="flex items-center whitespace-nowrap mr-2">
                 <Icon name="fa6-solid:hashtag" class="mr-1"></Icon> 

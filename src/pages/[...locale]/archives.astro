@@ -13,7 +13,8 @@ const currentLang = Astro.currentLocale || i18n!.defaultLocale;
 const t = i18nit(currentLang);
 
 export async function getStaticPaths() {
-	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
+	const locales = i18n?.locales || [i18n?.defaultLocale || 'zh-cn'];
+	return locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
 }
 
 // 获取所有博客文章并按发布日期降序排序

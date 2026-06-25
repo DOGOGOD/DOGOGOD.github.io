@@ -64,14 +64,15 @@ if (isLocal) {
   
     {
         !isLocal && (
-        <img 
-            src={src} 
-            alt={alt || ""} 
-            id={id} 
-            width={width} 
-            height={height} 
+        <img
+            src={src}
+            alt={alt || ""}
+            id={id}
+            width={width}
+            height={height}
             loading="lazy"
             class=""
+            onload="this.parentElement.dataset.loaded = 'true'"
         />
         )
     }

@@ -76,7 +76,11 @@ function initSearchModal() {
   const modalBackdrop = searchModal?.firstElementChild;
   const modalContent = searchModal?.querySelector('.search-modal-content');
 
-  if (!searchButton || !searchModal) return; // 防止重复绑定
+  if (!searchButton || !searchModal) return;
+
+  // 防止重复绑定事件监听器
+  if (searchButton.dataset.searchBound === 'true') return;
+  searchButton.dataset.searchBound = 'true';
 
   const openModal = () => {
     searchModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -204,9 +208,6 @@ async function performSearch(query) {
   if (isDev) {
     displayResults(fakeResult);
   } else if (window.pagefind) {
-    await window.pagefind.destroy();
-    await window.pagefind.init();
-    // console.log('Pagefind is initialized');
     try {
       const searchResultsData = await window.pagefind.search(query);
       const results = [];

@@ -75,7 +75,7 @@ if (profileConfig.indexPage) {
             </button>
             
           <!-- Language Dropdown Menu -->
-          <div id="language-menu" class="hidden absolute right-0 mt-2 w-30 bg-[var(--bg-color)] border border-[var(--button-border-color)] rounded-lg shadow-lg z-50">
+          <div id="language-menu" class="hidden absolute right-0 mt-2 w-32 bg-[var(--bg-color)] border border-[var(--button-border-color)] rounded-lg shadow-lg z-50">
               <div class="py-1 text-right">
                   <!-- 中文链接 -->
                   <a href={getLocalePath("/", "zh-cn")} class=`block mx-2 my-1 p-2 text-sm rounded ${
@@ -105,7 +105,7 @@ if (profileConfig.indexPage) {
 
     <!-- nav_bar -->
     <div id="nav-bar" class="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2  justify-center items-center text-lg font-bold my-5 z-100">
-        <div id="nav-bar-list" class="transition relative z-10 flex max-w-max flex-1 items-center justify-center rounded-outer p-2 backdrop-blur rounded-xl bg-[var(--bg-color)]/20 border border-[var(--bg-color)]">
+        <div id="nav-bar-list" class="transition relative z-10 flex max-w-max flex-1 items-center justify-center p-2 backdrop-blur rounded-xl bg-[var(--bg-color)]/20 border border-[var(--bg-color)]">
           <!-- 首页链接 -->
           <a href={ indexPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
               Astro.url.pathname === indexPage 

@@ -8,7 +8,8 @@ import i18nit from '@i18n/translation';
 import projects from '@/data/projects.json';
 
 export async function getStaticPaths() {
-  return i18n?.locales.map(locale => ({
+  const locales = i18n?.locales || [i18n?.defaultLocale || 'zh-cn'];
+  return locales.map(locale => ({
     params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) }
   }));
 }

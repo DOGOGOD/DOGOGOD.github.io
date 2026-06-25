@@ -73,5 +73,6 @@ src/
 ```
 
 ---
+# 致谢
 
 > 本项目基于 [Momo](https://github.com/Motues/Momo) 主题深度定制迭代而来（[Motues/Momo](https://github.com/Motues/Momo)），感谢原作者 [Motues](https://github.com/Motues) 的优秀工作。

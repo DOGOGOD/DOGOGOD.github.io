@@ -30,7 +30,7 @@ export async function getBlogEntrySort(
   const blogEntries = await getCollection('blog', filter || defaultFilter);
 
   const grouped = new Map<string, Record<string, CollectionEntry<'blog'>>>();
-  const defaultLanguage = i18n.defaultLocale;
+  const defaultLanguage = i18n?.defaultLocale || 'zh-cn';
 
   for (const post of blogEntries) {
     const parts = post.id.split('/');
@@ -80,7 +80,7 @@ export async function getSpec(
     lang: string,
     spec: string
 ) {
-    const defaultLanguage = i18n.defaultLocale;
+    const defaultLanguage = i18n?.defaultLocale || 'zh-cn';
     let collection = await getEntry('spec', `${spec}/${lang}`)
     if(!collection) collection = await getEntry('spec', `${spec}/${defaultLanguage}`);
     return collection;
