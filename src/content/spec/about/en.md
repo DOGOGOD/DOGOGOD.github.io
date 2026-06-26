@@ -10,6 +10,8 @@ I'm drawn to AI, Agents, and Robotics — to the slow, stubborn effort of teachi
 
 I'm captivated by Maths, Physics, and Space — by the quiet audacity of trying to understand the universe. It reminds me that we are small, and yet somehow capable of something extraordinary.
 
+***
+
 Writing, for me, is how I turn vague intuition into something I can stand behind. Most ideas only hold up after being written down and argued with a few times. This blog is the trace that process leaves behind.
 
 ***
