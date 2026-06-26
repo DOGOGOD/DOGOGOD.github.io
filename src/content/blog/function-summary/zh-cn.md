@@ -1,6 +1,6 @@
 ---
 title: "Blog 功能总结"
-pubDate: 2025-06-25
+pubDate: 2026-06-25
 slugId: "function-summary"
 description: "Blog 博客系统支持的所有文章功能特性汇总"
 category: "guide"
