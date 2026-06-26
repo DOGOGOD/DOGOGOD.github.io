@@ -14,7 +14,7 @@
   body {
     @apply bg-[--bg-color] text-[--text-color];
     font-family: "LXGW Bright Medium", "Noto Serif SC", "Times New Roman", "STZhongsong", serif;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
   
 

@@ -18,17 +18,6 @@ export const siteConfig: SiteConfig = {
     blogNavi: {
         enable: true // Whether to enable blog navigation in the blog footer
     },
-    comments: {
-        enable: true, // Whether to enable comments
-        platform: "giscus", // Comment platform
-        backendUrl: "", // Legacy: kept for type compatibility
-        giscus: {
-            repo: "",           // GitHub 仓库，格式: "owner/repo"
-            repoId: "",         // Repository ID，从 giscus.app 获取
-            category: "Announcements",  // Discussions 分类名
-            categoryId: "",     // Category ID，从 giscus.app 获取
-        }
-    },
     theme: {
         AOS: true, // Whether to enable AOS (Animate On Scroll) for animations
         LQIP: true, // Whether to enable LQIP (Low-Quality Image Placeholder) for image placeholders

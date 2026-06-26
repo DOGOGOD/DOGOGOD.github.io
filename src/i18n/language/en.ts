@@ -34,7 +34,6 @@ const translation: Translation = {
         backToBottom: "Back to Bottom",
         menu: "Menu",
         toc: "Contents",
-        backToComments: "Back to Comments",
     },
     search: {
         placeholder: "Enter keywords to start searching",

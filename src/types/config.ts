@@ -12,17 +12,6 @@ export type SiteConfig = {
     blogNavi: {
         enable: boolean;
     };
-    comments: {
-        enable: boolean;
-        platform: string;
-        backendUrl: string;
-        giscus?: {
-            repo: string;
-            repoId: string;
-            category: string;
-            categoryId: string;
-        };
-    };
     theme: {
         AOS: boolean;
         LQIP: boolean;

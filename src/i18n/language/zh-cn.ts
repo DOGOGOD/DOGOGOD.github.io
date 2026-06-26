@@ -34,7 +34,6 @@ const translation: Translation = {
         backToBottom: "回到底部",
         menu: "菜单",
         toc: "目录",
-        backToComments: "前往评论区",
     },
     search: {
         placeholder: "输入关键词开始搜索",

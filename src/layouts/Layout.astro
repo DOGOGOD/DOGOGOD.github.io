@@ -78,7 +78,7 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     <!-- Persistent music player — keeps playing across page navigations via View Transitions. -->
     {siteConfig.music.enable && (
       <MusicPlayer
-        client:idle
+        client:only="svelte"
         tracks={siteConfig.music.tracks}
         transition:persist
         transition:name="music-player"

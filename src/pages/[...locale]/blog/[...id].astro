@@ -6,7 +6,6 @@ import ImageModule from '@components/misc/ImageModule.astro'
 import FabMenu from '@components/control/FabMenu.astro'
 import TOC from '@components/TOC.svelte'
 import LicenseCard from '@components/misc/LicenseCard.astro'
-import Giscus from '@components/comment/Giscus.astro'
 import BlogNavi from '@components/control/BlogNavi.astro'
 
 import { render } from 'astro:content'
@@ -131,19 +130,10 @@ const image = blogCoverUrl(entry.data.image, entry.id);
             siteConfig.blogNavi.enable &&
             <BlogNavi prev={prev} next={next}/>
         }
-        {
-            (siteConfig.comments.enable && siteConfig.comments.platform === "giscus" && siteConfig.comments.giscus?.repo && siteConfig.comments.giscus?.repoId) &&
-            <Giscus
-                repo={siteConfig.comments.giscus.repo}
-                repoId={siteConfig.comments.giscus.repoId}
-                category={siteConfig.comments.giscus.category}
-                categoryId={siteConfig.comments.giscus.categoryId}
-            />
-        }
     </div>
     {
         siteConfig.toc.enable &&
         <TOC headings={headings} language={currentLang} client:load/>
     }
-    <FabMenu headings={headings} showComment={siteConfig.comments.enable} showBackBottom={!siteConfig.comments.enable}/>
+    <FabMenu headings={headings} showBackBottom={true} />
 </MainPageLayout>

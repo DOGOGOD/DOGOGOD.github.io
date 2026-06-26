@@ -32,7 +32,6 @@ export interface Translation {
         backToBottom: string;
         menu: string;
         toc: string;
-        backToComments: string;
     }
     search: {
         placeholder: string;

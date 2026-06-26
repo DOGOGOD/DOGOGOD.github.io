@@ -15,9 +15,9 @@ const className = Astro.props.class
 
 <script>
   function setupSpoilers() {
-    const spoilers = document.querySelectorAll('.spoiler');
-    
+    const spoilers = document.querySelectorAll('.spoiler:not([data-spoiler-bound])');
     spoilers.forEach(el => {
+      el.dataset.spoilerBound = 'true';
       let timeoutId = null;
       let clickTime = 0;
 
@@ -275,7 +275,7 @@ const className = Astro.props.class
 
       button.addEventListener("click", async () => {
         const code = block.querySelector("code");
-        const text = code ? code.innerText : block.innerText;
+        const text = code ? code.textContent : block.textContent;
         await navigator.clipboard.writeText(text);
 
         button.classList.add("copied");
@@ -317,10 +317,9 @@ const className = Astro.props.class
     import PhotoSwipeLightbox from 'photoswipe/lightbox';
 
     function createPhotoSwipeLightbox() {
+      if (window.__pswpInstance) { try { window.__pswpInstance.destroy() } catch {} }
       const container = document.querySelector('.markdown-content');
       if (container) {
-        // 查找文章区域内所有的 figure 元素
-        // console.log('Initializing PhotoSwipe Lightbox for images in .markdown-content');
         const figures = container.querySelectorAll('figure');
 
         figures.forEach((figure) => {
@@ -379,14 +378,10 @@ const className = Astro.props.class
           pswpModule: () => import('photoswipe')
         });
         lightbox.init();
-        // PhotoSwipe initialized
-      }else {
-        // No markdown content found for PhotoSwipe
+        window.__pswpInstance = lightbox;
       }
     }
 
     document.addEventListener('astro:page-load', createPhotoSwipeLightbox);
-    // document.addEventListener('astro:after-swap', createPhotoSwipeLightbox);
-    
 </script>
 }

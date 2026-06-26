@@ -10,17 +10,15 @@ const t = i18nit(currentLang);
 interface Props {
   showBackTop?: boolean;
   showBackBottom?: boolean;
-  showComment?: boolean;
-  scrollToTopDistance?: number; // 滚动多少高度后显示菜单
-  headings?: MarkdownHeading[]; // 接收 Astro 解析出来的目录数组
+  scrollToTopDistance?: number;
+  headings?: MarkdownHeading[];
 }
 
-const { 
-  showBackTop = true, 
-  showBackBottom = false, 
-  showComment = false,
+const {
+  showBackTop = true,
+  showBackBottom = false,
   scrollToTopDistance = 100,
-  headings = [] 
+  headings = []
 } = Astro.props;
 
 // 过滤掉 h1 (通常是文章标题) 和层级过深的标题，保留 h2, h3, h4
@@ -63,11 +61,6 @@ const tocHeadings = headings.filter(h => h.depth > 1 && h.depth < 5);
       </button>
     )}
 
-    {showComment && (
-      <button id="backComment" title={t("button.backToComments")} class="w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
-        <Icon name="material-symbols:comment-outline-rounded" class="text-lg text-[var(--text-color)]" />
-      </button>
-    )}
   </div>
 
   <button id="menuTrigger" title={t("button.menu")} class="w-full h-full rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-all duration-300 shadow-none backdrop-blur bg-[var(--bg-color)]/20 active:scale-95 hover:bg-[var(--button-hover-color)]">
@@ -111,7 +104,6 @@ function initFabMenu() {
   const trigger = document.getElementById('menuTrigger');
   const backTop = document.getElementById('backTop');
   const backBottom = document.getElementById('backBottom');
-  const backComment = document.getElementById('backComment');
   const progressCircle = document.getElementById('progress-circle');
   const tocTrigger = document.getElementById('tocTrigger');
   const closeToc = document.getElementById('closeToc');
@@ -146,7 +138,7 @@ function initFabMenu() {
     // 更新进度条
     if (progressCircle && docHeight > 0) {
       const scrollPercent = Math.min(100, (scrollTop / docHeight) * 100);
-      const circumference = 2 * Math.PI * 20;
+      const circumference = 2 * Math.PI * 19;
       const offset = circumference - (scrollPercent / 100) * circumference;
       progressCircle.style.strokeDasharray = `${circumference - offset} ${offset}`;
     }
@@ -267,17 +259,6 @@ tocLinks.forEach(link => {
     };
   }
 
-  // 回到评论区
-  if (backComment) {
-    backComment.onclick = () => {
-      const comments = document.querySelector('.giscus');
-      if (comments) {
-        comments.scrollIntoView({ behavior: 'smooth' });
-      }
-      container.classList.remove('is-active', 'toc-active');
-      isTocOpen = false;
-    };
-  }
 
   // 点击外部关闭所有展开项
   document.addEventListener('click', (e) => {

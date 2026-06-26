@@ -30,7 +30,7 @@ const enableLQIP = siteConfig.theme.LQIP;
 
 if (isLocal) {
   const images = import.meta.glob<ImageMetadata>("../../**/*", { import: "default" });
-  let imagePath = path.normalize(path.join("../../", "/", src)).replace(/\\/g, "/");
+  let imagePath = path.normalize(path.join("../../", src)).replace(/\\/g, "/");
   const imageGetter = images[imagePath];
 
   if (!imageGetter) {
