@@ -75,18 +75,22 @@ if (profileConfig.indexPage) {
             </button>
             
           <!-- Language Dropdown Menu -->
-          <div id="language-menu" class="hidden absolute right-0 mt-2 w-32 bg-[var(--bg-color)] border border-[var(--button-border-color)] rounded-lg shadow-lg z-50">
-              <div class="py-1 text-right">
+          <div id="language-menu" class="hidden absolute right-0 mt-2 bg-[var(--bg-color)] border border-[var(--button-border-color)] rounded-lg shadow-lg z-50">
+              <div class="py-1">
                   <!-- 中文链接 -->
-                  <a href={getLocalePath("/", "zh-cn")} class=`block mx-2 my-1 p-2 text-sm rounded ${
+                  <a href={getLocalePath("/", "zh-cn")} class=`flex items-center mx-2 my-1 px-3 py-2 text-base rounded whitespace-nowrap ${
                     currentLang === "zh-cn" ? "bg-[var(--button-hover-color)]" : "hover:bg-[var(--button-hover-color)]"}`>
-                    {currentLang === "zh-cn" ? <Icon name="fa6-solid:circle" class="w-2 h-2 inline mr-2" /> : ""}
+                    <span class="inline-flex items-center justify-center w-4 h-4">
+                      {currentLang === "zh-cn" ? <Icon name="fa6-solid:circle" class="w-2 h-2" /> : ""}
+                    </span>
                     简体中文
                   </a>
                   <!-- 英文链接 -->
-                  <a href={getLocalePath("/", "en")} class=`block mx-2 my-1 p-2 text-sm rounded ${
+                  <a href={getLocalePath("/", "en")} class=`flex items-center mx-2 my-1 px-3 py-2 text-base rounded whitespace-nowrap ${
                     currentLang === "en" ? "bg-[var(--button-hover-color)]" : "hover:bg-[var(--button-hover-color)]"}`>
-                    {currentLang === "en" ? <Icon name="fa6-solid:circle" class="w-2 h-2 inline mr-2" /> : ""}
+                    <span class="inline-flex items-center justify-center w-4 h-4">
+                      {currentLang === "en" ? <Icon name="fa6-solid:circle" class="w-2 h-2" /> : ""}
+                    </span>
                     English
                   </a>
               </div>
