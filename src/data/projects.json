@@ -4,7 +4,7 @@
     "description": "你正在看的这个站点——暖调纸质主题、陶土色点缀，支持双语切换、音乐播放、项目展示与全文搜索，基于 Astro 构建，静态部署于 GitHub Pages。",
     "descriptionEn": "The site you're viewing right now — warm paper-toned theme with clay accents, bilingual, with a persistent music player, project showcase, and full-text search. Built with Astro, deployed on GitHub Pages.",
     "githubUrl": "https://github.com/DOGOGOD/DOGOGOD.github.io",
-    "tags": ["Astro", "Tailwind", "TypeScript"],
+    "tags": ["Astro", "CSS", "TypeScript"],
     "status": "active"
   },
   {

@@ -13,7 +13,7 @@
 
   body {
     @apply bg-[--bg-color] text-[--text-color];
-    font-family: "LXGW Bright Medium", "Noto Serif SC", "Times New Roman", "STZhongsong", serif;
+    font-family: "LXGW Bright Medium", "Noto Serif SC", "Source Han Serif SC", "Times New Roman", "STSong", "Songti SC", "STZhongsong", "NSimSun", "SimSun", serif;
     overflow-y: auto;
   }
   
