@@ -4,21 +4,25 @@
 
 ## 当前文件
 
-`track-1.mp3` / `track-2.mp3` / `track-3.mp3` 是**占位用的极简环境音**（几段柔和的正弦音垫），
-只是为了让播放器开箱即用。**请替换成你自己的音乐。**
+- `Born a Stranger.m4a`
+- `For River.m4a`
+- `To the Moon.m4a`
 
 ## 如何替换
 
-1. 把你的音频文件（建议 `.mp3`，每首几 MB 以内）放进这个目录。
-2. 打开 `src/layouts/Layout.astro`，修改 `tracks` 数组里的 `title` 和 `src`：
+1. 把你的音频文件（建议 `.m4a` 或 `.mp3`，每首几 MB 以内）放进这个目录。
+2. 打开 `src/config.ts`，修改 `music.tracks` 数组里的 `title` 和 `src`：
 
    ```ts
-   const tracks = [
-     { title: '你的曲名 · Track', src: url('/audio/your-file.mp3') },
-   ];
+   music: {
+       enable: true,
+       tracks: [
+           { title: '你的曲名', src: '/audio/your-file.m4a' },
+       ]
+   }
    ```
 
-3. 播放器默认**静音、暂停**，永不自动播放——访客点击后才会出声（PRD F47）。
+3. 播放器默认静音、暂停，永不自动播放——访客点击后才会出声。
 
 ## 版权提醒
 

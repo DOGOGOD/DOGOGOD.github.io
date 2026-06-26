@@ -12,10 +12,29 @@
 - **音乐播放器**：右下角悬浮播放器，跨页面播放不中断（View Transitions 持久化）
 - **项目展示**：独立项目页面，展示 GitHub 仓库卡片
 - **文章搜索**：使用 [Pagefind](https://pagefind.app/) 实现本地化全文搜索
-- **国际化（i18n）**：支持简体中文（zh-cn）和英文（en）
-- **移动端适配**：组件针对移动端优化
-- **丰富的 Markdown 语法**：KaTeX 数学公式、Typst 渲染、Admonition 提示框、GitHub 卡片、音乐卡片、自定义引用块、注音（ruby）、剧透块、彩虹文字、下划线
-- 其他：文章分类、目录（TOC）、RSS 订阅、字数统计、阅读时间、LQIP 图片占位、AOS 滚动动画、PhotoSwipe 图片灯箱
+- **国际化（i18n）**：支持简体中文（zh-cn）和英文（en），含路由级多语言
+- **响应式设计**：移动端、平板、桌面端全面适配
+- **丰富的 Markdown 语法**：
+  - KaTeX 数学公式 & Typst 渲染
+  - Admonition 提示框（note / tip / important / caution / warning）
+  - GitHub 仓库卡片（`:github[owner/repo]`）
+  - 音乐卡片（`:music[歌曲|艺术家]`）
+  - 自定义引用块（`:quote[作者|内容]`）
+  - 注音（ruby）、剧透块、彩虹文字、下划线
+- 其他：文章分类、目录（TOC）、RSS 订阅、字数统计 & 阅读时间、LQIP 图片占位、AOS 滚动动画、PhotoSwipe 图片灯箱、Svelte 交互组件
+
+## 技术栈
+
+| 类别 | 技术 |
+|---|---|
+| 框架 | [Astro 5](https://astro.build/) |
+| UI | [Svelte 5](https://svelte.dev/) + [Tailwind CSS 4](https://tailwindcss.com/) |
+| 内容 | Markdown + MDX（Remark / Rehype 插件链） |
+| 搜索 | [Pagefind](https://pagefind.app/) |
+| 数学 | [KaTeX](https://katex.org/) + [Typst](https://typst.app/) |
+| 图标 | [Iconify](https://iconify.design/) |
+| 字体 | 思源宋体 / EB Garamond / LXGW WenKai Bright / JetBrains Mono |
+| 包管理 | [pnpm](https://pnpm.io/) |
 
 ## 🚀 快速开始
 
@@ -24,12 +43,13 @@
 git clone https://github.com/DOGOGOD/DOGOGOD.github.io.git
 cd DOGOGOD.github.io
 
-# 安装依赖（需要 pnpm）
+# 安装依赖（需要 pnpm 10+）
 pnpm install
 
 # 启动开发服务器
 pnpm dev
 ```
+
 访问 `http://localhost:4321`
 
 ## 📦 命令
@@ -71,6 +91,7 @@ pinTop: 0      # 置顶优先级，越大越靠前
 ### 自定义 Markdown 语法
 
 **Admonition 提示框：**
+
 ```markdown
 :::note
 这是一个提示
@@ -103,8 +124,8 @@ pinTop: 0      # 置顶优先级，越大越靠前
 
 | 文件 | 说明 |
 |---|---|
-| `src/config.ts` | 站点标题、分页、TOC、主题开关、音乐曲目、个人资料等 |
-| `astro.config.mjs` | 站点 URL、i18n 语言、Markdown 插件 |
+| `src/config.ts` | 站点标题、分页、TOC、主题开关、音乐曲目、个人资料、许可协议 |
+| `astro.config.mjs` | 站点 URL、i18n 语言、Markdown 插件链 |
 
 ## 📁 项目结构
 
@@ -119,7 +140,7 @@ src/
 ├── i18n/           # 多语言翻译文件
 ├── layouts/        # 页面布局
 ├── pages/          # 路由页面
-├── plugins/        # Remark/Rehype 插件
+├── plugins/        # Remark / Rehype 插件（10 个）
 ├── styles/         # 全局样式和主题变量
 ├── types/          # TypeScript 类型定义
 ├── utils/          # 工具函数
@@ -129,6 +150,8 @@ src/
 ## 🚢 部署
 
 推送到 `main` 分支后，GitHub Actions 自动构建并部署到 GitHub Pages。
+
+工作流使用 `pnpm 10` + `Node.js 22`，构建产物上传至 `gh-pages` 环境。
 
 ---
 

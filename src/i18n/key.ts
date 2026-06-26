@@ -7,13 +7,11 @@ export interface Translation {
     };
     cover: {
         title: {
-            home: string;
             archive: string;
             projects: string;
             about: string;
         };
         subTitle: {
-            home: string;
             archive: string;
             projects: string;
             about: string;
@@ -24,7 +22,6 @@ export interface Translation {
     pageNavigation: {
         previous: string;
         next: string;
-        currentPage: string;
     };
     button: {
         switchDarkMode: string;
@@ -40,7 +37,6 @@ export interface Translation {
     };
     license: {
         author: string;
-        license: string;
         publishon: string;
     };
     blogNavi: {
@@ -51,51 +47,6 @@ export interface Translation {
         words: string;
         minutes: string;
         uncategorized: string;
-    }
-    comments: {
-        name: string;
-        email: string;
-        site: string;
-        required: string;
-        optional: string;
-        welcome: string;
-        comments: string;
-        cancel: string;
-        send: string;
-        sending: string;
-        reply: string;
-        replyPlaceholder: string;
-        loadMore: string;
-        loading: string;
-        loadFailed: string;
-        submitSuccess: string;
-        submitFailed: string;
-        verificationRequired: string;
-        fillRequired: string;
-        confirmDelete: string;
-        delete: string;
-        deleteSuccess: string;
-        deleteFailed: string;
-        deleteError: string;
-        characters: string;
-        words: string;
-        contentTooLong: string;
-        replyTo: string;
-        write: string;
-        preview: string;
-        previewError: string;
-        codeFence: string;
-        inlineCode: string;
-        bold: string;
-        italic: string;
-        quote: string;
-        code: string;
-        link: string;
-        image: string;
-        list: string;
-        showMoreReplies: string;
-        collapseReplies: string;
-        noContent: string;
     },
     langNote: {
         note: string;
@@ -110,7 +61,6 @@ export interface Translation {
         subTitle: string;
         backToHome: string;
         backToPreview: string;
-        errorCode: string;
         notice: string;
     },
     themeInfo: {

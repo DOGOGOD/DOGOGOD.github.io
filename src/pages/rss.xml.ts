@@ -7,7 +7,7 @@ import { i18n } from "astro:config/client";
 export async function GET(context: APIContext) {
     const defaultLang = i18n?.defaultLocale || "zh-cn";
     const blog = await getBlogEntrySort(defaultLang);
-    const siteUrl = String(context.site || "https://momo.motues.top").replace(/\/+$/, '');
+    const siteUrl = String(context.site || "https://dogogod.github.io").replace(/\/+$/, '');
     return rss({
         title: `${siteConfig.title} - ${siteConfig.subTitle}`,
         description: profileConfig.description,

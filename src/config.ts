@@ -42,7 +42,7 @@ export const profileConfig: ProfileConfig = {
         en: "Coder by craft, writer by choice. This is my notebook — where projects, ideas, and life quietly land on the page. Wander freely."
     },
     tags: ["Python", "C++", "TypeScript", "ROS2", "Astro", "Reinforcement Learning", "Obsidian"],
-    indexPage: "https://www.motues.top",
+    indexPage: "https://dogogod.github.io",
     startYear: 2024,
 }
 

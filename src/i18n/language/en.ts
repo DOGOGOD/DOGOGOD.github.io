@@ -9,13 +9,11 @@ const translation: Translation = {
     },
     cover: {
         title: {
-            home: "Welcome to Guztchian's Blog",
             archive: "Archive",
             projects: "Projects",
             about: "About",
         },
         subTitle: {
-            home: "O ever youthful, O ever weeping",
             archive: "Total of {count} articles",
             projects: "Things I've built with my own hands",
             about: "O ever youthful, O ever weeping",
@@ -26,7 +24,6 @@ const translation: Translation = {
     pageNavigation: {
         previous: "Prev",
         next: "Next",
-        currentPage: "Page {currentPage} of {totalPages}",
     },
     button: {
         switchDarkMode: "Switch Dark Mode",
@@ -42,7 +39,6 @@ const translation: Translation = {
     },
     license: {
         author: "Author",
-        license: "License",
         publishon: "Published on"
     },
     blogNavi: {
@@ -53,51 +49,6 @@ const translation: Translation = {
         words: "words",
         minutes: "min read",
         uncategorized: "Uncategorized"
-    },
-    comments: {
-        name: "Name",
-        email: "Email",
-        site: "Website",
-        required: "Required",
-        optional: "Optional",
-        welcome: "Welcome to comment",
-        comments: "Comments",
-        cancel: "Cancel",
-        send: "Send",
-        sending: "Sending...",
-        reply: "Reply",
-        replyPlaceholder: "Write your reply...",
-        loadMore: "Load more",
-        loading: "Loading comments...",
-        loadFailed: "Failed to load",
-        submitSuccess: "Submitted successfully",
-        submitFailed: "Submission failed, please try again later",
-        verificationRequired: "Email verification required. Please check your inbox.",
-        fillRequired: "Please fill in name, email and comment content",
-        confirmDelete: "Are you sure you want to delete this comment?",
-        delete: "Delete",
-        deleteSuccess: "Successfully deleted",
-        deleteFailed: "Failed to delete",
-        deleteError: "Failed to delete comment",
-        characters: "characters",
-        words: "words",
-        contentTooLong: "Comment content exceeds limit: no more than 2000 characters or 1000 words",
-        replyTo: "reply to",
-        write: "Write",
-        preview: "Preview",
-        previewError: "Markdown syntax error",
-        codeFence: "Unclosed code block (```)",
-        inlineCode: "Unclosed inline code (`)",
-        bold: "Bold",
-        italic: "Italic",
-        quote: "Quote",
-        code: "Code",
-        link: "Link",
-        image: "Image",
-        list: "List",
-        showMoreReplies: "Show more replies",
-        collapseReplies: "Collapse",
-        noContent: "No content",
     },
     langNote: {
         note: "Note: ",
@@ -112,7 +63,6 @@ const translation: Translation = {
         subTitle: "It looks like you've stumbled into a code wasteland that hasn't been developed yet.",
         backToHome: "Home",
         backToPreview: "Previous Page",
-        errorCode: "Error Code: 404 - Void Realm",
         notice: "Perhaps you can try:"
     },
     themeInfo: {
