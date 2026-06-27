@@ -33,7 +33,7 @@ People grow sentimental with age. I often listen to my parents' generation talk 
 
 But for me, memory has become something I can hardly reach anymore.
 
-Chatting with a friend the other day, they brought up something from three years ago. Their face lit up as they recounted every detail — and there I was, searching my mind frantically, finding nothing but fog. A blurry haze where a world once stood, leaving me lost and hollow. I hate this kind of foggy memory. The feeling of something just out of reach — like staring into an abyss, powerless.
+I was chatting with a friend the other day when they brought up something from three years ago. Their face lit up as they recounted every detail — and there I was, searching my mind frantically, finding nothing but fog. A blurry haze where a world once stood, leaving me lost and hollow. I hate this kind of foggy memory. The feeling of something just out of reach — like staring into an abyss, powerless.
 
 This isn't an isolated case. I've long known I'm a forgetful person — I often joke with friends that my memory span is seven seconds, like a goldfish. Maybe it's because I've always crammed my life too full, stuffing every gap with one thing after another, never learning how to truly inhabit the present. The days roar past in a blur, and I'm too busy rushing forward to stop and take in the view along the way. So when it comes down to it, remembering has become a luxury.
 
@@ -89,6 +89,8 @@ Maybe one day, standing somewhere higher, I'll look back at this moment and feel
 This world is big — big enough to swallow a single voice without a trace. And it's also small — small enough that one small room can hold an entire life.
 
 So I'll just keep writing. Give today to the present. Leave the memories for the future.
+
+Keep moving forward. Don't look back.
 
 **The new journey begins.**
 
