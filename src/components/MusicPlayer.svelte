@@ -143,7 +143,7 @@
 <style>
   .music-player-container {
     position: fixed;
-    z-index: 50;
+    z-index: 10000;
     user-select: none;
     -webkit-user-select: none;
     touch-action: none;
