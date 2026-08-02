@@ -46,6 +46,29 @@ export const getStaticPaths = (async ({ paginate }) => {
 const isFirstPage = page.currentPage === 1;
 const pageTitle = `${siteConfig.title} - ${siteConfig.subTitle}`;
 const archivesUrl = getRelativeLocaleUrl(currentLang, '/archives/');
+const month = new Date().getMonth() + 1;
+const seasonKey = month >= 3 && month <= 5
+  ? 'spring'
+  : month >= 6 && month <= 8
+    ? 'summer'
+    : month >= 9 && month <= 11
+      ? 'autumn'
+      : 'winter';
+const seasonalGreetings = {
+  zh: {
+    spring: { title: '春日安好', message: '愿新一季的阅读，带来清醒与从容。' },
+    summer: { title: '盛夏安好', message: '愿你在漫长白昼里，读到片刻清凉。' },
+    autumn: { title: '新秋安好', message: '愿每一次翻页，都有所收获。' },
+    winter: { title: '冬日安好', message: '愿灯下的文字，带来一点温暖。' },
+  },
+  en: {
+    spring: { title: 'Spring greetings', message: 'May the new season bring clear and thoughtful reading.' },
+    summer: { title: 'High summer greetings', message: 'May these pages offer a quiet pause in the long daylight.' },
+    autumn: { title: 'Autumn greetings', message: 'May every page leave something worth keeping.' },
+    winter: { title: 'Winter greetings', message: 'May these words bring a little warmth to the reading hour.' },
+  },
+} as const;
+const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
 ---
 
 <MainPageLayout title={pageTitle} lang={currentLang}>
@@ -114,6 +137,11 @@ const archivesUrl = getRelativeLocaleUrl(currentLang, '/archives/');
               {isEn ? 'Browse the archive' : '查看全部文章'}
             </a>
           </div>
+        </section>
+
+        <section class="seasonal-greeting" aria-labelledby="seasonal-greeting-title">
+          <h2 id="seasonal-greeting-title">{seasonalGreeting.title}</h2>
+          <p>{seasonalGreeting.message}</p>
         </section>
       </div>
     )
@@ -320,6 +348,33 @@ const archivesUrl = getRelativeLocaleUrl(currentLang, '/archives/');
     outline-offset: 4px;
   }
 
+  .seasonal-greeting {
+    display: grid;
+    justify-items: center;
+    margin-top: clamp(4rem, 8vw, 6rem);
+    padding: clamp(3rem, 6vw, 4.5rem) 1rem 1rem;
+    border-top: 1px solid var(--button-border-color);
+    text-align: center;
+  }
+
+  .seasonal-greeting h2 {
+    margin: 0;
+    color: var(--text-color);
+    font-family: "LXGW Bright Medium", "EB Garamond", serif;
+    font-size: clamp(1.4rem, 2.4vw, 1.65rem);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    line-height: 1.35;
+  }
+
+  .seasonal-greeting p {
+    max-width: 34rem;
+    margin: 0.65rem 0 0;
+    color: var(--text-color-70);
+    font-size: 0.88rem;
+    line-height: 1.8;
+  }
+
   :global([data-theme='dark']) .article-entry {
     box-shadow: 0 10px 28px -22px rgba(0, 0, 0, 0.75);
   }
@@ -346,6 +401,11 @@ const archivesUrl = getRelativeLocaleUrl(currentLang, '/archives/');
 
     .read-label {
       margin-left: auto;
+    }
+
+    .seasonal-greeting {
+      margin-top: 3.5rem;
+      padding-top: 2.75rem;
     }
   }
 

@@ -38,7 +38,7 @@ export const profileConfig: ProfileConfig = {
     name: "Guztchian",
     description: "永远年轻，永远热泪盈眶",
     intro: {
-        zh: "写代码，也写文字；做技术，也做记录。这里是我的笔记本：项目进展、技术思考、生活片刻，都在这里落笔。欢迎随意翻翻。",
+        zh: "写代码，也写文字；做技术，也做记录。这里是我的笔记本——项目进展、技术思考、生活片刻，都在这里落笔。欢迎随意翻翻。",
         en: "Coder by craft, writer by choice. This is my notebook, where projects, ideas, and life quietly land on the page. Wander freely."
     },
     tags: ["Python", "C++", "TypeScript", "ROS2", "Astro", "Reinforcement Learning", "Obsidian"],
