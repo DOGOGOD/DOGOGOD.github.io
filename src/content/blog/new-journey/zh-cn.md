@@ -2,7 +2,7 @@
 title: New Journey
 pubDate: 2026-06-26
 slugId: new-journey
-description: 对未来的真正慷概，是把一切献给现在。
+description: 对未来的真正慷慨，是把一切献给现在。
 category: life
 draft: false
 pinTop: 0
@@ -10,7 +10,7 @@ image: ""
 ---
 # New Journey 
 
-对未来的真正慷概，是把一切献给现在。                                                                   ——加缪
+对未来的真正慷慨，是把一切献给现在。                                                                   ——加缪
 
 ---
 # 过去

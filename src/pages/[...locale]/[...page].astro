@@ -1,46 +1,23 @@
 ---
 import MainPageLayout from '@layouts/MainPageLayout.astro';
 import PostPage from '@components/PostPage.astro';
-import PostCard from '@components/PostCard.astro';
 import Navi from '@components/control/Navi.astro';
 import FabMenu from '@components/control/FabMenu.astro';
 
-import { getBlogEntrySort } from '@utils/content-utils'
-import { blogCoverUrl } from '@utils/url-utils'
+import { getBlogEntrySort } from '@utils/content-utils';
 import { getRelativeLocaleUrl } from '@utils/url-utils';
+import { formatFullDate } from '@/utils/time';
 import { siteConfig, profileConfig } from '@/config';
-import { i18n } from "astro:config/client";
+import { i18n } from 'astro:config/client';
 import type { CollectionEntry } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
-import i18nit from '@i18n/translation'
-import ProjectCard from '@components/ProjectCard.astro';
-import goals from '@/data/goals.json';
-import projects from '@/data/projects.json';
-
-interface Goal {
-  title: string;
-  titleEn: string;
-  desc: string;
-  descEn: string;
-}
-
-interface Project {
-  name: string;
-  description: string;
-  descriptionEn?: string;
-  githubUrl: string;
-  tags: string[];
-  status?: string;
-}
 
 const { page } = Astro.props;
 
 const currentLang = Astro.currentLocale || i18n!.defaultLocale;
-const t = i18nit(currentLang);
 const isEn = currentLang === 'en';
 
 export const getStaticPaths = (async ({ paginate }) => {
-
   function createPinTopSort() {
     return (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => {
       const pinTopA = a.data.pinTop ?? 0;
@@ -59,185 +36,94 @@ export const getStaticPaths = (async ({ paginate }) => {
     const blogEntries = await getBlogEntrySort(localeParam, undefined, createPinTopSort());
     const paginatedPaths = paginate(blogEntries, {
       pageSize: siteConfig.pageSize,
-      params: { locale: localeParam }
+      params: { locale: localeParam },
     });
     paths.push(...paginatedPaths);
   }
   return paths;
-}) satisfies GetStaticPaths
+}) satisfies GetStaticPaths;
 
 const isFirstPage = page.currentPage === 1;
-const featuredProjects = (projects as Project[]).slice(0, 3);
 const pageTitle = `${siteConfig.title} - ${siteConfig.subTitle}`;
 const archivesUrl = getRelativeLocaleUrl(currentLang, '/archives/');
-const aboutUrl = getRelativeLocaleUrl(currentLang, '/about/');
 ---
 
 <MainPageLayout title={pageTitle} lang={currentLang}>
-  <!-- ===== Page 1: Hero Homepage ===== -->
   {
     isFirstPage && (
-      <div class="mx-auto w-full max-w-[var(--page-width)]">
-        <!-- Hero -->
-        <section class="flex flex-col items-center pt-20 pb-16 text-center reveal">
+      <div class="home-page mx-auto w-full max-w-[var(--page-width)] px-0 pb-8 pt-16 sm:pt-20">
+        <section class="author-intro text-center" aria-labelledby="author-name">
           <img
             src={profileConfig.avatar}
             alt={profileConfig.name}
-            class="w-24 h-24 rounded-full object-cover border-2 mb-6"
-            style="border-color: var(--button-border-color);"
+            class="author-avatar mx-auto h-24 w-24 rounded-full object-cover"
+            width="96"
+            height="96"
             onerror="this.style.display='none'"
           />
           <h1
-            class="text-4xl font-bold tracking-tight sm:text-5xl"
-            style="color: var(--text-color); font-family: 'Playfair Display', serif;"
+            id="author-name"
+            class="author-name mt-6 text-4xl font-semibold tracking-tight sm:text-5xl"
           >
             {profileConfig.name}
           </h1>
-          <p class="mt-4 max-w-lg text-lg leading-relaxed" style="color: var(--text-color-70);">
+          <p class="author-description mx-auto mt-4 max-w-xl text-base leading-8 sm:text-lg">
             {isEn ? profileConfig.intro.en : profileConfig.intro.zh}
           </p>
+        </section>
 
-          <!-- Tags -->
-          <ul class="mt-6 flex flex-wrap justify-center gap-2">
-            {profileConfig.tags.map((tag: string) => (
-              <li
-                class="rounded-full border px-3 py-1 text-xs"
-                style="border-color: var(--button-border-color); color: var(--text-color-70);"
-              >
-                {tag}
-              </li>
-            ))}
-          </ul>
+        <section class="article-index mt-12 sm:mt-14" aria-labelledby="article-index-title">
+          <h2 id="article-index-title" class="sr-only">
+            {isEn ? 'Articles' : '文章'}
+          </h2>
 
-          <!-- CTAs -->
-          <div class="mt-8 flex gap-4">
-            <a
-              href={archivesUrl}
-              class="rounded-full px-7 py-3 text-sm font-medium transition-all hover:opacity-90"
-              style="background: var(--link-color); color: #fcfbf7;"
-            >
-              {isEn ? 'Read Articles' : '阅读文章'}
-            </a>
-            <a
-              href={aboutUrl}
-              class="rounded-full border px-7 py-3 text-sm font-medium transition-all hover:opacity-80"
-              style="border-color: var(--button-border-color); color: var(--text-color);"
-            >
-              {isEn ? 'About Me' : '关于我'}
+          {page.data.length > 0 ? (
+            <ol class="article-list">
+              {page.data.map((entry) => (
+                <li>
+                  <a
+                    class="article-entry"
+                    href={getRelativeLocaleUrl(currentLang, `/blog/${entry.id}/`)}
+                  >
+                    <div class="article-copy">
+                      <h3>{entry.data.title}</h3>
+                      {entry.data.description && <p>{entry.data.description}</p>}
+                      <div class="article-meta">
+                        <time datetime={entry.data.pubDate.toISOString()}>
+                          {formatFullDate(entry.data.pubDate, currentLang)}
+                        </time>
+                        {entry.data.category && (
+                          <span class="article-category">#{entry.data.category}</span>
+                        )}
+                      </div>
+                    </div>
+                    <span class="read-label">
+                      {isEn ? 'Read' : '阅读全文'}
+                      <span class="read-arrow" aria-hidden="true">›</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p class="article-empty">{isEn ? 'No articles yet.' : '文章正在整理中。'}</p>
+          )}
+
+          <div class="archive-link-wrap">
+            <a class="archive-link" href={archivesUrl}>
+              {isEn ? 'Browse the archive' : '查看全部文章'}
             </a>
           </div>
         </section>
-
-        <!-- Latest Articles -->
-        <section class="mb-8 reveal">
-          <div
-            class="flex items-end justify-between gap-4 border-b pb-4"
-            style="border-color: var(--button-border-color);"
-          >
-            <h2
-              class="text-2xl font-bold"
-              style="color: var(--text-color); font-family: 'Playfair Display', serif;"
-            >
-              {isEn ? 'Articles' : '言集'}
-            </h2>
-            <a
-              href={archivesUrl}
-              class="text-sm transition-colors hover:underline"
-              style="color: var(--text-color-70);"
-            >
-              {isEn ? 'View all →' : '全部文章 →'}
-            </a>
-          </div>
-          <div class="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {page.data.slice(0, 3).map((entry: CollectionEntry<'blog'>) => (
-              <PostCard
-                entry={entry}
-                title={entry.data.title}
-                description={entry.data.description}
-                image={blogCoverUrl(entry.data.image, entry.id)}
-                pubDate={entry.data.pubDate}
-                url={entry.id}
-                fallback={entry.isFallback}
-              />
-            ))}
-          </div>
-        </section>
-
-        <!-- Recent Goals -->
-        <section class="mb-10 reveal">
-          <div
-            class="flex items-end justify-between gap-4 border-b pb-4"
-            style="border-color: var(--button-border-color);"
-          >
-            <h2
-              class="text-2xl font-bold"
-              style="color: var(--text-color); font-family: 'Playfair Display', serif;"
-            >
-              {isEn ? 'Working' : '耕集'}
-            </h2>
-          </div>
-          <div class="mt-6 grid gap-6 md:grid-cols-3">
-            {(goals as Goal[]).map((g) => (
-              <article
-                class="flex flex-col rounded-xl border p-5 transition-all duration-300"
-                style="border-color: var(--button-border-color); background: var(--bg-color);"
-              >
-                <h3
-                  class="text-lg font-semibold"
-                  style="color: var(--text-color); font-family: 'LXGW Bright Medium', 'Noto Serif SC', serif;"
-                >
-                  {isEn ? g.titleEn : g.title}
-                </h3>
-                <p class="mt-2 flex-1 text-sm leading-relaxed" style="color: var(--text-color-70);">
-                  {isEn ? g.descEn : g.desc}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <!-- Featured Projects -->
-        <section class="mb-10 reveal">
-          <div
-            class="flex items-end justify-between gap-4 border-b pb-4"
-            style="border-color: var(--button-border-color);"
-          >
-            <h2
-              class="text-2xl font-bold"
-              style="color: var(--text-color); font-family: 'Playfair Display', serif;"
-            >
-              {isEn ? 'Projects' : '栈集'}
-            </h2>
-            <a
-              href={getRelativeLocaleUrl(currentLang, '/projects/')}
-              class="text-sm transition-colors hover:underline"
-              style="color: var(--text-color-70);"
-            >
-              {isEn ? 'All projects →' : '全部项目 →'}
-            </a>
-          </div>
-          <div class="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {featuredProjects.map((p) => (
-              <ProjectCard {...p} lang={currentLang} />
-            ))}
-          </div>
-        </section>
-
-        <!-- Divider -->
-        <div class="mb-8 border-t" style="border-color: var(--button-border-color);"></div>
       </div>
     )
   }
 
-  <!-- ===== Page 2+: Simple blog list ===== -->
   {
     !isFirstPage && (
       <div class="mx-auto w-full max-w-[var(--page-width)] pt-12">
-        <h2
-          class="mb-6 text-2xl font-bold"
-          style="color: var(--text-color); font-family: 'Playfair Display', serif;"
-        >
-          {isEn ? 'Articles' : '言集'}
+        <h2 class="mb-6 text-2xl font-bold" style="color: var(--text-color);">
+          {isEn ? 'Articles' : '文章'}
         </h2>
       </div>
     )
@@ -254,20 +140,226 @@ const aboutUrl = getRelativeLocaleUrl(currentLang, '/about/');
   <FabMenu showBackBottom={true} />
 </MainPageLayout>
 
-<style is:global>
-  .reveal {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: reveal-up 0.6s ease-out forwards;
+<style>
+  .home-page {
+    color: var(--text-color);
   }
-  .reveal:nth-child(2) { animation-delay: 0.1s; }
-  .reveal:nth-child(3) { animation-delay: 0.2s; }
-  .reveal:nth-child(4) { animation-delay: 0.3s; }
 
-  @keyframes reveal-up {
-    to {
-      opacity: 1;
-      transform: translateY(0);
+  .author-avatar {
+    border: 1px solid var(--button-border-color);
+    box-shadow:
+      0 0 0 5px var(--bg-color),
+      0 0 0 6px var(--button-border-color);
+  }
+
+  .author-name {
+    color: var(--text-color);
+    font-family: "EB Garamond", "LXGW Bright Medium", serif;
+  }
+
+  .author-description {
+    color: var(--text-color-70);
+    text-wrap: balance;
+  }
+
+  .article-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .article-list > li {
+    min-width: 0;
+  }
+
+  .article-entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 2rem;
+    min-height: 10rem;
+    overflow: hidden;
+    border: 1px solid var(--button-border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem 1.65rem;
+    background: var(--button-hover-color);
+    background: color-mix(in srgb, var(--button-hover-color) 72%, var(--bg-color));
+    color: inherit;
+    box-shadow: 0 8px 24px -22px rgba(33, 31, 28, 0.5);
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease;
+  }
+
+  .article-entry::before {
+    position: absolute;
+    inset-block: 1.25rem;
+    left: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--link-color);
+    content: '';
+    opacity: 0;
+    transform: scaleY(0.45);
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
+  }
+
+  .article-entry:hover {
+    background: var(--button-hover-color);
+    border-color: color-mix(in srgb, var(--link-color) 56%, var(--button-border-color));
+    box-shadow: 0 14px 32px -22px rgba(33, 31, 28, 0.55);
+    transform: translateY(-2px);
+  }
+
+  .article-entry:hover::before {
+    opacity: 0.85;
+    transform: scaleY(1);
+  }
+
+  .article-entry:active {
+    transform: translateY(0) scale(0.995);
+  }
+
+  .article-entry:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 4px;
+  }
+
+  .article-copy {
+    min-width: 0;
+  }
+
+  .article-copy h3 {
+    color: var(--text-color);
+    font-size: clamp(1.25rem, 3vw, 1.55rem);
+    font-weight: 600;
+    line-height: 1.45;
+    text-wrap: balance;
+  }
+
+  .article-copy p {
+    margin-top: 0.55rem;
+    max-width: 58ch;
+    color: var(--text-color-70);
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 1rem;
+    margin-top: 1.05rem;
+    color: var(--text-color-70);
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+
+  .article-meta time {
+    white-space: nowrap;
+  }
+
+  .article-category {
+    color: var(--link-color);
+    white-space: nowrap;
+  }
+
+  .read-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--link-color);
+    font-size: 0.86rem;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .read-arrow {
+    font-family: system-ui, sans-serif;
+    font-size: 1.25rem;
+    line-height: 0.8;
+    transition: transform 180ms ease;
+  }
+
+  .article-entry:hover .read-arrow {
+    transform: translateX(0.2rem);
+  }
+
+  .article-empty {
+    border-block: 1px solid var(--button-border-color);
+    padding: 3rem 1rem;
+    color: var(--text-color-70);
+    text-align: center;
+  }
+
+  .archive-link-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .archive-link {
+    border-bottom: 1px solid var(--link-color);
+    padding: 0.25rem 0;
+    color: var(--link-color);
+    font-size: 0.9rem;
+    transition: opacity 180ms ease;
+  }
+
+  .archive-link:hover {
+    opacity: 0.72;
+  }
+
+  .archive-link:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 4px;
+  }
+
+  :global([data-theme='dark']) .article-entry {
+    box-shadow: 0 10px 28px -22px rgba(0, 0, 0, 0.75);
+  }
+
+  :global([data-theme='dark']) .article-entry:hover {
+    box-shadow: 0 16px 34px -22px rgba(0, 0, 0, 0.9);
+  }
+
+  @media (max-width: 640px) {
+    .home-page {
+      width: min(90vw, var(--page-width));
+    }
+
+    .article-entry {
+      grid-template-columns: 1fr;
+      gap: 1.15rem;
+      min-height: 0;
+      padding: 1.3rem 1.2rem;
+    }
+
+    .article-meta {
+      gap: 0.4rem 0.8rem;
+    }
+
+    .read-label {
+      margin-left: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .article-entry,
+    .article-entry::before,
+    .read-arrow,
+    .archive-link {
+      transition: none;
+    }
+
+    .article-entry:hover,
+    .article-entry:active {
+      transform: none;
     }
   }
 </style>

@@ -22,6 +22,15 @@ import svelte from "@astrojs/svelte";
 
 import { siteConfig } from './src/config';
 
+const preventFontSwapFlash = {
+  postcssPlugin: 'prevent-font-swap-flash',
+  Declaration(declaration) {
+    if (declaration.prop === 'font-display' && declaration.value === 'swap') {
+      declaration.value = 'block';
+    }
+  },
+};
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://dogogod.github.io', // Root URL of site
@@ -79,6 +88,11 @@ export default defineConfig({
     ]
   },
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    css: {
+      postcss: {
+        plugins: [preventFontSwapFlash],
+      },
+    },
   }
 });

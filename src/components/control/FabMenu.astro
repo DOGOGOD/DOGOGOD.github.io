@@ -111,6 +111,19 @@ function initFabMenu() {
   
   if (!container || !trigger) return;
 
+  if (typeof window.__fabMenuCleanup === 'function') {
+    window.__fabMenuCleanup();
+  }
+
+  const controller = new AbortController();
+  const { signal } = controller;
+  let tocObserver = null;
+
+  window.__fabMenuCleanup = () => {
+    controller.abort();
+    tocObserver?.disconnect();
+  };
+
   const threshold = parseInt(container.dataset.scrollDistance) || 100;
   let isTocOpen = false;
   let scrollPosOnTocOpen = 0;
@@ -221,7 +234,7 @@ tocLinks.forEach(link => {
       threshold: 0
     };
 
-    const tocObserver = new IntersectionObserver((entries) => {
+    tocObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           // 清除所有高亮
@@ -265,9 +278,9 @@ tocLinks.forEach(link => {
       container.classList.remove('is-active', 'toc-active');
       isTocOpen = false;
     }
-  });
+  }, { signal });
 
-  window.addEventListener('scroll', handleScroll, { passive: true });
+  window.addEventListener('scroll', handleScroll, { passive: true, signal });
   handleScroll();
 }
 

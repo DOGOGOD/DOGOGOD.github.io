@@ -70,12 +70,12 @@ if (profileConfig.indexPage) {
         </a> -->
         <!-- Language Switcher -->
         <div class="relative">
-            <button id="language-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Language Switcher">
+            <button id="language-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Language Switcher" aria-controls="language-menu" aria-expanded="false">
                 <Icon name="fa6-solid:globe" class="w-4 h-4" />
             </button>
             
           <!-- Language Dropdown Menu -->
-          <div id="language-menu" class="hidden absolute right-0 mt-2 bg-[var(--bg-color)] border border-[var(--button-border-color)] rounded-lg shadow-lg z-50">
+          <div id="language-menu" class="hidden absolute right-0 mt-2 bg-[var(--bg-color)] border border-[var(--button-border-color)] rounded-lg shadow-lg z-50" aria-hidden="true">
               <div class="py-1">
                   <!-- 中文链接 -->
                   <a href={getLocalePath("/", "zh-cn")} class=`flex items-center mx-2 my-1 px-3 py-2 text-base rounded whitespace-nowrap ${
@@ -98,7 +98,7 @@ if (profileConfig.indexPage) {
         </div>
         <div class="relative md:hidden">
           <!-- Mobile Menu -->
-          <button id="mobile-menu-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Mobile Menu">
+          <button id="mobile-menu-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Mobile Menu" aria-controls="mobile-menu-container" aria-expanded="false">
               <Icon name="fa6-solid:align-justify" class="w-5 h-5" />
           </button>
               
@@ -145,14 +145,14 @@ if (profileConfig.indexPage) {
         </div>
     </div>
 <!-- Mobile Menu -->
-<div id="mobile-menu-container" class="fixed inset-0 z-[100] hidden">
+<div id="mobile-menu-container" class="fixed inset-0 z-[100] hidden" aria-hidden="true">
     <div id="mobile-menu-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-in-out"></div>
     
     <div id="mobile-menu-drawer" class="absolute top-0 left-0 bottom-0 w-[70%] max-w-[300px] bg-[var(--bg-color)] shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
         
         <div class="flex items-center justify-between p-5 border-b border-[var(--button-border-color)]">
             <span class="text-xl font-bold header-logo">{ siteConfig.title }</span>
-            <button id="mobile-menu-close" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[var(--button-hover-color)] transition-colors">
+            <button id="mobile-menu-close" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[var(--button-hover-color)] transition-colors" aria-label={currentLang === 'en' ? 'Close menu' : '关闭菜单'}>
                 <Icon name="fa6-solid:xmark" class="w-5 h-5" />
             </button>
         </div>
@@ -200,13 +200,14 @@ if (profileConfig.indexPage) {
     }
   }
 
-  /* 当手指上滑时，JS 会给这个 ID 添加该类来隐藏 Header */
-  .header-hidden {
-    transform: translateY(-100%);
-  }
 </style>
 
 <script>
+type BlogNavigationWindow = Window & {
+  __mobileNavAbort?: AbortController;
+  __blogNavObserver?: IntersectionObserver;
+};
+
 function initMobileNav() {
   const menuButton = document.getElementById('mobile-menu-button');
   const closeButton = document.getElementById('mobile-menu-close');
@@ -215,135 +216,126 @@ function initMobileNav() {
   const drawer = document.getElementById('mobile-menu-drawer');
   const navBar = document.getElementById('nav-bar');
   const navBarList = document.getElementById('nav-bar-list');
+  const header = document.getElementById('main-header');
 
   if (!menuButton || !container) return;
 
+  const blogWindow = window as BlogNavigationWindow;
+  blogWindow.__mobileNavAbort?.abort();
+  blogWindow.__blogNavObserver?.disconnect();
+
+  const controller = new AbortController();
+  const { signal } = controller;
+  blogWindow.__mobileNavAbort = controller;
+  document.body.style.overflow = '';
+
+  let closeTimer: number | undefined;
+
   function openMenu() {
+    window.clearTimeout(closeTimer);
     container.classList.remove('hidden');
-    // 强制重绘以触发动画
+    container.setAttribute('aria-hidden', 'false');
+    menuButton.setAttribute('aria-expanded', 'true');
     requestAnimationFrame(() => {
       overlay?.classList.add('opacity-100');
       drawer?.classList.remove('-translate-x-full');
     });
-    document.body.style.overflow = 'hidden'; // 禁止页面滚动
+    document.body.style.overflow = 'hidden';
+    closeButton?.focus();
   }
 
   function closeMenu() {
     overlay?.classList.remove('opacity-100');
     drawer?.classList.add('-translate-x-full');
-    
-    // 等待动画结束后隐藏容器
-    setTimeout(() => {
+
+    closeTimer = window.setTimeout(() => {
       container.classList.add('hidden');
+      container.setAttribute('aria-hidden', 'true');
+      menuButton.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
     }, 300);
   }
 
-  menuButton.addEventListener('click', openMenu);
-  closeButton?.addEventListener('click', closeMenu);
-  overlay?.addEventListener('click', closeMenu);
-
-  // 监听导航点击（点击后自动关闭）
-  drawer?.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', closeMenu);
-  });
-
-  let isFixed = false;
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 0 && !isFixed && navBar && navBarList) {
-      navBar.classList.add('fixed');
-      navBar.classList.remove('border-[var(--bg-color)]');
-      navBarList.classList.add(
-        'border-[var(--button-border-color)]',
-        'shadow-[0_4px_12px_var(--shadow-color)]'
-      );
-      isFixed = true;
-    } else if (window.scrollY === 0 && isFixed && navBar && navBarList) {
-      navBar.classList.remove('fixed');
-      navBar.classList.add('border-[var(--bg-color)]');
-      navBarList.classList.remove(
-        'border-[var(--button-border-color)]',
-        'shadow-[0_4px_12px_var(--shadow-color)]'
-      );
-      isFixed = false;
+  menuButton.addEventListener('click', openMenu, { signal });
+  closeButton?.addEventListener('click', closeMenu, { signal });
+  overlay?.addEventListener('click', closeMenu, { signal });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !container.classList.contains('hidden')) {
+      closeMenu();
+      menuButton.focus();
     }
+  }, { signal });
+
+  drawer?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', closeMenu, { signal });
   });
+
+  if (header && navBar && navBarList) {
+    const observer = new IntersectionObserver(([entry]) => {
+      const isDetached = !entry.isIntersecting;
+      navBar.classList.toggle('fixed', isDetached);
+      navBarList.classList.toggle('border-[var(--bg-color)]', !isDetached);
+      navBarList.classList.toggle('border-[var(--button-border-color)]', isDetached);
+      navBarList.classList.toggle('shadow-[0_4px_12px_var(--shadow-color)]', isDetached);
+    }, { threshold: 0 });
+    observer.observe(header);
+    blogWindow.__blogNavObserver = observer;
+  }
 }
 
-document.addEventListener('DOMContentLoaded', initMobileNav);
 document.addEventListener('astro:page-load', initMobileNav);
 </script>
 <script>
+type LanguageMenuWindow = Window & {
+  __languageMenuAbort?: AbortController;
+};
+
 function initLanguageMenu() {
   const languageButton = document.getElementById('language-button');
   const languageMenu = document.getElementById('language-menu');
   const mobileMenu = document.getElementById('mobile-menu-container');
 
-  if (!languageButton || languageButton.dataset.bound === 'true') return;
-  languageButton.dataset.bound = 'true';
+  if (!languageButton || !languageMenu) return;
+
+  const languageWindow = window as LanguageMenuWindow;
+  languageWindow.__languageMenuAbort?.abort();
+  const controller = new AbortController();
+  const { signal } = controller;
+  languageWindow.__languageMenuAbort = controller;
+
+  const closeLanguageMenu = () => {
+    languageMenu.classList.add('hidden');
+    languageMenu.setAttribute('aria-hidden', 'true');
+    languageButton.setAttribute('aria-expanded', 'false');
+  };
 
   languageButton.addEventListener('click', (e) => {
     e.stopPropagation();
     mobileMenu?.classList.add('hidden');
-    languageMenu?.classList.toggle('hidden');
-  });
+    const willOpen = languageMenu.classList.contains('hidden');
+    languageMenu.classList.toggle('hidden', !willOpen);
+    languageMenu.setAttribute('aria-hidden', String(!willOpen));
+    languageButton.setAttribute('aria-expanded', String(willOpen));
+  }, { signal });
 
   document.addEventListener('click', (event) => {
     if (
-      languageButton &&
-      languageMenu &&
+      event.target instanceof Node &&
       !languageButton.contains(event.target) &&
       !languageMenu.contains(event.target)
     ) {
-      languageMenu.classList.add('hidden');
+      closeLanguageMenu();
     }
-  });
+  }, { signal });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !languageMenu.classList.contains('hidden')) {
+      closeLanguageMenu();
+      languageButton.focus();
+    }
+  }, { signal });
 }
 document.addEventListener('astro:page-load', initLanguageMenu);
-document.addEventListener('astro:after-swap', initLanguageMenu);
-</script>
-
-<script>
-  function initHeaderScroll() {
-    const header = document.getElementById('main-header');
-    if (!header) return;
-
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    function updateHeader() {
-      const currentScrollY = window.scrollY;
-      const scrollDelta = currentScrollY - lastScrollY;
-
-      if (window.innerWidth < 776) {
-        if (currentScrollY <= 50) {
-          header.classList.remove('header-hidden');
-        } 
-        else if (scrollDelta > 0 && currentScrollY > 100) {
-          header.classList.add('header-hidden');
-        } 
-        else if (scrollDelta < 0) {
-          header.classList.remove('header-hidden');
-        }
-      } else {
-        header.classList.remove('header-hidden');
-      }
-      lastScrollY = currentScrollY;
-      ticking = false;
-    }
-
-    function onScroll() {
-      if (!ticking) {
-        window.requestAnimationFrame(updateHeader);
-        ticking = true;
-      }
-    }
-
-    window.removeEventListener('scroll', onScroll);
-    window.addEventListener('scroll', onScroll, { passive: true });
-  }
-
-  document.addEventListener('astro:page-load', initHeaderScroll);
 </script>
 
 
