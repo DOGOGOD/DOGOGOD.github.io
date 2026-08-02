@@ -1,146 +1,265 @@
 <script>
-	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
-	import { spring } from 'svelte/motion';
-	import { siteConfig } from "@/config";
+	import { onMount } from 'svelte'
+	import { siteConfig } from '@/config'
 	import i18nit from '@i18n/translation'
 
-	let { headings = [], language,} = $props();
-	const t = $derived(i18nit(language));
+	let { headings = [], language } = $props()
+	const t = $derived(i18nit(language))
 
-	// 内部状态
-	let tocVisible = $state(false);
-	let activeIndex = $state(-1);
-	let tocListElement = $state(null);
-
-	// 弹簧动画：处理索引位置的连续过渡
-	const focusSpring = spring(-1, {
-		stiffness: 0.12,
-		damping: 0.7
-	});
-
-	// 基础逻辑计算
-	let minDepth = $derived(headings.length > 0 ? Math.min(...headings.map(h => h.depth)) : 0);
-	let maxDepth = $derived(minDepth + (siteConfig?.toc?.depth || 2));
-	let filteredHeadings = $derived(headings.filter(h => h.depth < maxDepth));
-
-	// 同步动画索引
-	$effect(() => {
-		focusSpring.set(activeIndex);
-	});
-
-	// 滚动监听逻辑
-	function handleScroll() {
-		const headerCoverHeight = 200;
-		const scrollY = window.scrollY || window.pageYOffset;
-		tocVisible = scrollY > headerCoverHeight;
-	}
-
-	// 交叉观察器：检测当前阅读章节
-	function initObserver() {
-		const observer = new IntersectionObserver((entries) => {
-			entries.forEach(entry => {
-				if (entry.isIntersecting) {
-					const idx = filteredHeadings.findIndex(h => h.slug === entry.target.id);
-					if (idx !== -1) {
-						activeIndex = idx;
-						autoScrollTOC(idx);
-					}
-				}
-			});
-		}, { rootMargin: '-10% 0px -70% 0px', threshold: 0.1 });
-
-		filteredHeadings.forEach(h => {
-			const el = document.getElementById(h.slug);
-			if (el) observer.observe(el);
-		});
-		return observer;
-	}
-
-	// 目录内部自动滚动 
-	function autoScrollTOC(index) {
-		if (tocListElement) {
-			const items = tocListElement.querySelectorAll('a');
-			const activeItem = items[index];
-			if (activeItem) {
-				const containerHeight = tocListElement.clientHeight;
-				const targetScroll = activeItem.offsetTop - containerHeight / 2 + (activeItem.clientHeight / 2);
-				tocListElement.scrollTo({ top: targetScroll, behavior: 'smooth' });
-			}
-		}
-	}
-
-	// 动态样式算法：基于弹簧数值计算透明度与字重
-	function getSpringStyle(index, currentSpring) {
-		const distance = Math.abs(index - currentSpring);
-		// 距离当前激活项越近，越明显
-		const opacity = Math.max(0.2, 1 - distance * 0.2);
-		// 只有距离非常近时才加粗
-		const fontWeight = distance < 0.5 ? '700' : '400';
-		
-		return `opacity: ${opacity}; font-weight: ${fontWeight};`;
-	}
+	let activeSlug = $state('')
+	let tocListElement = $state(null)
+	const minDepth = $derived(headings.length > 0 ? Math.min(...headings.map((heading) => heading.depth)) : 0)
+	const maxDepth = $derived(minDepth + (siteConfig?.toc?.depth || 2))
+	const filteredHeadings = $derived(
+		headings.filter((heading) => {
+			const headingText = heading.text.trim()
+			const headingSlug = heading.slug.toLowerCase()
+			const isContentsHeading = /^(目录|contents|table of contents)$/i.test(headingText)
+				|| ['目录', 'contents', 'table-of-contents'].includes(headingSlug)
+			return heading.depth < maxDepth && !isContentsHeading
+		})
+	)
 
 	onMount(() => {
-		window.addEventListener('scroll', handleScroll, { passive: true });
-		handleScroll();
-		const observer = initObserver();
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+		let syncFrame = 0
+
+		const syncTocPosition = (slug, behavior = 'smooth') => {
+			if (!tocListElement) return
+
+			const activeIndex = filteredHeadings.findIndex((heading) => heading.slug === slug)
+			const activeLink = tocListElement.querySelectorAll('a')[activeIndex]
+			if (!activeLink) return
+
+			const targetTop = activeLink.offsetTop
+				- tocListElement.clientHeight / 2
+				+ activeLink.clientHeight / 2
+
+			tocListElement.scrollTo({
+				top: Math.max(0, targetTop),
+				behavior: prefersReducedMotion ? 'auto' : behavior
+			})
+		}
+
+		const setActiveHeading = (slug, behavior = 'smooth') => {
+			if (!slug) return
+			activeSlug = slug
+			cancelAnimationFrame(syncFrame)
+			syncFrame = requestAnimationFrame(() => syncTocPosition(slug, behavior))
+		}
+
+		const initialSlug = decodeURIComponent(window.location.hash.slice(1)) || filteredHeadings[0]?.slug || ''
+		setActiveHeading(initialSlug, 'auto')
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				const visibleEntry = entries
+					.filter((entry) => entry.isIntersecting)
+					.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
+
+				if (visibleEntry) setActiveHeading(visibleEntry.target.id)
+			},
+			{ rootMargin: '-12% 0px -68% 0px', threshold: [0, 1] }
+		)
+
+		filteredHeadings.forEach((heading) => {
+			const element = document.getElementById(heading.slug)
+			if (element) observer.observe(element)
+		})
 
 		return () => {
-			window.removeEventListener('scroll', handleScroll);
-			observer.disconnect();
-		};
-	});
+			cancelAnimationFrame(syncFrame)
+			observer.disconnect()
+		}
+	})
 </script>
 
-{#if tocVisible}
-	<aside 
-		transition:fade={{ duration: 300 }}
-		class="fixed top-20 w-[var(--toc-width)] left-[var(--toc-offset-left)] z-10 hidden lg:block text-[var(--text-color)]"
-	>
-		<div class="flex flex-col h-[50vh] bg-transparent">
-			<h2 id="toc-heading" class="text-lg font-bold mb-2 uppercase tracking-widest">
-				{t("toc")}
-			</h2>
-
-			<ul 
-				bind:this={tocListElement}
-				class="overflow-y-auto space-y-2 pr-4 no-scrollbar"
-				style="scrollbar-width: none; scroll-behavior: smooth;"
-			>
-				{#each filteredHeadings as heading, i}
+<div class="article-toc">
+	<aside class="toc-desktop" aria-labelledby="toc-heading">
+		<h2 id="toc-heading">{t('toc')}</h2>
+		<nav aria-label={t('toc')}>
+			<ul class="toc-list" bind:this={tocListElement}>
+				{#each filteredHeadings as heading}
 					<li>
 						<a
 							href={`#${heading.slug}`}
-							class="block py-1 text-sm transition-colors duration-300 hover:text-[var(--link-color)]"
-							style:padding-left="{(heading.depth - minDepth) * 1.2}rem" 
-							style={getSpringStyle(i, $focusSpring)}
-							onclick={(e) => {
-								e.preventDefault();
-								document.getElementById(heading.slug)?.scrollIntoView({ behavior: 'smooth' });
-							}}
+							class:active={activeSlug === heading.slug}
+							aria-current={activeSlug === heading.slug ? 'location' : undefined}
+							style:padding-left={`${0.95 + (heading.depth - minDepth) * 0.8}rem`}
 						>
 							{heading.text}
 						</a>
 					</li>
 				{/each}
 			</ul>
-		</div>
+		</nav>
 	</aside>
-{/if}
+
+	<details class="toc-mobile">
+		<summary>{t('toc')}</summary>
+		<nav aria-label={t('toc')}>
+			<ul>
+				{#each filteredHeadings as heading}
+					<li>
+						<a
+							href={`#${heading.slug}`}
+							class:active={activeSlug === heading.slug}
+							aria-current={activeSlug === heading.slug ? 'location' : undefined}
+							style:padding-left={`${(heading.depth - minDepth) * 0.8}rem`}
+						>
+							{heading.text}
+						</a>
+					</li>
+				{/each}
+			</ul>
+		</nav>
+	</details>
+</div>
 
 <style>
-	/* 隐藏滚动条但保留功能  */
-	.no-scrollbar::-webkit-scrollbar {
+	.article-toc {
+		color: var(--text-color);
+	}
+
+	.toc-desktop {
+		position: fixed;
+		top: 6.5rem;
+		left: var(--toc-offset-left);
+		z-index: 10;
+		display: none;
+		width: min(var(--toc-width), 15rem);
+		max-height: calc(100dvh - 9rem);
+	}
+
+	.toc-desktop h2 {
+		margin: 0 0 1.25rem;
+		font-size: 1.1rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+	}
+
+	.toc-list {
+		max-height: calc(100dvh - 13rem);
+		margin: 0;
+		padding: 0.15rem 0;
+		overflow-y: auto;
+		border-left: 1px solid var(--border-color);
+		list-style: none;
+		scrollbar-width: none;
+	}
+
+	.toc-list::-webkit-scrollbar {
 		display: none;
 	}
-	
-	/* 确保文字不会因为加粗而产生剧烈的布局抖动 */
-	a {
-		will-change: opacity, font-weight;
+
+	.toc-list li {
+		margin: 0;
+	}
+
+	.toc-list a {
+		position: relative;
 		display: block;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
+		padding-block: 0.5rem;
+		color: var(--text-color-70);
+		font-size: 0.9rem;
+		line-height: 1.45;
+		text-decoration: none;
+		transition: color 180ms ease, opacity 180ms ease;
+	}
+
+	.toc-list a::before {
+		position: absolute;
+		top: 0.45rem;
+		bottom: 0.45rem;
+		left: -1px;
+		width: 2px;
+		background: transparent;
+		content: '';
+	}
+
+	.toc-list a:hover,
+	.toc-list a.active {
+		color: var(--link-color);
+	}
+
+	.toc-list a.active::before {
+		background: var(--link-color);
+	}
+
+	.toc-list a:focus-visible,
+	.toc-mobile a:focus-visible,
+	.toc-mobile summary:focus-visible {
+		outline: 2px solid var(--link-color);
+		outline-offset: 0.2rem;
+	}
+
+	.toc-mobile {
+		border-top: 1px solid var(--border-color);
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.toc-mobile summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.9rem 0;
+		font-size: 1rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		cursor: pointer;
+		list-style: none;
+	}
+
+	.toc-mobile summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.toc-mobile summary::after {
+		color: var(--link-color);
+		font-size: 1.15rem;
+		font-weight: 400;
+		content: '+';
+	}
+
+	.toc-mobile[open] summary::after {
+		content: '-';
+	}
+
+	.toc-mobile ul {
+		display: grid;
+		gap: 0.2rem;
+		margin: 0;
+		padding: 0 0 1rem;
+		list-style: none;
+	}
+
+	.toc-mobile a {
+		display: block;
+		padding-block: 0.45rem;
+		color: var(--text-color-70);
+		font-size: 0.92rem;
+		line-height: 1.5;
+		text-decoration: none;
+	}
+
+	.toc-mobile a:hover,
+	.toc-mobile a.active {
+		color: var(--link-color);
+	}
+
+	@media (min-width: 1180px) {
+		.toc-desktop {
+			display: block;
+		}
+
+		.toc-mobile {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.toc-list a {
+			transition: none;
+		}
 	}
 </style>

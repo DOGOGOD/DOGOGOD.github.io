@@ -57,14 +57,14 @@
   }
 
   [data-theme="dark"] {
-    --bg-color: #0a0a0a;
-    --text-color: #ffffff;
-    --text-color-70: #b5b5b5;
-    --shadow-color: rgba(255, 255, 255, 0.15);
-    --link-color: #57ace7;
-    --button-hover-color: #262626;
-    --button-border-color: #3d3d3d;
-    --border-color: #3d3d3d;
+    --bg-color: #171512;
+    --text-color: #eee9df;
+    --text-color-70: #aaa399;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --link-color: #d88c6e;
+    --button-hover-color: #24211d;
+    --button-border-color: #3c3831;
+    --border-color: #3c3831;
 
     --warning-text-color: #f2d680;
     --warning-bg-color: #332a00;
@@ -75,10 +75,10 @@
     --danger-border-color: #e13238;
 
     /* 滚动条颜色 */
-    --scrollbar-thumb: #4b4c4e;
-    --scrollbar-thumb-hover: #37383a;
-    --scrollbar-track: #1a202c;
+    --scrollbar-thumb: #514b43;
+    --scrollbar-thumb-hover: #686057;
+    --scrollbar-track: #211e1a;
 
-    --selection-bg-color: #2f5f80;
-    --selection-text-color: #ffffff;
+    --selection-bg-color: #d88c6e42;
+    --selection-text-color: #eee9df;
   }

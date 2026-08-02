@@ -8,7 +8,7 @@
 }
 
 [data-theme="dark"] {
-    --quote-left-color: #606770;
+    --quote-left-color: #d88c6e;
 }
 
 .markdown-content {
@@ -744,4 +744,106 @@ rt {
 
 .lqip-markdown-img.lqip-loaded {
   background: transparent;
+}
+
+/* 文章页的章首式阅读节奏 */
+.markdown-content.article-markdown {
+  color: var(--text-color);
+  font-size: clamp(1.03rem, 1.4vw, 1.12rem);
+  line-height: 1.95;
+  letter-spacing: 0.012em;
+}
+
+.markdown-content.article-markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown-content.article-markdown h1,
+.markdown-content.article-markdown h2,
+.markdown-content.article-markdown h3,
+.markdown-content.article-markdown h4 {
+  color: var(--text-color);
+  border: 0;
+  text-wrap: balance;
+  scroll-margin-top: 6rem;
+}
+
+.markdown-content.article-markdown h1 {
+  margin: 4.8rem 0 1.6rem;
+  padding: 0;
+  font-size: clamp(1.85rem, 3vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+}
+
+.markdown-content.article-markdown > h1:first-child {
+  margin-top: 0;
+}
+
+.markdown-content.article-markdown h2 {
+  margin: 4rem 0 1.35rem;
+  padding: 0;
+  font-size: clamp(1.55rem, 2.5vw, 1.8rem);
+  line-height: 1.4;
+}
+
+.markdown-content.article-markdown h3 {
+  margin: 3.2rem 0 1.1rem;
+  font-size: 1.35rem;
+  line-height: 1.45;
+}
+
+.markdown-content.article-markdown p {
+  margin: 1.15rem 0;
+  text-align: justify;
+  text-wrap: pretty;
+}
+
+.markdown-content.article-markdown blockquote {
+  margin: 2.25rem 0;
+  padding: 0.2rem 0 0.2rem 1.25rem;
+  border-left-width: 3px;
+  background: transparent;
+  color: var(--text-color-70);
+}
+
+[data-theme="dark"] .markdown-content.article-markdown blockquote {
+  background: transparent;
+  color: var(--text-color-70);
+}
+
+.markdown-content.article-markdown blockquote p {
+  text-align: left;
+}
+
+.markdown-content.article-markdown hr {
+  width: 3rem;
+  margin: 4.5rem 0;
+  border-top: 2px solid var(--link-color);
+}
+
+.markdown-content.article-markdown img {
+  margin-block: 2rem;
+  border-radius: 0;
+}
+
+@media (max-width: 639px) {
+  .markdown-content.article-markdown {
+    font-size: 1.02rem;
+    line-height: 1.9;
+    letter-spacing: 0;
+  }
+
+  .markdown-content.article-markdown h1 {
+    margin-top: 4rem;
+  }
+
+  .markdown-content.article-markdown h2 {
+    margin-top: 3.5rem;
+  }
+
+  .markdown-content.article-markdown p {
+    text-align: left;
+  }
 }

@@ -200,14 +200,14 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
 
   function initApp() {
     // 1. 先处理 Markdown 的动态注入 (如果有)
-    const container = document.querySelector('.markdown-content');
-    if (container) {
+    const containers = document.querySelectorAll('.markdown-content.onload-animation');
+    containers.forEach((container) => {
       const elements = container.querySelectorAll(':scope > *');
       elements.forEach((el, i) => {
         el.setAttribute('data-aos', 'fade-up');
         el.setAttribute('data-aos-delay', (i % 5 * 50).toString());
       });
-    }
+    });
 
     // 2. 统一初始化
     AOS.init({

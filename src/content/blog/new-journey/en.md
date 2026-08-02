@@ -3,15 +3,11 @@ title: New Journey
 pubDate: 2026-06-26
 slugId: new-journey
 description: True generosity toward the future lies in giving all to the present.
+epigraphAuthor: Albert Camus
 category: life
 draft: false
 pinTop: 0
 image: ""
----
-# New Journey
-
-True generosity toward the future lies in giving all to the present.      —Albert Camus
-
 ---
 # The Past
 

@@ -6,21 +6,7 @@ description: "A summary of all article features supported by the blog system, wi
 category: "guide"
 ---
 
-# Function Summary
-
 This document summarizes all article features supported by the blog system, with live-rendered examples.
-
----
-
-## Table of Contents
-
-1. [Alert Boxes](#1-alert-boxes)
-2. [Embedded Cards](#2-embedded-cards)
-3. [Draft Management](#3-draft-management)
-4. [KaTeX Math Formulas](#4-katex-math-formulas)
-5. [Special Typography Styles](#5-special-typography-styles)
-6. [Table of Contents Generation](#6-table-of-contents-generation)
-7. [External Video Embedding](#7-external-video-embedding)
 
 ---
 
@@ -103,6 +89,7 @@ Syntax: `::music{id="song_id"}`
 
 Syntax: `::github{repo="owner/repo"}`
 
+<!-- GitHub card example -->
 ::github{repo="DOGOGOD/DOGOGOD"}
 
 ---

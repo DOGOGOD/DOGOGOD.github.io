@@ -56,10 +56,14 @@ export function GithubCardComponent(properties, children) {
                 if (!card || card.dataset.loaded === "true") return;
 
                 fetch('https://api.github.com/repos/${repo}', { referrerPolicy: "no-referrer" })
-                    .then(response => response.json())
+                    .then(async response => {
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.message || ('GitHub API returned ' + response.status));
+                        }
+                        return data;
+                    })
                     .then(data => {
-                        if (data.message === "Not Found") throw new Error("Repo not found");
-                        
                         document.getElementById('${cardUuid}-description').innerText = data.description?.replace(/:[a-zA-Z0-9_]+:/g, '') || "Description not set";
                         document.getElementById('${cardUuid}-language').innerText = data.language || "Unknown";
                         
@@ -69,17 +73,22 @@ export function GithubCardComponent(properties, children) {
                         document.getElementById('${cardUuid}-license').innerText = data.license?.spdx_id || "No License";
 
                         const avatarEl = document.getElementById('${cardUuid}-avatar');
-                        avatarEl.style.backgroundImage = 'url(' + data.owner.avatar_url + ')';
-                        avatarEl.style.backgroundColor = 'transparent';
+                        if (avatarEl && data.owner?.avatar_url) {
+                            avatarEl.style.backgroundImage = 'url(' + data.owner.avatar_url + ')';
+                            avatarEl.style.backgroundColor = 'transparent';
+                        }
 
                         card.classList.remove("fetch-waiting");
                         card.dataset.loaded = "true"; // 标记加载完成
                         console.log("[GITHUB-CARD] Successfully loaded: ${repo}");
                     })
-                    .catch(err => {
+                    .catch(() => {
                         const c = document.getElementById('${cardUuid}-card');
+                        const description = document.getElementById('${cardUuid}-description');
+                        if (description) description.innerText = "GitHub data is temporarily unavailable";
+                        c?.classList.remove("fetch-waiting");
                         c?.classList.add("fetch-error");
-                        console.warn("[GITHUB-CARD] Error loading ${repo}:", err);
+                        if (c) c.dataset.loaded = "true";
                     });
             };
 
