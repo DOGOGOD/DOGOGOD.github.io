@@ -110,7 +110,7 @@ const categoryUrl = getRelativeLocaleUrl(
 
         {siteConfig.toc.enable && tocHeadings.length > 0 && (
             <div class="article-toc-slot">
-                <TOC headings={tocHeadings} language={currentLang} client:media="(min-width: 1180px)" />
+                <TOC headings={tocHeadings} language={currentLang} client:load />
             </div>
         )}
 
@@ -153,7 +153,7 @@ const categoryUrl = getRelativeLocaleUrl(
         </article>
     </section>
 
-    <FabMenu headings={tocHeadings} showBackBottom={true} />
+    <FabMenu showBackBottom={true} />
 </MainPageLayout>
 
 <style>
