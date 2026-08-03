@@ -45,6 +45,10 @@ const translation: Translation = {
         next: "Next Blog",
         prev: "Previous Blog"
     },
+    randomRead: {
+        title: "Random read",
+        ariaLabel: "Open a random article"
+    },
     pagecard: {
         words: "words",
         minutes: "min read",

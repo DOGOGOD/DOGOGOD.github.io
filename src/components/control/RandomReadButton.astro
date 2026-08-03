@@ -1,0 +1,132 @@
+---
+import { Icon } from 'astro-icon/components'
+
+interface Props {
+  urls: string[]
+  label: string
+  ariaLabel: string
+}
+
+const { urls, label, ariaLabel } = Astro.props
+const candidates = [...new Set(urls.filter(Boolean))]
+const fallbackUrl = candidates[0]
+---
+
+{fallbackUrl && (
+  <a
+    class="random-read-button"
+    href={fallbackUrl}
+    data-random-read
+    data-random-urls={JSON.stringify(candidates)}
+    aria-label={ariaLabel}
+    title={label}
+  >
+    <Icon name="fa6-solid:dice-three" class="random-read-icon" aria-hidden="true" />
+    <span class="random-read-label">{label}</span>
+  </a>
+)}
+
+<style>
+  .random-read-button {
+    display: inline-flex;
+    height: 2.5rem;
+    min-width: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid var(--button-border-color);
+    border-radius: 0.5rem;
+    padding: 0 0.75rem;
+    background: color-mix(in srgb, var(--bg-color) 88%, transparent);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .random-read-button:hover {
+    border-color: color-mix(in srgb, var(--link-color) 48%, var(--button-border-color));
+    background: var(--button-hover-color);
+    color: var(--link-color);
+  }
+
+  .random-read-button:active {
+    transform: scale(0.96);
+  }
+
+  .random-read-button:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 3px;
+  }
+
+  .random-read-icon {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+  }
+
+  @media (max-width: 1279px) {
+    .random-read-button {
+      width: 2.75rem;
+      padding: 0;
+    }
+
+    .random-read-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .random-read-button {
+      transition: none;
+    }
+
+    .random-read-button:active {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  type RandomReadWindow = Window & {
+    __randomReadAbort?: AbortController
+  }
+
+  function initRandomReadButton() {
+    const button = document.querySelector<HTMLAnchorElement>('[data-random-read]')
+    if (!button) return
+
+    const randomReadWindow = window as RandomReadWindow
+    randomReadWindow.__randomReadAbort?.abort()
+
+    const controller = new AbortController()
+    randomReadWindow.__randomReadAbort = controller
+
+    button.addEventListener('click', () => {
+      try {
+        const urls = JSON.parse(button.dataset.randomUrls || '[]') as string[]
+        if (urls.length === 0) return
+
+        const destination = urls[Math.floor(Math.random() * urls.length)]
+        button.setAttribute('href', destination)
+      } catch {
+        // The server-rendered href remains a valid no-script fallback.
+      }
+    }, { signal: controller.signal })
+  }
+
+  document.addEventListener('astro:page-load', initRandomReadButton)
+</script>

@@ -43,6 +43,10 @@ export interface Translation {
         next: string;
         prev: string;
     },
+    randomRead: {
+        title: string;
+        ariaLabel: string;
+    },
     pagecard: {
         words: string;
         minutes: string;

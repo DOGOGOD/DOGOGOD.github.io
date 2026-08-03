@@ -3,7 +3,9 @@ import "@styles/global.css"
 import { Icon } from "astro-icon/components"
 import { profileConfig, siteConfig } from "@/config"
 import ThemeIcon from "./control/ThemeIcon.astro"
+import RandomReadButton from "./control/RandomReadButton.astro"
 import { baseUrl } from "@utils/url-utils"
+import { getBlogEntrySort } from "@utils/content-utils"
 
 import { i18n } from "astro:config/client";
 import i18nit from '@i18n/translation'
@@ -37,6 +39,14 @@ const archivesPage = getRelativeLocaleUrl(currentLang, "/archives/");
 const projectsPage = getRelativeLocaleUrl(currentLang, "/projects/");
 const aboutPage = getRelativeLocaleUrl(currentLang, "/about/");
 
+const normalizePath = (path: string) => path.replace(/\/+$/, '') || '/';
+const allRandomPostUrls = (await getBlogEntrySort(currentLang)).map((post) =>
+  getRelativeLocaleUrl(currentLang, `/blog/${post.id}/`)
+);
+const currentPath = normalizePath(Astro.url.pathname);
+const otherPostUrls = allRandomPostUrls.filter((url) => normalizePath(url) !== currentPath);
+const randomPostUrls = otherPostUrls.length > 0 ? otherPostUrls : allRandomPostUrls;
+
 let introPage : string;
 
 if (profileConfig.indexPage) {
@@ -48,16 +58,16 @@ if (profileConfig.indexPage) {
 
 <!-- header -->
 <div id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out md:relative md:translate-y-0">
-<div class="flex items-center pt-2 md:py-4 text-[var(--text-color)] max-w-[var(--header-width)] mx-auto">
+<div class="header-inner flex items-center pt-2 md:py-4 text-[var(--text-color)] max-w-[var(--header-width)] mx-auto">
     <!-- logo -->
-    <div class="pr-4 py-2 z-30 header-logo">
+    <div class="pr-2 sm:pr-4 py-2 z-30 header-logo">
         <a href={ indexPage } >
-            <span class="text-3xl font-bold hover:opacity-60 transition-opacity">{ siteConfig.title }</span>
+            <span class="text-2xl sm:text-3xl font-bold hover:opacity-60 transition-opacity">{ siteConfig.title }</span>
         </a>
     </div>
     
     <!-- tools -->
-    <div class="ml-auto flex gap-2 pl-4 py-2 justify-end z-30">
+    <div class="header-tools ml-auto flex gap-1 sm:gap-2 pl-2 sm:pl-4 py-2 justify-end z-30">
         <!-- Search -->
         <button id="search-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Search">
             <Icon name="fa6-solid:magnifying-glass" class="w-4 h-4" />
@@ -99,10 +109,15 @@ if (profileConfig.indexPage) {
         <div class="relative md:hidden">
           <!-- Mobile Menu -->
           <button id="mobile-menu-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Mobile Menu" aria-controls="mobile-menu-container" aria-expanded="false">
-              <Icon name="fa6-solid:align-justify" class="w-5 h-5" />
+              <Icon name="fa6-solid:align-justify" class="w-4 h-4" />
           </button>
               
         </div>
+        <RandomReadButton
+          urls={randomPostUrls}
+          label={t("randomRead.title")}
+          ariaLabel={t("randomRead.ariaLabel")}
+        />
     </div>
 </div>
 </div>
@@ -197,6 +212,62 @@ if (profileConfig.indexPage) {
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid color-mix(in srgb, var(--button-border-color) 10%, transparent);
+    }
+
+    .header-inner {
+      width: 96vw;
+      max-width: 96vw;
+    }
+
+    .header-inner .header-logo,
+    .header-inner .header-logo > a {
+      display: flex;
+      align-items: center;
+    }
+
+    .header-inner .header-logo {
+      padding-left: 0.5rem;
+      padding-right: 0;
+    }
+
+    .header-inner .header-logo span {
+      font-size: clamp(1.625rem, 5vw, 2.125rem);
+      line-height: 1;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .header-inner {
+      width: calc(100vw - 0.5rem);
+      max-width: calc(100vw - 0.5rem);
+    }
+
+    .header-inner .header-logo {
+      height: 2.25rem;
+      padding: 0 0 0 0.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .header-inner .header-logo span {
+      font-size: clamp(1.5rem, 7vw, 1.625rem);
+    }
+
+    .header-tools {
+      flex-shrink: 0;
+      gap: 0.0625rem;
+      padding-left: 0;
+    }
+
+    .header-tools button {
+      width: 2.25rem;
+      min-width: 2.25rem;
+      height: 2.25rem;
+    }
+
+    .header-tools .random-read-button {
+      width: 2.375rem;
+      min-width: 2.375rem;
+      height: 2.25rem;
     }
   }
 

@@ -45,6 +45,10 @@ const translation: Translation = {
         next: "下一篇",
         prev: "上一篇"
     },
+    randomRead: {
+        title: "随手翻一页",
+        ariaLabel: "随机打开一篇文章"
+    },
     pagecard: {
         words: "字",
         minutes: "分钟",
