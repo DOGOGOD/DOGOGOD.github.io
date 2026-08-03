@@ -110,7 +110,7 @@ const categoryUrl = getRelativeLocaleUrl(
 
         {siteConfig.toc.enable && tocHeadings.length > 0 && (
             <div class="article-toc-slot">
-                <TOC headings={tocHeadings} language={currentLang} client:load />
+                <TOC headings={tocHeadings} language={currentLang} client:idle />
             </div>
         )}
 
@@ -166,6 +166,7 @@ const categoryUrl = getRelativeLocaleUrl(
         transform: scaleX(0);
         transform-origin: left center;
         pointer-events: none;
+        will-change: transform;
     }
 
     .article-layout {
@@ -293,21 +294,6 @@ const categoryUrl = getRelativeLocaleUrl(
         color: var(--warning-text-color);
     }
 
-    @supports (animation-timeline: scroll()) {
-        @media (prefers-reduced-motion: no-preference) {
-            .reading-progress {
-                animation: grow-reading-progress linear both;
-                animation-timeline: scroll(root);
-            }
-        }
-    }
-
-    @keyframes grow-reading-progress {
-        to {
-            transform: scaleX(1);
-        }
-    }
-
     @media (max-width: 1179px) {
         .article-layout {
             padding-block: 6.75rem 4.5rem;
@@ -356,3 +342,88 @@ const categoryUrl = getRelativeLocaleUrl(
         }
     }
 </style>
+
+<script>
+    type ReadingProgressWindow = Window & {
+        __readingProgressAbort?: AbortController;
+        __readingProgressFrame?: number;
+        __readingProgressResizeObserver?: ResizeObserver;
+    };
+
+    function initReadingProgress() {
+        const runtimeWindow = window as ReadingProgressWindow;
+        runtimeWindow.__readingProgressAbort?.abort();
+        runtimeWindow.__readingProgressResizeObserver?.disconnect();
+        if (runtimeWindow.__readingProgressFrame) {
+            cancelAnimationFrame(runtimeWindow.__readingProgressFrame);
+        }
+
+        const indicator = document.querySelector<HTMLElement>('.reading-progress');
+        if (!indicator) return;
+
+        const controller = new AbortController();
+        const { signal } = controller;
+        runtimeWindow.__readingProgressAbort = controller;
+
+        let lastScrollTop = Math.max(0, window.scrollY, document.documentElement.scrollTop);
+        let lastProgress = 0;
+
+        const update = () => {
+            runtimeWindow.__readingProgressFrame = undefined;
+
+            const root = document.documentElement;
+            const scrollTop = Math.max(0, window.scrollY, root.scrollTop);
+            const viewportHeight = root.clientHeight;
+            const scrollHeight = Math.max(root.scrollHeight, document.body.scrollHeight);
+            const scrollRange = Math.max(1, scrollHeight - viewportHeight);
+            const atBottom = scrollTop + viewportHeight >= scrollHeight - 2;
+            const rawProgress = atBottom ? 1 : Math.min(1, scrollTop / scrollRange);
+
+            // Images, external cards and Safari's collapsing toolbar can change the
+            // denominator while the reader is still moving down. Only allow the bar
+            // to decrease when the document itself was actually scrolled upward.
+            const scrolledUp = scrollTop < lastScrollTop - 1;
+            const progress = scrolledUp
+                ? rawProgress
+                : Math.max(lastProgress, rawProgress);
+
+            indicator.style.transform = `scaleX(${progress})`;
+            lastScrollTop = scrollTop;
+            lastProgress = progress;
+        };
+
+        const scheduleUpdate = () => {
+            if (runtimeWindow.__readingProgressFrame) return;
+            runtimeWindow.__readingProgressFrame = requestAnimationFrame(update);
+        };
+
+        window.addEventListener('scroll', scheduleUpdate, { passive: true, signal });
+        window.addEventListener('resize', scheduleUpdate, { passive: true, signal });
+        window.visualViewport?.addEventListener('resize', scheduleUpdate, { passive: true, signal });
+
+        if ('ResizeObserver' in window) {
+            const resizeObserver = new ResizeObserver(scheduleUpdate);
+            resizeObserver.observe(document.body);
+            const article = document.querySelector('.article-layout');
+            if (article) resizeObserver.observe(article);
+            runtimeWindow.__readingProgressResizeObserver = resizeObserver;
+        }
+
+        document.fonts?.ready.then(() => {
+            if (!signal.aborted) scheduleUpdate();
+        });
+
+        signal.addEventListener('abort', () => {
+            if (runtimeWindow.__readingProgressFrame) {
+                cancelAnimationFrame(runtimeWindow.__readingProgressFrame);
+                runtimeWindow.__readingProgressFrame = undefined;
+            }
+            runtimeWindow.__readingProgressResizeObserver?.disconnect();
+            runtimeWindow.__readingProgressResizeObserver = undefined;
+        }, { once: true });
+
+        update();
+    }
+
+    document.addEventListener('astro:page-load', initReadingProgress);
+</script>

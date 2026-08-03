@@ -22,26 +22,13 @@ import svelte from "@astrojs/svelte";
 
 import { siteConfig } from './src/config';
 
-const preventFontSwapFlash = {
-  postcssPlugin: 'prevent-font-swap-flash',
-  Declaration(declaration) {
-    const fontFamily = declaration.parent?.nodes?.find(
-      (node) => node.type === 'decl' && node.prop === 'font-family'
-    )?.value ?? '';
-    const isCriticalBrandFont = /LXGW Bright Medium|EB Garamond/.test(fontFamily);
-    if (
-      declaration.prop === 'font-display'
-      && declaration.value === 'swap'
-      && isCriticalBrandFont
-    ) {
-      declaration.value = 'block';
-    }
-  },
-};
-
 // https://astro.build/config
 export default defineConfig({
   site: 'https://dogogod.github.io', // Root URL of site
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover',
+  },
   i18n: {
     locales: ['zh-cn', 'en'],
     defaultLocale: 'zh-cn',
@@ -104,9 +91,11 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
-    css: {
-      postcss: {
-        plugins: [preventFontSwapFlash],
+    build: {
+      // Keep reusable interaction code cacheable across Astro page transitions.
+      // CSS keeps Vite's default inline threshold to avoid extra render-blocking requests.
+      assetsInlineLimit(filePath, content) {
+        return filePath.endsWith('.js') ? content.length < 1024 : undefined;
       },
     },
   }

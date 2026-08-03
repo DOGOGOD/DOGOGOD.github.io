@@ -82,6 +82,8 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
             class="author-avatar mx-auto h-24 w-24 rounded-full object-cover"
             width="96"
             height="96"
+            decoding="async"
+            fetchpriority="high"
             onerror="this.style.display='none'"
           />
           <h1

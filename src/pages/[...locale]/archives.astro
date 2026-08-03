@@ -34,7 +34,7 @@ const pageTitle = t("header.archive") + " - " + siteConfig.title;
 
 <MainPageLayout title={pageTitle} lang={currentLang}>
     <ArchivePanel
-        client:load
+        client:idle
         sortedPosts={archivePosts}
         currentLang={currentLang}
         defaultLocale={i18n!.defaultLocale}
