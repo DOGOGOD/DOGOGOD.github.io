@@ -3,6 +3,10 @@ import { siteConfig, profileConfig } from '@/config';
 import "@styles/global.css"
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-700.css';
+import ebGaramondRegularUrl from '@fontsource/eb-garamond/files/eb-garamond-latin-400-normal.woff2?url';
+import ebGaramondBoldUrl from '@fontsource/eb-garamond/files/eb-garamond-latin-700-normal.woff2?url';
+import lxgwLatinUrl from '@chinese-fonts/lxgwwenkaibright/dist/LXGWBright-Medium/b1c260c070803c9291a231be96cb6d14.woff2?url';
+import lxgwCommonCjkUrl from '@chinese-fonts/lxgwwenkaibright/dist/LXGWBright-Medium/5e5ecd64a37da195508b682bdcbbb126.woff2?url';
 import { i18n } from "astro:config/client";
 import { ClientRouter } from "astro:transitions";
 import MusicPlayer from '@components/MusicPlayer.astro';
@@ -19,7 +23,12 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
 ---
 
 <!DOCTYPE html>
-<html lang={pageLang} class="h-full">
+<html
+  lang={pageLang}
+  class="h-full"
+  transition:name="root"
+  transition:animate="none"
+>
 <head>
     <script is:inline>
       (function() {
@@ -61,8 +70,12 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={new URL("rss.xml", Astro.site)} >
     )}
     <link rel="icon" href={siteConfig.favicon} type="image/x-icon">
+    <link rel="preload" href={lxgwLatinUrl} as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href={lxgwCommonCjkUrl} as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href={ebGaramondRegularUrl} as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href={ebGaramondBoldUrl} as="font" type="font/woff2" crossorigin="anonymous">
     <title>{pageTitle}</title>
-    <ClientRouter />
+    <ClientRouter fallback="swap" />
     <script is:inline>
       if (!window.__blogThemeSwapBound) {
         window.__blogThemeSwapBound = true;
@@ -79,6 +92,9 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
             if (revealEnabled) {
                 e.newDocument.documentElement.classList.add('reveal-enabled');
             }
+            // The initial visit keeps its reveal animation. Internal route
+            // changes render at their final state immediately.
+            e.newDocument.documentElement.classList.add('route-fast-swap');
         });
       }
     </script>
@@ -175,6 +191,13 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
   html.reveal-enabled .markdown-content.onload-animation > *.aos-animate {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  html.route-fast-swap [data-aos],
+  html.route-fast-swap .markdown-content.onload-animation > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 
   @media (prefers-reduced-motion: reduce) {

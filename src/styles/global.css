@@ -2,6 +2,7 @@
 @import "./variables.css";
 @import "./special.css";
 @import "./scrollbar.css";
+@import "@chinese-fonts/lxgwwenkaibright/dist/LXGWBright-Medium/result.css";
 
 @layer base {
 
@@ -12,8 +13,6 @@
 
   body {
     @apply bg-[--bg-color] text-[--text-color];
-    /* Prefer a locally installed LXGW font without forcing visitors to fetch
-       dozens of CJK webfont shards before the first readable paint. */
     font-family: "LXGW Bright Medium", "Noto Serif SC", "Source Han Serif SC", "Times New Roman", "STSong", "Songti SC", "STZhongsong", "NSimSun", "SimSun", serif;
     overflow-y: auto;
   }

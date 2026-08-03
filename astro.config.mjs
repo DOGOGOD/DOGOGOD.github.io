@@ -27,7 +27,9 @@ export default defineConfig({
   site: 'https://dogogod.github.io', // Root URL of site
   prefetch: {
     prefetchAll: true,
-    defaultStrategy: 'hover',
+    // Warm every internal route after the first page finishes loading. This
+    // deliberately trades initial bandwidth for near-instant navigation.
+    defaultStrategy: 'load',
   },
   i18n: {
     locales: ['zh-cn', 'en'],
@@ -92,6 +94,9 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     build: {
+      // ClientRouter waits for route-specific stylesheets before completing a
+      // swap. Loading one shared stylesheet up front removes that round-trip.
+      cssCodeSplit: false,
       // Keep reusable interaction code cacheable across Astro page transitions.
       // CSS keeps Vite's default inline threshold to avoid extra render-blocking requests.
       assetsInlineLimit(filePath, content) {
