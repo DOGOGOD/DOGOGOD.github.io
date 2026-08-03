@@ -8,6 +8,14 @@
     "status": "active"
   },
   {
+    "name": "SJTUClaw",
+    "description": "面向个人与教学场景的本地 AI Agent Runtime，将多轮对话、工具调用、长期记忆、Skill、定时任务与桌面宠物整合于同一运行时，提供 Windows 桌面端、Web UI、TUI、CLI、REST API 与 QQ Bot。",
+    "descriptionEn": "A local AI Agent Runtime for personal and educational use, unifying multi-turn chat, tool use, long-term memory, Skills, scheduled tasks, and desktop pets across Windows desktop, Web UI, TUI, CLI, REST API, and QQ Bot.",
+    "githubUrl": "https://github.com/DOGOGOD/SJTUClaw",
+    "tags": ["Python", "React", "TypeScript", "FastAPI"],
+    "status": "active"
+  },
+  {
     "name": "WeRead",
     "description": "微信公众号文章定时爬取与 AI 智能摘要工具。订阅你关注的公众号，定时抓取最新文章，由 AI 自动生成结构化阅读简报。",
     "descriptionEn": "A WeChat official account scraper with AI-powered summarization. Subscribe to accounts and receive structured reading digests automatically.",
