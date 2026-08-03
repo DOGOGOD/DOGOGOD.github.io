@@ -25,7 +25,15 @@ import { siteConfig } from './src/config';
 const preventFontSwapFlash = {
   postcssPlugin: 'prevent-font-swap-flash',
   Declaration(declaration) {
-    if (declaration.prop === 'font-display' && declaration.value === 'swap') {
+    const fontFamily = declaration.parent?.nodes?.find(
+      (node) => node.type === 'decl' && node.prop === 'font-family'
+    )?.value ?? '';
+    const isCriticalBrandFont = /LXGW Bright Medium|EB Garamond/.test(fontFamily);
+    if (
+      declaration.prop === 'font-display'
+      && declaration.value === 'swap'
+      && isCriticalBrandFont
+    ) {
       declaration.value = 'block';
     }
   },
@@ -44,12 +52,19 @@ export default defineConfig({
   },
   integrations: [icon({
     include: {
-      "fa6-brands": ["*"],
-      "fa6-solid": ["*"],
-      "simple-icons": ["*"],
-      "vscode-icons": ["*"],
-      "material-symbols": ["*"],
-      "fluent": ["*"],
+      "fa6-solid": [
+        "align-justify", "angle-right", "arrow-down", "arrow-left", "arrow-right",
+        "arrow-up", "book-bookmark", "calendar-days", "circle", "circle-info",
+        "clock", "diagram-project", "dice-three", "ellipsis", "globe", "hashtag",
+        "house", "list-ul", "magnifying-glass", "pen-nib", "triangle-exclamation",
+        "user", "xmark"
+      ],
+      "simple-icons": ["astro", "github", "rss", "svelte", "tailwindcss"],
+      "material-symbols": [
+        "dark-mode-outline-rounded", "music-note", "pause", "radio-button-partial-outline",
+        "skip-next", "wb-sunny-outline-rounded"
+      ],
+      "fluent": ["pin-24-filled"],
     }
   }), svelte()],
   markdown: {

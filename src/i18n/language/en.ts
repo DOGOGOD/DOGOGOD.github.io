@@ -34,8 +34,11 @@ const translation: Translation = {
     },
     search: {
         placeholder: "Enter keywords to start searching",
+        loading: "Loading the search index",
         noresult: "No results found.",
-        error: "Search error occurred. Please try again later."
+        error: "Search error occurred. Please try again later.",
+        close: "Close search",
+        dialogLabel: "Site search"
     },
     license: {
         author: "Author",

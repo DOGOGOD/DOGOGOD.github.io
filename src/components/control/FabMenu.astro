@@ -29,11 +29,13 @@ const tocHeadings = headings.filter(h => h.depth > 1 && h.depth < 5);
   id="fabMenu" 
   class="fixed bottom-[5vh] lg:bottom-[13.5vh] right-[7vw] lg:left-[var(--toc-offset-left)] w-10 h-10 z-[1000] transition-opacity duration-300 opacity-0 pointer-events-none"
   data-scroll-distance={scrollToTopDistance}
+  aria-hidden="true"
+  inert
 >
-  <div id="menuItems" class="absolute bottom-full left-0 mb-3 flex flex-col items-center gap-3 transition-all duration-300 ease-out translate-y-10 opacity-0 pointer-events-none [.is-active_&]:translate-y-0 [.is-active_&]:opacity-100 [.is-active_&]:pointer-events-auto">
+  <div id="menuItems" class="absolute bottom-full left-0 mb-3 flex flex-col items-center gap-3 transition-all duration-300 ease-out translate-y-10 opacity-0 pointer-events-none [.is-active_&]:translate-y-0 [.is-active_&]:opacity-100 [.is-active_&]:pointer-events-auto" inert>
     
     {showBackTop && (
-      <button id="backTop" title={t("button.backToTop")} class="relative w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
+      <button id="backTop" type="button" title={t("button.backToTop")} aria-label={t("button.backToTop")} class="relative w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
         <svg class="absolute -top-[1px] -left-[1px] w-[calc(100%+2px)] h-[calc(100%+2px)] -rotate-90 overflow-visible" viewBox="0 0 40 40">
           <circle 
             id="progress-circle" 
@@ -50,20 +52,20 @@ const tocHeadings = headings.filter(h => h.depth > 1 && h.depth < 5);
     )}
 
     {tocHeadings.length > 0 && (
-      <button id="tocTrigger" title={t("button.toc") || "目录"} class="lg:hidden w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
+      <button id="tocTrigger" type="button" title={t("button.toc") || "目录"} aria-label={t("button.toc") || "目录"} aria-controls="tocPanel" aria-expanded="false" class="min-[1180px]:hidden w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
         <Icon name="fa6-solid:list-ul" class="text-lg text-[var(--text-color)]" />
       </button>
     )}
 
     {showBackBottom && (
-      <button id="backBottom" title={t("button.backToBottom")} class="w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
+      <button id="backBottom" type="button" title={t("button.backToBottom")} aria-label={t("button.backToBottom")} class="w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
         <Icon name="fa6-solid:arrow-down" class="text-lg text-[var(--text-color)]" />
       </button>
     )}
 
   </div>
 
-  <button id="menuTrigger" title={t("button.menu")} class="w-full h-full rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-all duration-300 shadow-none backdrop-blur bg-[var(--bg-color)]/20 active:scale-95 hover:bg-[var(--button-hover-color)]">
+  <button id="menuTrigger" type="button" title={t("button.menu")} aria-label={t("button.menu")} aria-controls="menuItems" aria-expanded="false" class="w-full h-full rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-all duration-300 shadow-none backdrop-blur bg-[var(--bg-color)]/20 active:scale-95 hover:bg-[var(--button-hover-color)]">
     <Icon name="fa6-solid:ellipsis" class="absolute text-lg text-[var(--text-color)] transition-all duration-300 opacity-100 rotate-0 [.is-active_&]:opacity-0 [.is-active_&]:rotate-90" />
     <Icon name="fa6-solid:xmark" class="absolute text-lg text-[var(--text-color)] transition-all duration-300 opacity-0 -rotate-90 [.is-active_&]:opacity-100 [.is-active_&]:rotate-0" />
   </button>
@@ -71,11 +73,13 @@ const tocHeadings = headings.filter(h => h.depth > 1 && h.depth < 5);
   {tocHeadings.length > 0 && (
     <div 
       id="tocPanel" 
-      class="lg:hidden absolute bottom-25 right-0 lg:bottom-0 lg:left-14 w-60 lg:w-72 max-h-[60vh] flex flex-col bg-[var(--bg-color)]/95 backdrop-blur-lg border border-[var(--text-color)]/20 rounded-2xl shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-right lg:origin-bottom-left scale-50 opacity-0 pointer-events-none translate-y-4 lg:translate-y-0 lg:-translate-x-4 [.toc-active_&]:scale-100 [.toc-active_&]:opacity-100 [.toc-active_&]:pointer-events-auto [.toc-active_&]:translate-y-0 [.toc-active_&]:translate-x-0 z-[1001]"
+      class="min-[1180px]:hidden absolute bottom-25 right-0 lg:bottom-0 lg:left-14 w-60 lg:w-72 max-h-[60vh] flex flex-col bg-[var(--bg-color)]/95 backdrop-blur-lg border border-[var(--text-color)]/20 rounded-2xl shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-right lg:origin-bottom-left scale-50 opacity-0 pointer-events-none translate-y-4 lg:translate-y-0 lg:-translate-x-4 [.toc-active_&]:scale-100 [.toc-active_&]:opacity-100 [.toc-active_&]:pointer-events-auto [.toc-active_&]:translate-y-0 [.toc-active_&]:translate-x-0 z-[1001]"
+      aria-hidden="true"
+      inert
     >
       <div class="px-4 py-3 border-b border-[var(--text-color)]/10 font-bold text-sm text-[var(--text-color)] flex justify-between items-center bg-[var(--button-hover-color)] rounded-t-2xl">
         <span>{t("button.toc")}</span>
-        <button id="closeToc" class="opacity-50 hover:opacity-100 transition-opacity p-1">
+        <button id="closeToc" type="button" aria-label={currentLang === 'en' ? 'Close table of contents' : '关闭目录'} class="opacity-50 hover:opacity-100 transition-opacity p-1">
           <Icon name="fa6-solid:xmark" class="text-sm text-[var(--text-color)]" />
         </button>
       </div>
@@ -105,8 +109,10 @@ function initFabMenu() {
   const backTop = document.getElementById('backTop');
   const backBottom = document.getElementById('backBottom');
   const progressCircle = document.getElementById('progress-circle');
+  const menuItems = document.getElementById('menuItems');
   const tocTrigger = document.getElementById('tocTrigger');
   const closeToc = document.getElementById('closeToc');
+  const tocPanel = document.getElementById('tocPanel');
   const tocLinks = document.querySelectorAll('.toc-link');
   
   if (!container || !trigger) return;
@@ -118,15 +124,36 @@ function initFabMenu() {
   const controller = new AbortController();
   const { signal } = controller;
   let tocObserver = null;
+  let scrollFrame = 0;
 
   window.__fabMenuCleanup = () => {
     controller.abort();
     tocObserver?.disconnect();
+    cancelAnimationFrame(scrollFrame);
   };
 
   const threshold = parseInt(container.dataset.scrollDistance) || 100;
   let isTocOpen = false;
   let scrollPosOnTocOpen = 0;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const setMenuOpen = (isOpen) => {
+    container.classList.toggle('is-active', isOpen);
+    trigger.setAttribute('aria-expanded', String(isOpen));
+    if (menuItems) menuItems.inert = !isOpen;
+    if (!isOpen) setTocOpen(false);
+  };
+
+  const setTocOpen = (isOpen) => {
+    isTocOpen = isOpen;
+    container.classList.toggle('toc-active', isOpen);
+    tocTrigger?.setAttribute('aria-expanded', String(isOpen));
+    tocPanel?.setAttribute('aria-hidden', String(!isOpen));
+    if (tocPanel) tocPanel.inert = !isOpen;
+    if (isOpen) {
+      scrollPosOnTocOpen = window.scrollY || document.documentElement.scrollTop;
+    }
+  };
 
   const handleScroll = () => {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -136,16 +163,19 @@ function initFabMenu() {
     if (scrollTop > threshold) {
       container.classList.remove('opacity-0', 'pointer-events-none');
       container.classList.add('opacity-100', 'pointer-events-auto');
+      container.removeAttribute('aria-hidden');
+      container.inert = false;
     } else {
       container.classList.add('opacity-0', 'pointer-events-none');
-      container.classList.remove('opacity-100', 'pointer-events-auto', 'is-active', 'toc-active');
-      isTocOpen = false; // 回到顶部时同时关闭目录状态
+      container.classList.remove('opacity-100', 'pointer-events-auto');
+      container.setAttribute('aria-hidden', 'true');
+      container.inert = true;
+      setMenuOpen(false);
     }
 
     // 滑动页面时平滑关闭目录 (设置 50px 的缓冲阈值，防止误触)
     if (isTocOpen && Math.abs(scrollTop - scrollPosOnTocOpen) > 50) {
-      isTocOpen = false;
-      container.classList.remove('toc-active');
+      setTocOpen(false);
     }
 
     // 更新进度条
@@ -158,40 +188,30 @@ function initFabMenu() {
   };
 
   // 主按钮切换
-  trigger.onclick = (e) => {
+  trigger.addEventListener('click', (e) => {
     e.stopPropagation();
-    container.classList.toggle('is-active');
-    // 如果关闭了主菜单，也一并关闭目录
-    if (!container.classList.contains('is-active')) {
-      isTocOpen = false;
-      container.classList.remove('toc-active');
-    }
-  };
+    setMenuOpen(!container.classList.contains('is-active'));
+  }, { signal });
 
   // 目录按钮触发
   if (tocTrigger) {
-    tocTrigger.onclick = (e) => {
+    tocTrigger.addEventListener('click', (e) => {
       e.stopPropagation();
-      isTocOpen = !isTocOpen;
-      container.classList.toggle('toc-active', isTocOpen);
-      // 记录打开目录时的滚动位置
-      if (isTocOpen) {
-        scrollPosOnTocOpen = window.scrollY || document.documentElement.scrollTop;
-      }
-    };
+      setTocOpen(!isTocOpen);
+    }, { signal });
   }
 
   // 关闭目录按钮
   if (closeToc) {
-    closeToc.onclick = (e) => {
+    closeToc.addEventListener('click', (e) => {
       e.stopPropagation();
-      isTocOpen = false;
-      container.classList.remove('toc-active');
-    };
+      setTocOpen(false);
+      tocTrigger?.focus();
+    }, { signal });
   }
 
 tocLinks.forEach(link => {
-    link.onclick = (e) => {
+    link.addEventListener('click', (e) => {
       e.preventDefault(); // 阻止默认的锚点跳转，以便使用平滑滚动
       
       // 点击即时反馈：移除所有高亮，给当前点击的项加上高亮
@@ -211,14 +231,13 @@ tocLinks.forEach(link => {
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth'
+          behavior: prefersReducedMotion ? 'auto' : 'smooth'
         });
         
         // 缩起目录面板
-        isTocOpen = false;
-        container.classList.remove('toc-active');
+        setTocOpen(false);
       }
-    };
+    }, { signal });
   });
 
   // 提取所有正文里的标题元素
@@ -255,32 +274,40 @@ tocLinks.forEach(link => {
 
   // 回到顶部
   if (backTop) {
-    backTop.onclick = () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      container.classList.remove('is-active', 'toc-active');
-      isTocOpen = false;
-    };
+    backTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+      setMenuOpen(false);
+    }, { signal });
   }
 
   // 回到底部
   if (backBottom) {
-    backBottom.onclick = () => {
-      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-      container.classList.remove('is-active', 'toc-active');
-      isTocOpen = false;
-    };
+    backBottom.addEventListener('click', () => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
+      setMenuOpen(false);
+    }, { signal });
   }
 
 
   // 点击外部关闭所有展开项
   document.addEventListener('click', (e) => {
     if (!container.contains(e.target)) {
-      container.classList.remove('is-active', 'toc-active');
-      isTocOpen = false;
+      setMenuOpen(false);
     }
   }, { signal });
 
-  window.addEventListener('scroll', handleScroll, { passive: true, signal });
+  const requestScrollUpdate = () => {
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(() => {
+      scrollFrame = 0;
+      handleScroll();
+    });
+  };
+
+  window.addEventListener('scroll', requestScrollUpdate, { passive: true, signal });
   handleScroll();
 }
 

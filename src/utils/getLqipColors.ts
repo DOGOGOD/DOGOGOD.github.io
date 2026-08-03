@@ -6,10 +6,16 @@ import sharp from 'sharp';
 export async function getLqipGradient(fsPath: string): Promise<string> {
   try {
     // 采样 3 个像素点
-    const { data } = await sharp(fsPath)
+    const { data, info } = await sharp(fsPath)
+      .toColourspace('srgb')
+      .removeAlpha()
       .resize(3, 1, { fit: 'fill' })
       .raw()
       .toBuffer({ resolveWithObject: true });
+
+    if (info.channels !== 3 || data.length < 9) {
+      throw new Error(`Unexpected image channel layout: ${info.channels}`);
+    }
 
     const c = [];
     for (let i = 0; i < data.length; i += 3) {

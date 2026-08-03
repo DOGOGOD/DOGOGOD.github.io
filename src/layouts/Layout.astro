@@ -1,7 +1,6 @@
 ---
 import { siteConfig, profileConfig } from '@/config';
 import "@styles/global.css"
-import 'katex/dist/katex.min.css';
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-700.css';
 import ebGaramondRegularUrl from '@fontsource/eb-garamond/files/eb-garamond-latin-400-normal.woff2?url';
@@ -10,7 +9,7 @@ import lxgwLatinUrl from '@chinese-fonts/lxgwwenkaibright/dist/LXGWBright-Medium
 import lxgwCommonCjkUrl from '@chinese-fonts/lxgwwenkaibright/dist/LXGWBright-Medium/5e5ecd64a37da195508b682bdcbbb126.woff2?url';
 import { i18n } from "astro:config/client";
 import { ClientRouter } from "astro:transitions";
-import MusicPlayer from '@components/MusicPlayer.svelte';
+import MusicPlayer from '@components/MusicPlayer.astro';
 
 interface Props {
   title: string;
@@ -29,7 +28,9 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     <script is:inline>
       (function() {
         const root = document.documentElement;
-        root.classList.add('fonts-loading');
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          root.classList.add('reveal-enabled');
+        }
 
         let savedTheme = 'system';
         try {
@@ -71,16 +72,23 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     <title>{pageTitle}</title>
     <ClientRouter />
     <script is:inline>
+      if (!window.__blogThemeSwapBound) {
+        window.__blogThemeSwapBound = true;
         document.addEventListener('astro:before-swap', (e) => {
             const theme = document.documentElement.getAttribute('data-theme');
             const sysTheme = document.documentElement.classList.contains('system-theme');
+            const revealEnabled = document.documentElement.classList.contains('reveal-enabled');
             if (theme) {
                 e.newDocument.documentElement.setAttribute('data-theme', theme);
             }
             if (sysTheme) {
                 e.newDocument.documentElement.classList.add('system-theme');
             }
+            if (revealEnabled) {
+                e.newDocument.documentElement.classList.add('reveal-enabled');
+            }
         });
+      }
     </script>
 </head>
 <body class="h-full bg-[var(--bg-color)]">
@@ -91,64 +99,34 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
 
     <slot />
 
-    <script is:inline>
-      (function() {
-        const root = document.documentElement;
-        const releasePage = () => root.classList.remove('fonts-loading');
-
-        if (!document.fonts || typeof document.fonts.load !== 'function') {
-          releasePage();
-          return;
-        }
-
-        const criticalText = (document.body.textContent || '').replace(/\s+/g, '').slice(0, 600);
-        const fontLoads = [
-          document.fonts.load('500 1em "LXGW Bright Medium"', criticalText),
-          document.fonts.load('400 1em "EB Garamond"', 'Guztchian Blog'),
-          document.fonts.load('700 1em "EB Garamond"', 'Guztchian'),
-        ];
-
-        Promise.allSettled(fontLoads).then(releasePage);
-        window.setTimeout(releasePage, 2500);
-      })();
-    </script>
-
     <!-- Persistent music player — keeps playing across page navigations via View Transitions. -->
     {siteConfig.music.enable && (
-      <MusicPlayer
-        client:only="svelte"
-        tracks={siteConfig.music.tracks}
-        transition:persist
-        transition:name="music-player"
-      />
+      <MusicPlayer tracks={siteConfig.music.tracks} lang={pageLang} />
     )}
     
     <script is:inline>
+      if (!window.__blogNavigationLoaderBound) {
+        window.__blogNavigationLoaderBound = true;
         let loaderTimeout;
 
-        // 1. 开始准备跳转
+        const hideLoader = () => {
+          clearTimeout(loaderTimeout);
+          loaderTimeout = undefined;
+          const overlay = document.getElementById('loading-overlay');
+          if (overlay) overlay.style.display = 'none';
+        };
+
         document.addEventListener('astro:before-preparation', () => {
-            loaderTimeout = setTimeout(() => {
+          clearTimeout(loaderTimeout);
+          loaderTimeout = setTimeout(() => {
             const overlay = document.getElementById('loading-overlay');
             if (overlay) overlay.style.display = 'flex';
-            }, 500); 
+          }, 500);
         });
-
-        // 2. 页面内容交换完成（DOM 已更新）
-        document.addEventListener('astro:after-swap', () => {
-            clearTimeout(loaderTimeout);
-            
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) overlay.style.display = 'none';
-        });
-
-        // 3. 兜底方案：页面完全加载完成（包括资源）
-        document.addEventListener('astro:page-load', () => {
-            clearTimeout(loaderTimeout);
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) overlay.style.display = 'none';
-        });
-        </script>
+        document.addEventListener('astro:after-swap', hideLoader);
+        document.addEventListener('astro:page-load', hideLoader);
+      }
+    </script>
 </body>
 </html>
 
@@ -191,35 +169,84 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
   html {
     scroll-behavior: smooth;
   }
+
+  html.reveal-enabled [data-aos],
+  html.reveal-enabled .markdown-content.onload-animation > * {
+    opacity: 0;
+    transform: translateY(1rem);
+    transition:
+      opacity 600ms ease var(--reveal-delay, 0ms),
+      transform 600ms ease var(--reveal-delay, 0ms);
+  }
+
+  html.reveal-enabled [data-aos].aos-animate,
+  html.reveal-enabled .markdown-content.onload-animation > *.aos-animate {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .spinner {
+      animation: none;
+    }
+  }
 </style>
 
 { siteConfig.theme.AOS &&
 <script>
-  import AOS from 'aos';
-  import 'aos/dist/aos.css';
+  type RevealAnimationWindow = Window & {
+    __revealObserver?: IntersectionObserver;
+  };
 
-  function initApp() {
-    // 1. 先处理 Markdown 的动态注入 (如果有)
+  function initRevealAnimations() {
     const containers = document.querySelectorAll('.markdown-content.onload-animation');
     containers.forEach((container) => {
       const elements = container.querySelectorAll(':scope > *');
       elements.forEach((el, i) => {
         el.setAttribute('data-aos', 'fade-up');
-        el.setAttribute('data-aos-delay', (i % 5 * 50).toString());
+        if (el instanceof HTMLElement) {
+          el.style.setProperty('--reveal-delay', `${(i % 5) * 50}ms`);
+        }
       });
     });
 
-    // 2. 统一初始化
-    AOS.init({
-      duration: 800,
-      once: true,
+    const revealWindow = window as RevealAnimationWindow;
+    revealWindow.__revealObserver?.disconnect();
+
+    const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-aos]'));
+    if (
+      elements.length === 0
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      || !('IntersectionObserver' in window)
+    ) {
+      elements.forEach((element) => element.classList.add('aos-animate'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('aos-animate');
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+
+    elements.forEach((element) => {
+      if (element.getBoundingClientRect().top < window.innerHeight) {
+        element.classList.add('aos-animate');
+      } else {
+        observer.observe(element);
+      }
     });
-    
-    // 3. 强力刷新
-    AOS.refreshHard();
+
+    revealWindow.__revealObserver = observer;
   }
 
-  document.addEventListener('astro:page-load', initApp);
+  document.addEventListener('astro:page-load', initRevealAnimations);
 
 </script>
 }

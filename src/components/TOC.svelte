@@ -23,6 +23,15 @@
 	onMount(() => {
 		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 		let syncFrame = 0
+		const isKnownHeading = (slug) => filteredHeadings.some((heading) => heading.slug === slug)
+		const nearestHeadingSlug = () => filteredHeadings
+			.map((heading) => document.getElementById(heading.slug))
+			.filter(Boolean)
+			.filter((element) => element.getBoundingClientRect().top <= 140)
+			.at(-1)?.id || filteredHeadings[0]?.slug || ''
+		const resolvedHeadingSlug = (candidate) => (
+			isKnownHeading(candidate) ? candidate : nearestHeadingSlug()
+		)
 
 		const syncTocPosition = (slug, behavior = 'smooth') => {
 			if (!tocListElement) return
@@ -48,8 +57,24 @@
 			syncFrame = requestAnimationFrame(() => syncTocPosition(slug, behavior))
 		}
 
-		const initialSlug = decodeURIComponent(window.location.hash.slice(1)) || filteredHeadings[0]?.slug || ''
+		let hashSlug = ''
+		try {
+			hashSlug = decodeURIComponent(window.location.hash.slice(1))
+		} catch {
+			hashSlug = ''
+		}
+		const initialSlug = resolvedHeadingSlug(hashSlug)
 		setActiveHeading(initialSlug, 'auto')
+
+		const handleHashChange = () => {
+			try {
+				setActiveHeading(
+					resolvedHeadingSlug(decodeURIComponent(window.location.hash.slice(1))),
+					'auto'
+				)
+			} catch {}
+		}
+		window.addEventListener('hashchange', handleHashChange)
 
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -70,6 +95,7 @@
 		return () => {
 			cancelAnimationFrame(syncFrame)
 			observer.disconnect()
+			window.removeEventListener('hashchange', handleHashChange)
 		}
 	})
 </script>
@@ -95,25 +121,6 @@
 		</nav>
 	</aside>
 
-	<details class="toc-mobile">
-		<summary>{t('toc')}</summary>
-		<nav aria-label={t('toc')}>
-			<ul>
-				{#each filteredHeadings as heading}
-					<li>
-						<a
-							href={`#${heading.slug}`}
-							class:active={activeSlug === heading.slug}
-							aria-current={activeSlug === heading.slug ? 'location' : undefined}
-							style:padding-left={`${(heading.depth - minDepth) * 0.8}rem`}
-						>
-							{heading.text}
-						</a>
-					</li>
-				{/each}
-			</ul>
-		</nav>
-	</details>
 </div>
 
 <style>
@@ -186,74 +193,14 @@
 		background: var(--link-color);
 	}
 
-	.toc-list a:focus-visible,
-	.toc-mobile a:focus-visible,
-	.toc-mobile summary:focus-visible {
+	.toc-list a:focus-visible {
 		outline: 2px solid var(--link-color);
 		outline-offset: 0.2rem;
-	}
-
-	.toc-mobile {
-		border-top: 1px solid var(--border-color);
-		border-bottom: 1px solid var(--border-color);
-	}
-
-	.toc-mobile summary {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0.9rem 0;
-		font-size: 1rem;
-		font-weight: 600;
-		letter-spacing: 0.06em;
-		cursor: pointer;
-		list-style: none;
-	}
-
-	.toc-mobile summary::-webkit-details-marker {
-		display: none;
-	}
-
-	.toc-mobile summary::after {
-		color: var(--link-color);
-		font-size: 1.15rem;
-		font-weight: 400;
-		content: '+';
-	}
-
-	.toc-mobile[open] summary::after {
-		content: '-';
-	}
-
-	.toc-mobile ul {
-		display: grid;
-		gap: 0.2rem;
-		margin: 0;
-		padding: 0 0 1rem;
-		list-style: none;
-	}
-
-	.toc-mobile a {
-		display: block;
-		padding-block: 0.45rem;
-		color: var(--text-color-70);
-		font-size: 0.92rem;
-		line-height: 1.5;
-		text-decoration: none;
-	}
-
-	.toc-mobile a:hover,
-	.toc-mobile a.active {
-		color: var(--link-color);
 	}
 
 	@media (min-width: 1180px) {
 		.toc-desktop {
 			display: block;
-		}
-
-		.toc-mobile {
-			display: none;
 		}
 	}
 

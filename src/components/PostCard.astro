@@ -1,5 +1,4 @@
 ---
-import "@styles/global.css"
 import ImageModule from "./misc/ImageModule.astro";
 
 import type { CollectionEntry } from 'astro:content';
@@ -72,7 +71,7 @@ const { remarkPluginFrontmatter } = await render(entry);
             </p>
             <p class="flex items-center whitespace-nowrap mr-2">
                 <Icon name="fa6-solid:hashtag" class="mr-1"></Icon> 
-                <a href={getRelativeLocaleUrl(currentLang, `/archives/?category=${entry.data.category}`)} class="category-tag">{entry.data.category || t("pagecard.uncategorized")}</a>
+                <a href={getRelativeLocaleUrl(currentLang, `/archives/?category=${encodeURIComponent(entry.data.category || '')}`)} class="category-tag">{entry.data.category || t("pagecard.uncategorized")}</a>
             </p>
         </div>
     </div>

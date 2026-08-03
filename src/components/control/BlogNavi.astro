@@ -2,10 +2,11 @@
 import { i18n } from "astro:config/client";
 import { Icon } from "astro-icon/components";
 import i18nit from '@i18n/translation'
+import type { BlogEntryWithLocaleStatus } from '@utils/content-utils';
 
 interface Props {
-    prev: any;
-    next: any;
+    prev: BlogEntryWithLocaleStatus | null;
+    next: BlogEntryWithLocaleStatus | null;
 }
 
 const { prev, next } = Astro.props;

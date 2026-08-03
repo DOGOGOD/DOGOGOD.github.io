@@ -10,11 +10,11 @@ import { i18n } from "astro:config/client";
  */
 // 1. 定义一个扩展类型，包含 fallback 状态
 export type BlogEntryWithLocaleStatus = CollectionEntry<'blog'> & {
-  isFallback?: boolean;
+  isFallback: boolean;
 };
 
 export async function getBlogEntrySort(
-  lang: string,
+  lang?: string,
   filter?: (entry: CollectionEntry<'blog'>) => boolean | undefined,
   sort?: (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => number
 ): Promise<BlogEntryWithLocaleStatus[]> { // 修改返回类型
@@ -27,7 +27,9 @@ export async function getBlogEntrySort(
     return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
   };
 
-  const blogEntries = await getCollection('blog', filter || defaultFilter);
+  const blogEntries = await getCollection('blog', (entry: CollectionEntry<'blog'>) => (
+    defaultFilter(entry) && (filter?.(entry) ?? true)
+  ));
 
   const grouped = new Map<string, Record<string, CollectionEntry<'blog'>>>();
   const defaultLanguage = i18n?.defaultLocale || 'zh-cn';
@@ -68,7 +70,7 @@ export async function getBlogEntrySort(
       selectedEntries.push({
         ...selectedPost,
         id: id,
-        isFallback: isFallback // 将状态注入对象
+        isFallback // 将状态注入对象
       });
     }
   }

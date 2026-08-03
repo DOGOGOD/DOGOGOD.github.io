@@ -317,7 +317,7 @@ Cetz 3D 图形示例：
 
 支持通过标准 HTML `<iframe>` 标签嵌入外部平台的视频播放器，自适应宽度（`width="100%"`）。
 
-<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=717556844&bvid=BV13Q4y117A8&cid=397079113&p=1" scrolling="no" frameborder="no" framespacing="0" allowfullscreen="true" width="100%" height="468"></iframe>
+<iframe src="https://player.bilibili.com/player.html?isOutside=true&aid=717556844&bvid=BV13Q4y117A8&cid=397079113&p=1" title="Bilibili 视频播放器" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" scrolling="no" frameborder="no" allowfullscreen="true" width="100%" height="468"></iframe>
 
 ---
 

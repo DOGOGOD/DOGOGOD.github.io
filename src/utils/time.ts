@@ -3,10 +3,13 @@
  */
 const ensureDate = (input: string | Date): Date => {
   if (input instanceof Date) return input;
-  
-  // 如果是字符串 YYYY-MM-DD
-  const [year, month, day] = input.split('-').map(Number);
-  return new Date(year, month - 1, day);
+
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(input);
+  const date = dateOnly
+    ? new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3])))
+    : new Date(input);
+  if (Number.isNaN(date.valueOf())) throw new RangeError(`Invalid date: ${input}`);
+  return date;
 };
 
 const normalizeLocale = (lang: string) => {
@@ -29,6 +32,7 @@ export function formatMonthDay(dateInput: string | Date, lang: string = 'zh-CN')
   const formatted = new Intl.DateTimeFormat(lang, {
     month: 'short',
     day: 'numeric',
+    timeZone: 'UTC',
   }).format(date);
 
   return lang.toLowerCase().startsWith('zh') ? addPanguSpace(formatted) : formatted;
@@ -42,6 +46,7 @@ export function formatFullDate(dateInput: string | Date, lang: string = 'zh-CN')
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    timeZone: 'UTC',
   }).format(date);
 
   return lang.startsWith('zh') ? addPanguSpace(formatted) : formatted;

@@ -1,5 +1,4 @@
 ---
-import "@styles/global.css"
 import { Icon } from "astro-icon/components"
 import { profileConfig, siteConfig } from "@/config"
 import ThemeIcon from "./control/ThemeIcon.astro"
@@ -13,6 +12,7 @@ import { getRelativeLocaleUrl } from '@utils/url-utils';
 
 const currentLang = Astro.currentLocale || i18n!.defaultLocale;
 const t = i18nit(currentLang);
+const isEnglish = currentLang === 'en';
 
 
 // 获取当前页面在不同语言下的路径
@@ -69,7 +69,7 @@ if (profileConfig.indexPage) {
     <!-- tools -->
     <div class="header-tools ml-auto flex gap-1 sm:gap-2 pl-2 sm:pl-4 py-2 justify-end z-30">
         <!-- Search -->
-        <button id="search-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Search">
+        <button id="search-button" type="button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label={isEnglish ? 'Search' : '搜索'}>
             <Icon name="fa6-solid:magnifying-glass" class="w-4 h-4" />
         </button>
         <!-- Dark Mode -->
@@ -80,7 +80,7 @@ if (profileConfig.indexPage) {
         </a> -->
         <!-- Language Switcher -->
         <div class="relative">
-            <button id="language-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Language Switcher" aria-controls="language-menu" aria-expanded="false">
+            <button id="language-button" type="button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label={isEnglish ? 'Switch language' : '切换语言'} aria-controls="language-menu" aria-expanded="false">
                 <Icon name="fa6-solid:globe" class="w-4 h-4" />
             </button>
             
@@ -108,7 +108,7 @@ if (profileConfig.indexPage) {
         </div>
         <div class="relative md:hidden">
           <!-- Mobile Menu -->
-          <button id="mobile-menu-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Mobile Menu" aria-controls="mobile-menu-container" aria-expanded="false">
+          <button id="mobile-menu-button" type="button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label={isEnglish ? 'Open menu' : '打开菜单'} aria-controls="mobile-menu-container" aria-expanded="false">
               <Icon name="fa6-solid:align-justify" class="w-4 h-4" />
           </button>
               
@@ -160,14 +160,14 @@ if (profileConfig.indexPage) {
         </div>
     </div>
 <!-- Mobile Menu -->
-<div id="mobile-menu-container" class="fixed inset-0 z-[100] hidden" aria-hidden="true">
+<div id="mobile-menu-container" class="fixed inset-0 z-[20000] hidden" role="dialog" aria-modal="true" aria-label={isEnglish ? 'Navigation menu' : '导航菜单'} aria-hidden="true" inert>
     <div id="mobile-menu-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-in-out"></div>
     
     <div id="mobile-menu-drawer" class="absolute top-0 left-0 bottom-0 w-[70%] max-w-[300px] bg-[var(--bg-color)] shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
         
         <div class="flex items-center justify-between p-5 border-b border-[var(--button-border-color)]">
             <span class="text-xl font-bold header-logo">{ siteConfig.title }</span>
-            <button id="mobile-menu-close" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[var(--button-hover-color)] transition-colors" aria-label={currentLang === 'en' ? 'Close menu' : '关闭菜单'}>
+            <button id="mobile-menu-close" type="button" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[var(--button-hover-color)] transition-colors" aria-label={currentLang === 'en' ? 'Close menu' : '关闭菜单'}>
                 <Icon name="fa6-solid:xmark" class="w-5 h-5" />
             </button>
         </div>
@@ -305,6 +305,7 @@ function initMobileNav() {
   function openMenu() {
     window.clearTimeout(closeTimer);
     container.classList.remove('hidden');
+    container.inert = false;
     container.setAttribute('aria-hidden', 'false');
     menuButton.setAttribute('aria-expanded', 'true');
     requestAnimationFrame(() => {
@@ -315,43 +316,108 @@ function initMobileNav() {
     closeButton?.focus();
   }
 
-  function closeMenu() {
+  function finishClosingMenu(restoreFocus: boolean) {
+    container.classList.add('hidden');
+    container.inert = true;
+    container.setAttribute('aria-hidden', 'true');
+    menuButton.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    if (restoreFocus && menuButton.isConnected) menuButton.focus();
+  }
+
+  function closeMenu(restoreFocus = true, immediately = false) {
+    window.clearTimeout(closeTimer);
     overlay?.classList.remove('opacity-100');
     drawer?.classList.add('-translate-x-full');
 
+    if (immediately) {
+      finishClosingMenu(restoreFocus);
+      return;
+    }
     closeTimer = window.setTimeout(() => {
-      container.classList.add('hidden');
-      container.setAttribute('aria-hidden', 'true');
-      menuButton.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
+      finishClosingMenu(restoreFocus);
     }, 300);
   }
 
   menuButton.addEventListener('click', openMenu, { signal });
-  closeButton?.addEventListener('click', closeMenu, { signal });
-  overlay?.addEventListener('click', closeMenu, { signal });
+  closeButton?.addEventListener('click', () => closeMenu(), { signal });
+  overlay?.addEventListener('click', () => closeMenu(), { signal });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && !container.classList.contains('hidden')) {
       closeMenu();
-      menuButton.focus();
+      return;
+    }
+
+    if (event.key === 'Tab' && !container.classList.contains('hidden') && drawer) {
+      const focusable = Array.from(drawer.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      ));
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (!first || !last) return;
+      if (!document.activeElement || !drawer.contains(document.activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+        return;
+      }
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
   }, { signal });
 
   drawer?.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', closeMenu, { signal });
+    link.addEventListener('click', () => closeMenu(false), { signal });
   });
 
-  if (header && navBar && navBarList) {
-    const observer = new IntersectionObserver(([entry]) => {
+  const desktopQuery = window.matchMedia('(min-width: 768px)');
+  let navObserver: IntersectionObserver | undefined;
+
+  const resetDesktopNav = () => {
+    navBar?.classList.remove('fixed');
+    navBarList?.classList.add('border-[var(--bg-color)]');
+    navBarList?.classList.remove(
+      'border-[var(--button-border-color)]',
+      'shadow-[0_4px_12px_var(--shadow-color)]'
+    );
+  };
+
+  const configureDesktopNav = () => {
+    navObserver?.disconnect();
+    navObserver = undefined;
+    blogWindow.__blogNavObserver = undefined;
+
+    if (!desktopQuery.matches) {
+      resetDesktopNav();
+      return;
+    }
+
+    if (!container.classList.contains('hidden')) closeMenu(false, true);
+    if (!header || !navBar || !navBarList) return;
+
+    navObserver = new IntersectionObserver(([entry]) => {
       const isDetached = !entry.isIntersecting;
       navBar.classList.toggle('fixed', isDetached);
       navBarList.classList.toggle('border-[var(--bg-color)]', !isDetached);
       navBarList.classList.toggle('border-[var(--button-border-color)]', isDetached);
       navBarList.classList.toggle('shadow-[0_4px_12px_var(--shadow-color)]', isDetached);
     }, { threshold: 0 });
-    observer.observe(header);
-    blogWindow.__blogNavObserver = observer;
-  }
+    navObserver.observe(header);
+    blogWindow.__blogNavObserver = navObserver;
+  };
+
+  desktopQuery.addEventListener('change', configureDesktopNav, { signal });
+  configureDesktopNav();
+
+  signal.addEventListener('abort', () => {
+    window.clearTimeout(closeTimer);
+    navObserver?.disconnect();
+    document.body.style.overflow = '';
+  }, { once: true });
 }
 
 document.addEventListener('astro:page-load', initMobileNav);
@@ -412,40 +478,43 @@ document.addEventListener('astro:page-load', initLanguageMenu);
 
 {import.meta.env.PROD && 
 <script is:inline define:vars={{ scriptUrl: baseUrl('/pagefind/pagefind.js') }}>
-async function loadAndSearch() {
-  // 1. 如果已经加载过了，直接返回
+async function loadPagefind() {
   if (window.pagefind && typeof window.pagefind.search === 'function') {
-    return;
+    return window.pagefind;
   }
-  
-  if (window.pagefindLoading) return;
+
+  if (window.__pagefindPromise) return window.__pagefindPromise;
   window.pagefindLoading = true;
 
-  try {
-    // 动态导入脚本
+  window.__pagefindPromise = (async () => {
     const pagefind = await import(scriptUrl);
     await pagefind.options({ excerptLength: 20 });
     window.pagefind = pagefind;
-    
-    // 触发自定义事件，通知搜索组件：Pagefind 准备好了
     document.dispatchEvent(new CustomEvent('pagefind-ready'));
+    return pagefind;
+  })();
+
+  try {
+    return await window.__pagefindPromise;
   } catch (error) {
     console.error('Pagefind 加载失败:', error);
+    window.__pagefindPromise = undefined;
     document.dispatchEvent(new CustomEvent('pagefind-error'));
+    throw error;
   } finally {
     window.pagefindLoading = false;
   }
 }
 
-// 2. 绑定到搜索按钮
 function attachSearchListener() {
   const btn = document.getElementById('search-button');
-  if (btn) {
-    btn.addEventListener('click', loadAndSearch, { once: true });
-  }
+  if (!btn || btn.dataset.pagefindBound === 'true') return;
+  btn.dataset.pagefindBound = 'true';
+  btn.addEventListener('click', () => {
+    loadPagefind().catch(() => {});
+  });
 }
 
-// 兼容 Astro 的 View Transitions
 document.addEventListener('astro:page-load', attachSearchListener);
 </script>
 }

@@ -19,14 +19,23 @@ export async function getStaticPaths() {
 
 // 获取所有博客文章并按发布日期降序排序
 const allBlogPosts = await getBlogEntrySort(currentLang);
+const archivePosts = allBlogPosts.map(({ id, isFallback, data }) => ({
+	id,
+	isFallback: Boolean(isFallback),
+	data: {
+		title: data.title,
+		pubDate: data.pubDate,
+		category: data.category,
+	},
+}));
 
 const pageTitle = t("header.archive") + " - " + siteConfig.title;
 ---
 
 <MainPageLayout title={pageTitle} lang={currentLang}>
     <ArchivePanel
-        client:only="svelte"
-        sortedPosts={allBlogPosts}
+        client:load
+        sortedPosts={archivePosts}
         currentLang={currentLang}
         defaultLocale={i18n!.defaultLocale}
     />

@@ -34,8 +34,11 @@ const translation: Translation = {
     },
     search: {
         placeholder: "输入关键词开始搜索",
+        loading: "正在载入搜索索引",
         noresult: "未找到相关结果",
-        error: "搜索出现错误，请稍后重试"
+        error: "搜索出现错误，请稍后重试",
+        close: "关闭搜索",
+        dialogLabel: "站内搜索"
     },
     license: {
         author: "作者",

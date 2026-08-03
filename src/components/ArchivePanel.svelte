@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import { flip } from 'svelte/animate';
   import { fade } from 'svelte/transition';
-  import Icon from '@iconify/svelte';
   import i18nit from '@i18n/translation';
   import { formatMonthDay } from '@/utils/time'
   import { getRelativeLocaleUrl } from '@utils/url-utils';
@@ -55,47 +54,8 @@
 
     window.addEventListener('popstate', handlePopState);
 
-    const syncAsideHeight = () => {
-      const mainContent = document.getElementById('archive-content');
-      const aside = document.getElementById('category-sidebar');
-      
-      if (mainContent && aside) {
-        const mainHeight = mainContent.offsetHeight;
-        aside.style.height = `${mainHeight}px`;
-        
-      }
-    };
-
-    // 使用 setTimeout 确保 DOM 已完全渲染（特别是异步加载内容时）
-    setTimeout(syncAsideHeight, 0);
-
-    let resizeTimer;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(syncAsideHeight, 100);
-    };
-    window.addEventListener('resize', handleResize);
-
-    const mainContent = document.getElementById('archive-content');
-    let mutationObserver;
-    if (mainContent) {
-      mutationObserver = new MutationObserver(syncAsideHeight);
-      mutationObserver.observe(mainContent, {
-        childList: true,    // 监听子节点增删
-        subtree: true,      // 监听后代节点
-        attributes: false,  // 不需要监听属性变化（性能优化）
-        characterData: false
-      });
-    }
-
     return () => {
         window.removeEventListener('popstate', handlePopState);
-        window.removeEventListener('resize', handleResize);
-        clearTimeout(resizeTimer);
-        
-        if (mutationObserver) {
-            mutationObserver.disconnect();
-        }
     }
   });
 
@@ -159,7 +119,9 @@
                                 </span>
 
                                 <span class="hidden md:flex items-center font-mono text-sm text-[var(--text-color-70)]">
-                                    <Icon icon="fa6-solid:hashtag" class="mr-1" />
+                                    <svg class="mr-1 h-[1em] w-[0.875em]" viewBox="0 0 448 512" aria-hidden="true">
+                                        <path fill="currentColor" d="M181.3 32.4c17.4 2.9 29.2 19.4 26.3 36.8l-9.8 58.8h95.1l11.5-69.3c2.9-17.4 19.4-29.2 36.8-26.3s29.2 19.4 26.3 36.8l-9.7 58.8H416c17.7 0 32 14.3 32 32s-14.3 32-32 32h-68.9l-21.3 128H384c17.7 0 32 14.3 32 32s-14.3 32-32 32h-68.9l-11.5 69.3c-2.9 17.4-19.4 29.2-36.8 26.3s-29.2-19.4-26.3-36.8l9.8-58.7h-95.1l-11.5 69.3c-2.9 17.4-19.4 29.2-36.8 26.3s-29.2-19.4-26.3-36.8l9.6-58.9H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h68.9l21.3-128H64c-17.7 0-32-14.3-32-32s14.3-32 32-32h68.9l11.5-69.3c2.9-17.4 19.4-29.2 36.8-26.3zm5.8 159.6l-21.3 128h95.1l21.3-128z" />
+                                    </svg>
                                     {post.data.category || t("pagecard.uncategorized")}
                                 </span>
                             </a>
@@ -176,7 +138,9 @@
         class="hidden lg:block absolute left-[var(--toc-offset-left)] top-70 bottom-0 w-[var(--category-width)]">
         <div class="sticky top-24">
             <div class="flex items-center gap-2 text-[var(--text-color)] font-bold mb-4 border-b border-[var(--button-border-color)] pb-2 uppercase tracking-wider">
-                <Icon icon="fa6-solid:hashtag" class="text-xs" />
+                <svg class="h-3 w-3" viewBox="0 0 448 512" aria-hidden="true">
+                    <path fill="currentColor" d="M181.3 32.4c17.4 2.9 29.2 19.4 26.3 36.8l-9.8 58.8h95.1l11.5-69.3c2.9-17.4 19.4-29.2 36.8-26.3s29.2 19.4 26.3 36.8l-9.7 58.8H416c17.7 0 32 14.3 32 32s-14.3 32-32 32h-68.9l-21.3 128H384c17.7 0 32 14.3 32 32s-14.3 32-32 32h-68.9l-11.5 69.3c-2.9 17.4-19.4 29.2-36.8 26.3s-29.2-19.4-26.3-36.8l9.8-58.7h-95.1l-11.5 69.3c-2.9 17.4-19.4 29.2-36.8 26.3s-29.2-19.4-26.3-36.8l9.6-58.9H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h68.9l21.3-128H64c-17.7 0-32-14.3-32-32s14.3-32 32-32h68.9l11.5-69.3c2.9-17.4 19.4-29.2 36.8-26.3zm5.8 159.6l-21.3 128h95.1l21.3-128z" />
+                </svg>
                 <span>{t("category")}</span>
             </div>
 
@@ -184,6 +148,7 @@
                 
                 {#each categories as cat}
                     <button 
+                        type="button"
                         on:click={() => toggleCategory(cat)}
                         class="px-3 py-1 text-xs rounded-md transition-all border
                         {selectedCategories.includes(cat) 

@@ -6,10 +6,6 @@
 
 @layer base {
 
-  html.fonts-loading body {
-    visibility: hidden;
-  }
-
   :root {
     background-color: var(--bg-color);
     color: var(--text-color);

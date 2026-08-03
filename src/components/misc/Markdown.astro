@@ -1,5 +1,6 @@
 ---
 import { siteConfig } from '@/config'
+import 'katex/dist/katex.min.css'
 import '@fontsource-variable/jetbrains-mono'
 import '@fontsource-variable/jetbrains-mono/wght-italic.css'
 import '@styles/markdown.css'
@@ -33,6 +34,149 @@ const className = Astro.props.class
 
   setupSpoilers();
   document.addEventListener('astro:page-load', setupSpoilers);
+</script>
+
+<script>
+  type ExternalCardWindow = Window & {
+    __externalCardAbort?: AbortController;
+    __externalCardObserver?: IntersectionObserver;
+  };
+
+  type ExternalCard = HTMLAnchorElement & {
+    dataset: DOMStringMap & {
+      loaded?: string;
+      loading?: string;
+      musicCard?: string;
+      githubCard?: string;
+      songId?: string;
+      repo?: string;
+    };
+  };
+
+  function initExternalCards() {
+    const runtimeWindow = window as ExternalCardWindow;
+    runtimeWindow.__externalCardAbort?.abort();
+    runtimeWindow.__externalCardObserver?.disconnect();
+
+    const controller = new AbortController();
+    const { signal } = controller;
+    runtimeWindow.__externalCardAbort = controller;
+
+    const cards = Array.from(
+      document.querySelectorAll<ExternalCard>('[data-music-card], [data-github-card]')
+    );
+    if (cards.length === 0) return;
+
+    const fetchJson = async (url: string) => {
+      const response = await fetch(url, {
+        referrerPolicy: 'no-referrer',
+        signal,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+      return data;
+    };
+
+    const setBackgroundImage = (element: HTMLElement | null, value: unknown) => {
+      if (!element || typeof value !== 'string') return;
+      try {
+        const url = new URL(value);
+        if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
+        element.style.backgroundImage = `url("${url.href.replaceAll('"', '%22')}")`;
+        element.style.backgroundColor = 'transparent';
+      } catch {}
+    };
+
+    const loadMusicCard = async (card: ExternalCard) => {
+      const songId = card.dataset.songId ?? '';
+      if (!/^\d+$/.test(songId)) throw new Error('Invalid song id');
+
+      const base = 'https://open.motues.top/music?server=netease';
+      const [details, cover] = await Promise.all([
+        fetchJson(`${base}&type=details&id=${encodeURIComponent(songId)}`),
+        fetchJson(`${base}&type=cover&id=${encodeURIComponent(songId)}`).catch(() => null),
+      ]);
+
+      const title = card.querySelector<HTMLElement>('[data-card-title]');
+      const artist = card.querySelector<HTMLElement>('[data-card-artist]');
+      if (title) title.textContent = details?.name || '未知曲目';
+      if (artist) {
+        artist.textContent = Array.isArray(details?.artist)
+          ? details.artist.join(', ')
+          : (details?.artist || '未知艺术家');
+      }
+      setBackgroundImage(card.querySelector<HTMLElement>('[data-card-cover]'), cover?.url);
+    };
+
+    const loadGithubCard = async (card: ExternalCard) => {
+      const repo = card.dataset.repo ?? '';
+      if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) {
+        throw new Error('Invalid repository');
+      }
+
+      const data = await fetchJson(`https://api.github.com/repos/${repo}`);
+      const format = Intl.NumberFormat('en-US', {
+        notation: 'compact',
+        maximumFractionDigits: 1,
+      });
+      const setText = (selector: string, value: string) => {
+        const element = card.querySelector<HTMLElement>(selector);
+        if (element) element.textContent = value;
+      };
+
+      setText('[data-card-description]', data?.description?.replace(/:[a-zA-Z0-9_]+:/g, '') || 'Description not set');
+      setText('[data-card-language]', data?.language || 'Unknown');
+      setText('[data-card-forks]', format.format(data?.forks ?? 0).replaceAll('\u202f', ''));
+      setText('[data-card-stars]', format.format(data?.stargazers_count ?? 0).replaceAll('\u202f', ''));
+      setText('[data-card-license]', data?.license?.spdx_id || 'No License');
+      setBackgroundImage(card.querySelector<HTMLElement>('[data-card-avatar]'), data?.owner?.avatar_url);
+    };
+
+    const loadCard = async (card: ExternalCard) => {
+      if (card.dataset.loaded === 'true' || card.dataset.loading === 'true') return;
+      card.dataset.loading = 'true';
+
+      try {
+        if ('musicCard' in card.dataset) {
+          await loadMusicCard(card);
+        } else {
+          await loadGithubCard(card);
+        }
+        card.classList.remove('fetch-error');
+      } catch (error) {
+        if (signal.aborted) return;
+        card.classList.add('fetch-error');
+        const description = card.querySelector<HTMLElement>(
+          '[data-card-description], [data-card-title]'
+        );
+        if (description) description.textContent = 'Data is temporarily unavailable';
+      } finally {
+        if (!signal.aborted) {
+          card.classList.remove('fetch-waiting');
+          card.dataset.loading = 'false';
+          card.dataset.loaded = 'true';
+        }
+      }
+    };
+
+    if (!('IntersectionObserver' in window)) {
+      cards.forEach((card) => void loadCard(card));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+        void loadCard(entry.target as ExternalCard);
+      });
+    }, { rootMargin: '400px 0px' });
+
+    cards.forEach((card) => observer.observe(card));
+    runtimeWindow.__externalCardObserver = observer;
+  }
+
+  document.addEventListener('astro:page-load', initExternalCards);
 </script>
 
 <style is:global>
@@ -238,7 +382,8 @@ const className = Astro.props.class
     const blocks = document.querySelectorAll("pre");
 
     blocks.forEach((block) => {
-      if (block.parentElement.classList.contains("code-block-wrapper")) return;
+      const parent = block.parentElement;
+      if (!parent || parent.classList.contains("code-block-wrapper")) return;
 
       const wrapper = document.createElement("div");
       wrapper.className = "code-block-wrapper";
@@ -247,18 +392,30 @@ const className = Astro.props.class
       wrapper.appendChild(block);
 
       const button = document.createElement("button");
+      button.type = "button";
       button.className = "copy-btn";
       button.innerHTML = `<span class="icon-copy">${copyIcon}</span><span class="icon-check">${checkIcon}</span>`;
+      const isEnglish = document.documentElement.lang === 'en';
+      const copyLabel = isEnglish ? 'Copy code' : '复制代码';
+      button.setAttribute('aria-label', copyLabel);
+      button.title = copyLabel;
       
       wrapper.appendChild(button);
 
       button.addEventListener("click", async () => {
         const code = block.querySelector("code");
         const text = code ? code.textContent : block.textContent;
-        await navigator.clipboard.writeText(text);
-
-        button.classList.add("copied");
-        setTimeout(() => button.classList.remove("copied"), 2000);
+        try {
+          await navigator.clipboard.writeText(text);
+          button.classList.add("copied");
+          button.setAttribute('aria-label', isEnglish ? 'Copied' : '已复制');
+          setTimeout(() => {
+            button.classList.remove("copied");
+            button.setAttribute('aria-label', copyLabel);
+          }, 2000);
+        } catch {
+          button.setAttribute('aria-label', isEnglish ? 'Copy failed' : '复制失败');
+        }
       });
     });
   }
@@ -293,10 +450,20 @@ const className = Astro.props.class
 { siteConfig.theme.PhotoSwipe &&
 <script>
     import 'photoswipe/style.css'
-    import PhotoSwipeLightbox from 'photoswipe/lightbox';
 
-    function createPhotoSwipeLightbox() {
-      if (window.__pswpInstance) { try { window.__pswpInstance.destroy() } catch {} }
+    type PhotoSwipeRuntimeWindow = Window & {
+      __pswpInstance?: { destroy: () => void };
+      __pswpGeneration?: number;
+    };
+
+    async function createPhotoSwipeLightbox() {
+      const photoSwipeWindow = window as PhotoSwipeRuntimeWindow;
+      if (photoSwipeWindow.__pswpInstance) {
+        try { photoSwipeWindow.__pswpInstance.destroy() } catch {}
+      }
+
+      const generation = (photoSwipeWindow.__pswpGeneration ?? 0) + 1;
+      photoSwipeWindow.__pswpGeneration = generation;
       const container = document.querySelector('.markdown-content');
       if (container) {
         const figures = container.querySelectorAll('figure');
@@ -349,7 +516,14 @@ const className = Astro.props.class
           a.appendChild(img);
         });
 
-        // 初始化 Lightbox
+        if (!container.querySelector('a.pswp-link')) return;
+
+        const { default: PhotoSwipeLightbox } = await import('photoswipe/lightbox');
+        if (
+          generation !== photoSwipeWindow.__pswpGeneration
+          || !container.isConnected
+        ) return;
+
         const lightbox = new PhotoSwipeLightbox({
           // 指定文章内所有包含图片的链接
           gallery: '.markdown-content',
@@ -357,7 +531,7 @@ const className = Astro.props.class
           pswpModule: () => import('photoswipe')
         });
         lightbox.init();
-        window.__pswpInstance = lightbox;
+        photoSwipeWindow.__pswpInstance = lightbox;
       }
     }
 

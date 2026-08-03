@@ -16,7 +16,7 @@ const className = Astro.props.class;
 ---
 
 <button 
-  id="themeToggle" title={t("button.switchDarkMode")} aria-label={t("button.switchDarkMode")} class={className}
+  id="themeToggle" type="button" title={t("button.switchDarkMode")} aria-label={t("button.switchDarkMode")} class={className}
   data-t-light={translations.light}
   data-t-dark={translations.dark}
   data-t-system={translations.system}
@@ -64,6 +64,8 @@ if (typeof window !== 'undefined') {
       let toast = document.getElementById('theme-toast') || (() => {
         const t = document.createElement('div');
         t.id = 'theme-toast';
+        t.setAttribute('role', 'status');
+        t.setAttribute('aria-live', 'polite');
         document.body.appendChild(t);
         return t;
       })();

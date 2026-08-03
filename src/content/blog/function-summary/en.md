@@ -317,7 +317,7 @@ Automatically generates a navigable Table of Contents based on heading hierarchy
 
 Supports embedding external platform video players via standard HTML `<iframe>` tags, with responsive width (`width="100%"`).
 
-<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=717556844&bvid=BV13Q4y117A8&cid=397079113&p=1" scrolling="no" frameborder="no" framespacing="0" allowfullscreen="true" width="100%" height="468"></iframe>
+<iframe src="https://player.bilibili.com/player.html?isOutside=true&aid=717556844&bvid=BV13Q4y117A8&cid=397079113&p=1" title="Bilibili video player" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" scrolling="no" frameborder="no" allowfullscreen="true" width="100%" height="468"></iframe>
 
 ---
 

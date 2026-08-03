@@ -22,8 +22,6 @@ const isLocal = !(
     src.startsWith("/") ||
     src.startsWith("http")
 );
-const isPublic = src.startsWith("/");
-
 let imageLoad;
 let lqipGradient = "";
 const enableLQIP = siteConfig.theme.LQIP;
@@ -37,7 +35,7 @@ if (isLocal) {
   const imageGetter = images[imagePath];
 
   if (!imageGetter) {
-    console.error(`\n[ERROR] Image file not found: ${imagePath}`);
+    throw new Error(`Image file not found: ${imagePath}`);
   } else {
     imageLoad = await imageGetter();
     // 使用封装好的函数
@@ -59,6 +57,8 @@ if (isLocal) {
             id={id} 
             width={width} 
             height={height}
+            loading="lazy"
+            decoding="async"
             class=""
             onload="this.parentElement.dataset.loaded = 'true'" 
         />
@@ -74,6 +74,7 @@ if (isLocal) {
             width={width}
             height={height}
             loading="lazy"
+            decoding="async"
             class=""
             onload="this.parentElement.dataset.loaded = 'true'"
         />

@@ -23,30 +23,12 @@ importers:
       '@fontsource/eb-garamond':
         specifier: ^5.2.7
         version: 5.2.7
-      '@fontsource/noto-serif-sc':
-        specifier: ^5.2.9
-        version: 5.2.9
-      '@fontsource/playfair-display':
-        specifier: ^5.2.8
-        version: 5.2.8
-      '@fontsource/source-serif-4':
-        specifier: ^5.2.9
-        version: 5.2.9
-      '@iconify/svelte':
-        specifier: ^5.2.1
-        version: 5.2.1(svelte@5.55.5)
       '@myriaddreamin/typst-ts-node-compiler':
-        specifier: 0.7.0-rc2
-        version: 0.7.0-rc2
-      '@myriaddreamin/typst.ts':
         specifier: 0.7.0-rc2
         version: 0.7.0-rc2
       '@tailwindcss/vite':
         specifier: ^4.1.13
         version: 4.2.4(vite@6.4.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0))
-      aos:
-        specifier: ^2.3.4
-        version: 2.3.4
       astro:
         specifier: ^5.13.7
         version: 5.18.1(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.2)(typescript@5.9.3)
@@ -99,9 +81,6 @@ importers:
         specifier: ^5.0.0
         version: 5.1.0
     devDependencies:
-      '@iconify-json/fa6-brands':
-        specifier: ^1.2.6
-        version: 1.2.6
       '@iconify-json/fa6-solid':
         specifier: ^1.2.4
         version: 1.2.4
@@ -114,9 +93,6 @@ importers:
       '@iconify-json/simple-icons':
         specifier: ^1.2.48
         version: 1.2.80
-      '@iconify-json/vscode-icons':
-        specifier: ^1.2.29
-        version: 1.2.46
 
 packages:
 
