@@ -285,6 +285,7 @@ if (profileConfig.indexPage) {
 type BlogNavigationWindow = Window & {
   __mobileNavAbort?: AbortController;
   __blogNavObserver?: IntersectionObserver;
+  __mobileHeaderResizeObserver?: ResizeObserver;
 };
 
 function initMobileNav() {
@@ -302,6 +303,7 @@ function initMobileNav() {
   const blogWindow = window as BlogNavigationWindow;
   blogWindow.__mobileNavAbort?.abort();
   blogWindow.__blogNavObserver?.disconnect();
+  blogWindow.__mobileHeaderResizeObserver?.disconnect();
 
   const controller = new AbortController();
   const { signal } = controller;
@@ -309,6 +311,23 @@ function initMobileNav() {
   document.body.style.overflow = '';
 
   let closeTimer: number | undefined;
+  let headerResizeObserver: ResizeObserver | undefined;
+
+  const syncMobileHeaderHeight = () => {
+    if (!header) return;
+    const headerHeight = Math.ceil(header.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--mobile-header-height', `${headerHeight}px`);
+  };
+
+  if (header) {
+    syncMobileHeaderHeight();
+    if ('ResizeObserver' in window) {
+      headerResizeObserver = new ResizeObserver(syncMobileHeaderHeight);
+      headerResizeObserver.observe(header);
+      blogWindow.__mobileHeaderResizeObserver = headerResizeObserver;
+    }
+    window.addEventListener('resize', syncMobileHeaderHeight, { signal });
+  }
 
   function openMenu() {
     window.clearTimeout(closeTimer);
@@ -424,6 +443,7 @@ function initMobileNav() {
   signal.addEventListener('abort', () => {
     window.clearTimeout(closeTimer);
     navObserver?.disconnect();
+    headerResizeObserver?.disconnect();
     document.body.style.overflow = '';
   }, { once: true });
 }

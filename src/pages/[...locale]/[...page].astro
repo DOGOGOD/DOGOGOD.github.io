@@ -385,6 +385,12 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
     box-shadow: 0 16px 34px -22px rgba(0, 0, 0, 0.9);
   }
 
+  @media (max-width: 767px) {
+    .home-page {
+      padding-top: calc(var(--mobile-header-height, 4rem) + 1.5rem);
+    }
+  }
+
   @media (max-width: 640px) {
     .home-page {
       width: min(90vw, var(--page-width));
