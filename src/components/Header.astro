@@ -85,23 +85,25 @@ if (profileConfig.indexPage) {
             </button>
             
           <!-- Language Dropdown Menu -->
-          <div id="language-menu" class="hidden absolute right-0 mt-2 bg-[var(--bg-color)] border border-[var(--button-border-color)] rounded-lg shadow-lg z-50" aria-hidden="true">
+          <div id="language-menu" class="hidden absolute right-0 mt-2 min-w-40 bg-[var(--bg-color)] border border-[var(--button-border-color)] rounded-lg shadow-lg z-50" aria-hidden="true">
               <div class="py-1">
                   <!-- 中文链接 -->
-                  <a href={getLocalePath("/", "zh-cn")} class=`flex items-center mx-2 my-1 px-3 py-2 text-base rounded whitespace-nowrap ${
+                  <a href={getLocalePath("/", "zh-cn")} class=`grid grid-cols-[1rem_1fr_1rem] items-center gap-2 mx-2 my-1 px-2 py-2 text-base leading-6 rounded whitespace-nowrap ${
                     currentLang === "zh-cn" ? "bg-[var(--button-hover-color)]" : "hover:bg-[var(--button-hover-color)]"}`>
-                    <span class="inline-flex items-center justify-center w-4 h-4">
+                    <span class="inline-flex items-center justify-center w-4 h-4" aria-hidden="true">
                       {currentLang === "zh-cn" ? <Icon name="fa6-solid:circle" class="w-2 h-2" /> : ""}
                     </span>
-                    简体中文
+                    <span class="text-center">简体中文</span>
+                    <span class="w-4 h-4" aria-hidden="true"></span>
                   </a>
                   <!-- 英文链接 -->
-                  <a href={getLocalePath("/", "en")} class=`flex items-center mx-2 my-1 px-3 py-2 text-base rounded whitespace-nowrap ${
+                  <a href={getLocalePath("/", "en")} class=`grid grid-cols-[1rem_1fr_1rem] items-center gap-2 mx-2 my-1 px-2 py-2 text-base leading-6 rounded whitespace-nowrap ${
                     currentLang === "en" ? "bg-[var(--button-hover-color)]" : "hover:bg-[var(--button-hover-color)]"}`>
-                    <span class="inline-flex items-center justify-center w-4 h-4">
+                    <span class="inline-flex items-center justify-center w-4 h-4" aria-hidden="true">
                       {currentLang === "en" ? <Icon name="fa6-solid:circle" class="w-2 h-2" /> : ""}
                     </span>
-                    English
+                    <span class="text-center">English</span>
+                    <span class="w-4 h-4" aria-hidden="true"></span>
                   </a>
               </div>
           </div>
