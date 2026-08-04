@@ -53,6 +53,22 @@ const className = Astro.props.class
     };
   };
 
+  type GithubCardData = {
+    description?: string | null;
+    language?: string | null;
+    forks?: number;
+    stargazers_count?: number;
+    license?: { spdx_id?: string | null } | null;
+    owner?: { avatar_url?: string | null } | null;
+  };
+
+  type GithubCardCacheEntry = {
+    cachedAt: number;
+    data: GithubCardData;
+  };
+
+  const GITHUB_CARD_CACHE_TTL = 6 * 60 * 60 * 1000;
+
   function initExternalCards() {
     const runtimeWindow = window as ExternalCardWindow;
     runtimeWindow.__externalCardAbort?.abort();
@@ -90,7 +106,42 @@ const className = Astro.props.class
         const url = new URL(value);
         if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
         element.style.backgroundImage = `url("${url.href.replaceAll('"', '%22')}")`;
-        element.style.backgroundColor = 'transparent';
+      } catch {}
+    };
+
+    const normalizeGithubData = (data: GithubCardData): GithubCardData => ({
+      description: typeof data.description === 'string' ? data.description : null,
+      language: typeof data.language === 'string' ? data.language : null,
+      forks: Number.isFinite(data.forks) ? data.forks : 0,
+      stargazers_count: Number.isFinite(data.stargazers_count) ? data.stargazers_count : 0,
+      license: {
+        spdx_id: typeof data.license?.spdx_id === 'string' ? data.license.spdx_id : null,
+      },
+      owner: {
+        avatar_url: typeof data.owner?.avatar_url === 'string' ? data.owner.avatar_url : null,
+      },
+    });
+
+    const readGithubCache = (repo: string): GithubCardCacheEntry | null => {
+      try {
+        const value = localStorage.getItem(`github-card:v1:${repo.toLowerCase()}`);
+        if (!value) return null;
+        const entry = JSON.parse(value) as GithubCardCacheEntry;
+        if (!Number.isFinite(entry?.cachedAt) || !entry?.data || typeof entry.data !== 'object') {
+          return null;
+        }
+        return { cachedAt: entry.cachedAt, data: normalizeGithubData(entry.data) };
+      } catch {
+        return null;
+      }
+    };
+
+    const writeGithubCache = (repo: string, data: GithubCardData) => {
+      try {
+        localStorage.setItem(
+          `github-card:v1:${repo.toLowerCase()}`,
+          JSON.stringify({ cachedAt: Date.now(), data }),
+        );
       } catch {}
     };
 
@@ -121,7 +172,6 @@ const className = Astro.props.class
         throw new Error('Invalid repository');
       }
 
-      const data = await fetchJson(`https://api.github.com/repos/${repo}`);
       const format = Intl.NumberFormat('en-US', {
         notation: 'compact',
         maximumFractionDigits: 1,
@@ -131,12 +181,55 @@ const className = Astro.props.class
         if (element) element.textContent = value;
       };
 
-      setText('[data-card-description]', data?.description?.replace(/:[a-zA-Z0-9_]+:/g, '') || 'Description not set');
-      setText('[data-card-language]', data?.language || 'Unknown');
-      setText('[data-card-forks]', format.format(data?.forks ?? 0).replaceAll('\u202f', ''));
-      setText('[data-card-stars]', format.format(data?.stargazers_count ?? 0).replaceAll('\u202f', ''));
-      setText('[data-card-license]', data?.license?.spdx_id || 'No License');
-      setBackgroundImage(card.querySelector<HTMLElement>('[data-card-avatar]'), data?.owner?.avatar_url);
+      const renderData = (data: GithubCardData, source: string) => {
+        setText('[data-card-description]', data.description?.replace(/:[a-zA-Z0-9_]+:/g, '') || 'Description not set');
+        setText('[data-card-language]', data.language || 'Unknown');
+        setText('[data-card-forks]', format.format(data.forks ?? 0).replaceAll('\u202f', ''));
+        setText('[data-card-stars]', format.format(data.stargazers_count ?? 0).replaceAll('\u202f', ''));
+        setText('[data-card-license]', data.license?.spdx_id || 'No License');
+        setBackgroundImage(card.querySelector<HTMLElement>('[data-card-avatar]'), data.owner?.avatar_url);
+        card.classList.remove('fetch-fallback');
+        card.dataset.source = source;
+      };
+
+      const renderFallback = () => {
+        const [owner] = repo.split('/');
+        const isChinese = document.documentElement.lang.toLowerCase().startsWith('zh');
+        setText(
+          '[data-card-description]',
+          isChinese ? `在 GitHub 上查看 ${repo}` : `View ${repo} on GitHub`,
+        );
+        setText('[data-card-stars]', '');
+        setText('[data-card-forks]', '');
+        setText('[data-card-license]', '');
+        setText('[data-card-language]', 'GitHub');
+        setBackgroundImage(
+          card.querySelector<HTMLElement>('[data-card-avatar]'),
+          `https://github.com/${encodeURIComponent(owner)}.png?size=48`,
+        );
+        card.classList.add('fetch-fallback');
+        card.dataset.source = 'fallback';
+      };
+
+      const cached = readGithubCache(repo);
+      if (cached && Date.now() - cached.cachedAt < GITHUB_CARD_CACHE_TTL) {
+        renderData(cached.data, 'cache');
+        return;
+      }
+
+      try {
+        const data = normalizeGithubData(
+          await fetchJson(`https://api.github.com/repos/${repo}`) as GithubCardData,
+        );
+        renderData(data, 'api');
+        writeGithubCache(repo, data);
+      } catch {
+        if (cached) {
+          renderData(cached.data, 'stale-cache');
+        } else {
+          renderFallback();
+        }
+      }
     };
 
     const loadCard = async (card: ExternalCard) => {

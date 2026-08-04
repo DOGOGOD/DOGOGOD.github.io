@@ -570,6 +570,18 @@
     color: var(--text-color-70);
 }
 
+.card-github .gc-infobar > :empty {
+    display: none;
+}
+
+.card-github.fetch-fallback .gc-description {
+    margin-bottom: 10px;
+}
+
+.card-github.fetch-fallback .gc-language {
+    margin-left: 0;
+}
+
 
 .card-github .gc-stars::before {
     content: "";

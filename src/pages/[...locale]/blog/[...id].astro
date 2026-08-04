@@ -110,7 +110,7 @@ const categoryUrl = getRelativeLocaleUrl(
 
         {siteConfig.toc.enable && tocHeadings.length > 0 && (
             <div class="article-toc-slot">
-                <TOC headings={tocHeadings} language={currentLang} client:idle />
+                <TOC headings={tocHeadings} language={currentLang} client:load />
             </div>
         )}
 

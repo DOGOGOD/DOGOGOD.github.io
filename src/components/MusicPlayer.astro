@@ -33,7 +33,7 @@ const initialLabels = isEnglish
   data-tracks={encodedTracks}
   transition:persist="music-player"
 >
-  <audio data-music-audio preload="none"></audio>
+  <audio data-music-audio preload="metadata" playsinline></audio>
 
   <div class="music-player-shell" data-music-shell>
     <button
@@ -113,14 +113,18 @@ const initialLabels = isEnglish
   };
 
   type MusicPlayerWindow = Window & {
-    __astroMusicPlayerBootstrapped?: boolean;
+    __astroMusicPlayerInitialiser?: () => void;
+    __astroMusicPlayerInteractionInitialiser?: (event: Event) => void;
   };
 
+  const PLAYER_SCRIPT_VERSION = '2';
   const PLAYBACK_KEY = '__music_state__';
   const POSITION_KEY = '__music_pos__';
   const BUTTON_SIZE = 44;
   const VIEWPORT_GUTTER = 8;
-  const DRAG_THRESHOLD = 5;
+  const MOUSE_DRAG_THRESHOLD = 5;
+  const TOUCH_DRAG_THRESHOLD = 12;
+  const CLICK_SUPPRESSION_TIMEOUT = 400;
   const SAVE_INTERVAL = 5000;
 
   function clamp(value: number, minimum: number, maximum: number) {
@@ -178,7 +182,16 @@ const initialLabels = isEnglish
   }
 
   function initialisePlayer(root: PlayerElement) {
-    if (root.dataset.playerReady === 'true') return;
+    if (
+      root.dataset.playerReady === 'true'
+      && root.dataset.playerVersion === PLAYER_SCRIPT_VERSION
+      && typeof root.__musicPlayerCleanup === 'function'
+    ) return;
+
+    // `transition:persist` can retain an instance initialised by an older HMR
+    // module. Tear that instance down before binding the current script.
+    root.__musicPlayerCleanup?.();
+    delete root.dataset.playerReady;
 
     const audioElement = root.querySelector<HTMLAudioElement>('[data-music-audio]');
     const primaryButtonElement = root.querySelector<HTMLButtonElement>('[data-music-primary]');
@@ -203,6 +216,7 @@ const initialLabels = isEnglish
     let dragging = false;
     let moved = false;
     let suppressClick = false;
+    let suppressClickTimer = 0;
     let activePointerId: number | null = null;
     let pointerStartX = 0;
     let pointerStartY = 0;
@@ -215,6 +229,7 @@ const initialLabels = isEnglish
     let resizeSaveTimer = 0;
 
     root.dataset.playerReady = 'true';
+    root.dataset.playerVersion = PLAYER_SCRIPT_VERSION;
 
     function wrapIndex(value: number) {
       if (tracks.length === 0) return 0;
@@ -286,8 +301,52 @@ const initialLabels = isEnglish
 
     function currentLabels() {
       return document.documentElement.lang.toLowerCase().startsWith('en')
-        ? { play: 'Play', pause: 'Pause', next: 'Next track', empty: 'No tracks' }
-        : { play: '播放', pause: '暂停', next: '下一首', empty: '暂无曲目' };
+        ? {
+            play: 'Play',
+            pause: 'Pause',
+            next: 'Next track',
+            empty: 'No tracks',
+            failed: 'Unable to play',
+          }
+        : {
+            play: '播放',
+            pause: '暂停',
+            next: '下一首',
+            empty: '暂无曲目',
+            failed: '播放失败',
+          };
+    }
+
+    function clearPlaybackFailure() {
+      root.classList.remove('has-playback-error');
+      delete root.dataset.playbackError;
+      primaryButton.removeAttribute('title');
+    }
+
+    function playbackFailureMessage(error?: unknown) {
+      if (error instanceof DOMException || error instanceof Error) {
+        return `${error.name}: ${error.message}`;
+      }
+      if (audio.error) {
+        return `MediaError ${audio.error.code}: ${audio.error.message || 'Unknown media error'}`;
+      }
+      return String(error || 'Unknown playback error');
+    }
+
+    function reportPlaybackFailure(error?: unknown) {
+      const track = currentTrack();
+      const labels = currentLabels();
+      const message = playbackFailureMessage(error);
+      updatePlaybackUI();
+      root.classList.add('has-playback-error');
+      root.dataset.playbackError = message;
+      primaryButton.title = message;
+      primaryButton.setAttribute(
+        'aria-label',
+        track ? `${labels.failed} · ${track.title}` : labels.failed,
+      );
+      title.textContent = track ? `${labels.failed} · ${track.title}` : labels.failed;
+      console.warn('[MusicPlayer] Playback failed', message);
     }
 
     function updatePlaybackUI() {
@@ -324,11 +383,19 @@ const initialLabels = isEnglish
     }
 
     async function startPlayback() {
-      if (!currentTrack()) return;
+      const track = currentTrack();
+      if (!track) return;
+      clearPlaybackFailure();
+
+      if (!audio.currentSrc || audio.error) {
+        audio.src = new URL(track.src, document.baseURI).href;
+        audio.load();
+      }
+
       try {
         await audio.play();
-      } catch {
-        updatePlaybackUI();
+      } catch (error) {
+        reportPlaybackFailure(error);
         savePlaybackState(true);
       }
     }
@@ -349,9 +416,11 @@ const initialLabels = isEnglish
       if (!track) return;
 
       const generation = ++loadGeneration;
-      const sourceChanged = audio.getAttribute('src') !== track.src;
+      clearPlaybackFailure();
+      const resolvedSource = new URL(track.src, document.baseURI).href;
+      const sourceChanged = audio.src !== resolvedSource;
       if (sourceChanged) {
-        audio.setAttribute('src', track.src);
+        audio.src = resolvedSource;
         audio.load();
       }
 
@@ -402,22 +471,42 @@ const initialLabels = isEnglish
       }
     }
 
+    function releaseClickSuppression() {
+      suppressClick = false;
+      if (suppressClickTimer) {
+        window.clearTimeout(suppressClickTimer);
+        suppressClickTimer = 0;
+      }
+    }
+
+    function suppressSyntheticClick() {
+      suppressClick = true;
+      if (suppressClickTimer) window.clearTimeout(suppressClickTimer);
+      suppressClickTimer = window.setTimeout(releaseClickSuppression, CLICK_SUPPRESSION_TIMEOUT);
+    }
+
     function finishDrag(event?: PointerEvent) {
       if (!dragging || (event && activePointerId !== event.pointerId)) return;
-      if (activePointerId !== null && root.hasPointerCapture(activePointerId)) {
-        root.releasePointerCapture(activePointerId);
+      const isCompletedTouch = event?.type === 'pointerup' && event.pointerType === 'touch';
+      if (
+        activePointerId !== null
+        && typeof root.hasPointerCapture === 'function'
+        && root.hasPointerCapture(activePointerId)
+      ) {
+        try {
+          root.releasePointerCapture(activePointerId);
+        } catch {
+          // The browser may already have released capture during cancellation.
+        }
       }
 
       dragging = false;
       activePointerId = null;
       root.classList.remove('is-dragging');
       if (moved) {
-        suppressClick = true;
+        suppressSyntheticClick();
         savePosition();
-        window.setTimeout(() => {
-          suppressClick = false;
-        }, 0);
-      } else if (event?.pointerType === 'touch') {
+      } else if (isCompletedTouch) {
         touchExpanded = true;
         setExpandedState();
       }
@@ -430,6 +519,7 @@ const initialLabels = isEnglish
 
     primaryButton.addEventListener('click', (event) => {
       if (suppressClick) {
+        releaseClickSuppression();
         event.preventDefault();
         event.stopPropagation();
         return;
@@ -445,7 +535,11 @@ const initialLabels = isEnglish
     }, { signal });
 
     root.addEventListener('pointerdown', (event) => {
-      if ((event.target as Element).closest('[data-music-next]')) return;
+      const target = event.target as Element;
+      if (target.closest('[data-music-next]')) return;
+      // Playback must always stay on the button's native click path. Pointer
+      // capture can suppress a real click after even small mouse/touch motion.
+      if (target.closest('[data-music-primary]')) return;
       if (event.button !== 0 && event.pointerType === 'mouse') return;
       activePointerId = event.pointerId;
       dragging = true;
@@ -455,14 +549,23 @@ const initialLabels = isEnglish
       originX = x;
       originY = y;
       root.classList.add('is-dragging');
-      root.setPointerCapture(event.pointerId);
+      if (typeof root.setPointerCapture === 'function') {
+        try {
+          root.setPointerCapture(event.pointerId);
+        } catch {
+          // Pointer capture is an enhancement; dragging can still continue.
+        }
+      }
     }, { signal });
 
     root.addEventListener('pointermove', (event) => {
       if (!dragging || activePointerId !== event.pointerId) return;
       const deltaX = event.clientX - pointerStartX;
       const deltaY = event.clientY - pointerStartY;
-      if (Math.hypot(deltaX, deltaY) >= DRAG_THRESHOLD) moved = true;
+      const threshold = event.pointerType === 'touch'
+        ? TOUCH_DRAG_THRESHOLD
+        : MOUSE_DRAG_THRESHOLD;
+      if (Math.hypot(deltaX, deltaY) >= threshold) moved = true;
       if (!moved) return;
 
       const { maxX, maxY } = viewportBounds();
@@ -509,6 +612,7 @@ const initialLabels = isEnglish
     }, { signal });
 
     audio.addEventListener('play', () => {
+      clearPlaybackFailure();
       updatePlaybackUI();
       savePlaybackState(true);
     }, { signal });
@@ -533,7 +637,7 @@ const initialLabels = isEnglish
     }, { signal });
 
     audio.addEventListener('error', () => {
-      updatePlaybackUI();
+      reportPlaybackFailure();
       savePlaybackState(true);
     }, { signal });
 
@@ -570,10 +674,13 @@ const initialLabels = isEnglish
     }, { signal });
 
     root.__musicPlayerCleanup = () => {
+      savePlaybackState(true);
       if (resizeFrame) cancelAnimationFrame(resizeFrame);
       if (resizeSaveTimer) window.clearTimeout(resizeSaveTimer);
+      if (suppressClickTimer) window.clearTimeout(suppressClickTimer);
       events.abort();
       delete root.dataset.playerReady;
+      delete root.dataset.playerVersion;
       delete root.__musicPlayerCleanup;
       delete root.__musicPlayerSyncLocale;
     };
@@ -593,11 +700,65 @@ const initialLabels = isEnglish
   }
 
   const playerWindow = window as MusicPlayerWindow;
-  if (!playerWindow.__astroMusicPlayerBootstrapped) {
-    playerWindow.__astroMusicPlayerBootstrapped = true;
+  if (playerWindow.__astroMusicPlayerInitialiser !== initialiseMusicPlayers) {
+    if (playerWindow.__astroMusicPlayerInitialiser) {
+      document.removeEventListener(
+        'astro:page-load',
+        playerWindow.__astroMusicPlayerInitialiser,
+      );
+    }
+    playerWindow.__astroMusicPlayerInitialiser = initialiseMusicPlayers;
     document.addEventListener('astro:page-load', initialiseMusicPlayers);
   }
+
+  const initialiseInteractedPlayer = (event: Event) => {
+    if (!(event.target instanceof Element)) return;
+    const root = event.target.closest<PlayerElement>('[data-music-player]');
+    if (root) initialisePlayer(root);
+  };
+
+  if (
+    playerWindow.__astroMusicPlayerInteractionInitialiser
+    !== initialiseInteractedPlayer
+  ) {
+    if (playerWindow.__astroMusicPlayerInteractionInitialiser) {
+      document.removeEventListener(
+        'pointerdown',
+        playerWindow.__astroMusicPlayerInteractionInitialiser,
+        true,
+      );
+      document.removeEventListener(
+        'click',
+        playerWindow.__astroMusicPlayerInteractionInitialiser,
+        true,
+      );
+    }
+    playerWindow.__astroMusicPlayerInteractionInitialiser = initialiseInteractedPlayer;
+    document.addEventListener('pointerdown', initialiseInteractedPlayer, true);
+    document.addEventListener('click', initialiseInteractedPlayer, true);
+  }
+
   initialiseMusicPlayers();
+
+  if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+      document.removeEventListener('astro:page-load', initialiseMusicPlayers);
+      if (playerWindow.__astroMusicPlayerInitialiser === initialiseMusicPlayers) {
+        delete playerWindow.__astroMusicPlayerInitialiser;
+      }
+      if (
+        playerWindow.__astroMusicPlayerInteractionInitialiser
+        === initialiseInteractedPlayer
+      ) {
+        document.removeEventListener('pointerdown', initialiseInteractedPlayer, true);
+        document.removeEventListener('click', initialiseInteractedPlayer, true);
+        delete playerWindow.__astroMusicPlayerInteractionInitialiser;
+      }
+      document
+        .querySelectorAll<PlayerElement>('[data-music-player]')
+        .forEach((root) => root.__musicPlayerCleanup?.());
+    });
+  }
 </script>
 
 <style>
@@ -612,7 +773,7 @@ const initialLabels = isEnglish
     font-family: inherit;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: none;
+    touch-action: manipulation;
   }
 
   .music-player-shell {
@@ -657,6 +818,7 @@ const initialLabels = isEnglish
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
+    touch-action: none;
     transition:
       max-width 320ms cubic-bezier(0.22, 1, 0.36, 1),
       opacity 180ms ease,
@@ -682,7 +844,7 @@ const initialLabels = isEnglish
     min-width: 0;
     max-width: 168px;
     overflow: hidden;
-    padding-inline: 0.625rem 0.5rem;
+    padding-inline: 0.75rem 0.375rem;
     color: var(--text-color);
     font-size: 0.8125rem;
     line-height: 1.25rem;
@@ -726,7 +888,8 @@ const initialLabels = isEnglish
   .music-player-primary {
     width: 36px;
     height: 36px;
-    cursor: grab;
+    cursor: pointer;
+    touch-action: manipulation;
   }
 
   .music-player-container.is-playing .music-player-primary {

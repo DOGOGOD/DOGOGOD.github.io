@@ -25,11 +25,11 @@ export function GithubCardComponent(properties, children) {
 
     // 预定义各部分节点
     const nAvatar = h("div", { class: "gc-avatar", "data-card-avatar": "" });
-    const nLanguage = h("span", { class: "gc-language", "data-card-language": "" }, "Waiting...");
-    const nDescription = h("div", { class: "gc-description", "data-card-description": "" }, "Waiting for api.github.com...");
-    const nStars = h("div", { class: "gc-stars", "data-card-stars": "" }, "00K");
-    const nForks = h("div", { class: "gc-forks", "data-card-forks": "" }, "0K");
-    const nLicense = h("div", { class: "gc-license", "data-card-license": "" }, "0K");
+    const nLanguage = h("span", { class: "gc-language", "data-card-language": "" }, "…");
+    const nDescription = h("div", { class: "gc-description", "data-card-description": "" }, "Loading repository…");
+    const nStars = h("div", { class: "gc-stars", "data-card-stars": "" }, "…");
+    const nForks = h("div", { class: "gc-forks", "data-card-forks": "" }, "…");
+    const nLicense = h("div", { class: "gc-license", "data-card-license": "" }, "…");
 
     const nTitle = h("div", { class: "gc-titlebar" }, [
         h("div", { class: "gc-titlebar-left" }, [
@@ -52,6 +52,7 @@ export function GithubCardComponent(properties, children) {
             rel: "noopener noreferrer",
             "data-github-card": "",
             "data-repo": repo,
+            "aria-label": `GitHub repository ${repo}`,
         },
         [
             nTitle,
