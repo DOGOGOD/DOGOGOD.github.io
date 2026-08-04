@@ -67,6 +67,13 @@ const className = Astro.props.class
     );
     if (cards.length === 0) return;
 
+    // A module can run immediately before Astro dispatches its initial
+    // page-load event. Reset requests aborted by that second initialization so
+    // cards never remain permanently stuck in the waiting state.
+    cards.forEach((card) => {
+      if (card.dataset.loading === 'true') card.dataset.loading = 'false';
+    });
+
     const fetchJson = async (url: string) => {
       const response = await fetch(url, {
         referrerPolicy: 'no-referrer',
@@ -176,6 +183,7 @@ const className = Astro.props.class
     runtimeWindow.__externalCardObserver = observer;
   }
 
+  initExternalCards();
   document.addEventListener('astro:page-load', initExternalCards);
 </script>
 
