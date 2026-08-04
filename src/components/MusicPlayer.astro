@@ -364,6 +364,15 @@ const initialLabels = isEnglish
       nextButton?.setAttribute('aria-label', labels.next);
     }
 
+    function resolveTrackSource(track: Track) {
+      try {
+        return new URL(track.src, document.baseURI).href;
+      } catch (error) {
+        reportPlaybackFailure(error);
+        return null;
+      }
+    }
+
     function savePlaybackState(force = false) {
       if (tracks.length === 0) return;
       const now = Date.now();
@@ -387,8 +396,14 @@ const initialLabels = isEnglish
       if (!track) return;
       clearPlaybackFailure();
 
-      if (!audio.currentSrc || audio.error) {
-        audio.src = new URL(track.src, document.baseURI).href;
+      const resolvedSource = resolveTrackSource(track);
+      if (!resolvedSource) {
+        savePlaybackState(true);
+        return;
+      }
+
+      if (!audio.currentSrc || audio.error || audio.src !== resolvedSource) {
+        audio.src = resolvedSource;
         audio.load();
       }
 
@@ -417,7 +432,12 @@ const initialLabels = isEnglish
 
       const generation = ++loadGeneration;
       clearPlaybackFailure();
-      const resolvedSource = new URL(track.src, document.baseURI).href;
+      const resolvedSource = resolveTrackSource(track);
+      if (!resolvedSource) {
+        pendingResumeTime = 0;
+        if (persistChange) savePlaybackState(true);
+        return;
+      }
       const sourceChanged = audio.src !== resolvedSource;
       if (sourceChanged) {
         audio.src = resolvedSource;
@@ -488,17 +508,6 @@ const initialLabels = isEnglish
     function finishDrag(event?: PointerEvent) {
       if (!dragging || (event && activePointerId !== event.pointerId)) return;
       const isCompletedTouch = event?.type === 'pointerup' && event.pointerType === 'touch';
-      if (
-        activePointerId !== null
-        && typeof root.hasPointerCapture === 'function'
-        && root.hasPointerCapture(activePointerId)
-      ) {
-        try {
-          root.releasePointerCapture(activePointerId);
-        } catch {
-          // The browser may already have released capture during cancellation.
-        }
-      }
 
       dragging = false;
       activePointerId = null;
@@ -508,6 +517,11 @@ const initialLabels = isEnglish
         savePosition();
       } else if (isCompletedTouch) {
         touchExpanded = true;
+        setExpandedState();
+      }
+
+      if (event?.pointerType !== 'touch' && !root.matches(':hover')) {
+        pointerExpanded = false;
         setExpandedState();
       }
     }
@@ -537,10 +551,8 @@ const initialLabels = isEnglish
     root.addEventListener('pointerdown', (event) => {
       const target = event.target as Element;
       if (target.closest('[data-music-next]')) return;
-      // Playback must always stay on the button's native click path. Pointer
-      // capture can suppress a real click after even small mouse/touch motion.
-      if (target.closest('[data-music-primary]')) return;
       if (event.button !== 0 && event.pointerType === 'mouse') return;
+      if (activePointerId !== null) return;
       activePointerId = event.pointerId;
       dragging = true;
       moved = false;
@@ -549,16 +561,9 @@ const initialLabels = isEnglish
       originX = x;
       originY = y;
       root.classList.add('is-dragging');
-      if (typeof root.setPointerCapture === 'function') {
-        try {
-          root.setPointerCapture(event.pointerId);
-        } catch {
-          // Pointer capture is an enhancement; dragging can still continue.
-        }
-      }
     }, { signal });
 
-    root.addEventListener('pointermove', (event) => {
+    document.addEventListener('pointermove', (event) => {
       if (!dragging || activePointerId !== event.pointerId) return;
       const deltaX = event.clientX - pointerStartX;
       const deltaY = event.clientY - pointerStartY;
@@ -567,6 +572,7 @@ const initialLabels = isEnglish
         : MOUSE_DRAG_THRESHOLD;
       if (Math.hypot(deltaX, deltaY) >= threshold) moved = true;
       if (!moved) return;
+      if (event.cancelable) event.preventDefault();
 
       const { maxX, maxY } = viewportBounds();
       x = clamp(originX + deltaX, VIEWPORT_GUTTER, maxX);
@@ -574,8 +580,8 @@ const initialLabels = isEnglish
       renderPosition();
     }, { signal });
 
-    root.addEventListener('pointerup', finishDrag, { signal });
-    root.addEventListener('pointercancel', finishDrag, { signal });
+    document.addEventListener('pointerup', finishDrag, { signal });
+    document.addEventListener('pointercancel', finishDrag, { signal });
 
     root.addEventListener('pointerenter', (event) => {
       if (event.pointerType === 'touch') return;
@@ -773,7 +779,7 @@ const initialLabels = isEnglish
     font-family: inherit;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: manipulation;
+    touch-action: none;
   }
 
   .music-player-shell {
@@ -889,7 +895,7 @@ const initialLabels = isEnglish
     width: 36px;
     height: 36px;
     cursor: pointer;
-    touch-action: manipulation;
+    touch-action: none;
   }
 
   .music-player-container.is-playing .music-player-primary {

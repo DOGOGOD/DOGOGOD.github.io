@@ -1,25 +1,56 @@
 // remark-typst.mjs
 import { visit } from 'unist-util-visit';
 import { NodeCompiler } from '@myriaddreamin/typst-ts-node-compiler';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const projectCompiler = NodeCompiler.create({ workspace: process.cwd() });
+const projectWorkspace = fileURLToPath(new URL('../../', import.meta.url));
 const cetzWorkspace = fileURLToPath(
   new URL('../vendor/typst-packages/preview/cetz/0.4.2', import.meta.url),
 );
-const cetzCompiler = NodeCompiler.create({ workspace: cetzWorkspace });
-const cetzPackageImport = '"@preview/cetz:0.4.2"';
-const localCetzImport = '"/src/lib.typ"';
+const cetzVirtualRoot = '/__typst_packages/cetz/0.4.2';
+const projectCompiler = NodeCompiler.create({ workspace: projectWorkspace });
+const cetzImportPattern = (
+  /^([\t ]*#\s*import\s+)"@preview\/cetz:0\.4\.2"(?=[\t ]*(?::|as\b|$))/gm
+);
+const cetzRootImportPattern = /^([\t ]*#?[\t ]*import\s+)"\/src\//gm;
+const localCetzImport = `"${cetzVirtualRoot}/src/lib.typ"`;
+
+function mapCetzPackage(directory, relativeDirectory = '') {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const relativePath = relativeDirectory
+      ? `${relativeDirectory}/${entry.name}`
+      : entry.name;
+    const sourcePath = join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      mapCetzPackage(sourcePath, relativePath);
+      continue;
+    }
+    if (!entry.name.endsWith('.typ') && !entry.name.endsWith('.wasm')) continue;
+
+    const shadowPath = join(
+      projectWorkspace,
+      cetzVirtualRoot.slice(1),
+      ...relativePath.split('/'),
+    );
+    const content = entry.name.endsWith('.typ')
+      ? Buffer.from(
+          readFileSync(sourcePath, 'utf8').replace(
+            cetzRootImportPattern,
+            `$1"${cetzVirtualRoot}/src/`,
+          ),
+        )
+      : readFileSync(sourcePath);
+    projectCompiler.mapShadow(shadowPath, content);
+  }
+}
+
+mapCetzPackage(cetzWorkspace);
 
 function prepareTypstSource(source) {
-  if (!source.includes(cetzPackageImport)) {
-    return { compiler: projectCompiler, source };
-  }
-
-  return {
-    compiler: cetzCompiler,
-    source: source.replaceAll(cetzPackageImport, localCetzImport),
-  };
+  return source.replace(cetzImportPattern, `$1${localCetzImport}`);
 }
 
 export function remarkTypst() {
@@ -38,11 +69,11 @@ export function remarkTypst() {
       try {
         const title = node.meta ? node.meta.trim() : '';
         const formattedTitle = title.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        const prepared = prepareTypstSource(node.value);
-        // Compile against a vendored workspace so package-based examples are
-        // deterministic and never depend on the network or a user cache.
-        const svg = await prepared.compiler.svg({
-          mainFileContent: prepared.source,
+        const source = prepareTypstSource(node.value);
+        // Resolve the supported package import to the vendored source while
+        // keeping the project workspace available to every Typst document.
+        const svg = await projectCompiler.svg({
+          mainFileContent: source,
         });
 
         // 将代码块替换为 raw 类型的 HTML 节点
