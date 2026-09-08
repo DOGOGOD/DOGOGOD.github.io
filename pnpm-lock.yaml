@@ -93,6 +93,9 @@ importers:
       '@iconify-json/simple-icons':
         specifier: ^1.2.48
         version: 1.2.80
+      playwright:
+        specifier: 1.62.1
+        version: 1.62.1
 
 packages:
 
@@ -475,18 +478,6 @@ packages:
   '@fontsource/eb-garamond@5.2.7':
     resolution: {integrity: sha512-V42tTlHDbnDo0+lENnXKWMx63Llq6Gfl2l7ozkoeRQN60S0jm6hEgCLlOT/5YyKAN9QZ0e2ofpy0rGKlz9jBrw==}
 
-  '@fontsource/noto-serif-sc@5.2.9':
-    resolution: {integrity: sha512-+wosdNmyrtRjnqJ/4A6i99jApm6ye34n8Nh7jUO3P/+6Hd1ZBY1gB9yGaI5jVxb56RS1lM2kTc0DzX1ifRO2MA==}
-
-  '@fontsource/playfair-display@5.2.8':
-    resolution: {integrity: sha512-fUEhib70SszNhQVsGbUMSsWJhr7Je0rdeuZdtGpDNu0GKF1xJM8QhpI/y0pckU25GcChXm9TLOmeZupkvvZo2g==}
-
-  '@fontsource/source-serif-4@5.2.9':
-    resolution: {integrity: sha512-er/Pym9emsEVJNf947umJ4kXarXfsiN6CN7kTYinefKRaHLwiquiiHOZvKvxWgkV8JMCf3pV3g0NcsPFpVCH9w==}
-
-  '@iconify-json/fa6-brands@1.2.6':
-    resolution: {integrity: sha512-twL3X4KWcxAhbc1vz/mIDsVr+CAItk1/EIfxKUVQtpv6O4eydk5KNYqTZWdvJNHGInUgd6vKg21aWfVgb5DXEg==}
-
   '@iconify-json/fa6-solid@1.2.4':
     resolution: {integrity: sha512-LmDNNdJVyvF5mPm1yxWvL8KjCc/E8LzoqnF1LNTVpyY2ZJRUlGOWuPIThdbuFBF2IovgttkIyumhyqfmlHdwKg==}
 
@@ -498,14 +489,6 @@ packages:
 
   '@iconify-json/simple-icons@1.2.80':
     resolution: {integrity: sha512-iglncJJ6X/dVuzFDU32MrHwwo4RBwivGf108dgyYg+HKS78ifx0h7sTenpDZMVT+UhdS6CSgZcvY/SvRXlIEUg==}
-
-  '@iconify-json/vscode-icons@1.2.46':
-    resolution: {integrity: sha512-ZuLQscdXzGfUy1BtpNE74rNRjhNkcT/BLUbclQpY7aNLS2ByBuF9RzSjJQ1c0nqRyyInBFWmEL8DbTufw6w5Vw==}
-
-  '@iconify/svelte@5.2.1':
-    resolution: {integrity: sha512-zHmsIPmnIhGd5gc95bNN5FL+GifwMZv7M2rlZEpa7IXYGFJm/XGHdWf6PWQa6OBoC+R69WyiPO9NAj5wjfjbow==}
-    peerDependencies:
-      svelte: '>5.0.0'
 
   '@iconify/tools@4.2.0':
     resolution: {integrity: sha512-WRxPva/ipxYkqZd1+CkEAQmd86dQmrwH0vwK89gmp2Kh2WyyVw57XbPng0NehP3x4V1LzLsXUneP1uMfTMZmUA==}
@@ -762,17 +745,6 @@ packages:
   '@myriaddreamin/typst-ts-node-compiler@0.7.0-rc2':
     resolution: {integrity: sha512-a4Vicil6Tu0S87C3+J2EMtFDdQEmT18zYAW6Srmt32lgjrTq3HLy+WN0lA/bgaBgw2wNEkXdogz3yRg49vXs8w==}
     engines: {node: '>= 10'}
-
-  '@myriaddreamin/typst.ts@0.7.0-rc2':
-    resolution: {integrity: sha512-VM8JqsRcL3AEJ5cuPBn/YvnGTXK/BRPlxdGB2bR48Of/8OIGaPiunv2QfZBIMBBrtbTygUOtAY9BZvkS1AFqgA==}
-    peerDependencies:
-      '@myriaddreamin/typst-ts-renderer': ^0.7.0-rc2
-      '@myriaddreamin/typst-ts-web-compiler': ^0.7.0-rc2
-    peerDependenciesMeta:
-      '@myriaddreamin/typst-ts-renderer':
-        optional: true
-      '@myriaddreamin/typst-ts-web-compiler':
-        optional: true
 
   '@nodable/entities@2.1.0':
     resolution: {integrity: sha512-nyT7T3nbMyBI/lvr6L5TyWbFJAI9FTgVRakNoBqCD+PmID8DzFrrNdLLtHMwMszOtqZa8PAOV24ZqDnQrhQINA==}
@@ -1161,9 +1133,6 @@ packages:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
 
-  aos@2.3.4:
-    resolution: {integrity: sha512-zh/ahtR2yME4I51z8IttIt4lC1Nw0ktsFtmeDzID1m9naJnWXhCoARaCgNOGXb5CLy3zm+wqmRAEgMYB5E2HUw==}
-
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
@@ -1247,9 +1216,6 @@ packages:
   ci-info@4.4.0:
     resolution: {integrity: sha512-77PSwercCZU2Fc4sX94eF8k8Pxte6JAwL4/ICZLFjJLqegs7kCuAsqqj/70NQF6TvDpgFjkubQB2FW2ZZddvQg==}
     engines: {node: '>=8'}
-
-  classlist-polyfill@1.2.0:
-    resolution: {integrity: sha512-GzIjNdcEtH4ieA2S8NmrSxv7DfEV5fmixQeyTmqmRmRJPGpRBaSnA2a0VrCjyT8iW8JjEdMbKzDotAJf+ajgaQ==}
 
   cli-boxes@3.0.0:
     resolution: {integrity: sha512-/lzGpEWL/8PfI0BmBOPRwp0c/wFNX1RdUML3jK/RcSBA9T8mZDdQpqYBKtCFTOfQbwPqWEOpjqW+Fnayc0969g==}
@@ -1494,6 +1460,11 @@ packages:
     resolution: {integrity: sha512-Wp1zXWPVUPBmfoa3Cqc9ctaKuzKAV6uLstRqlR56kSjplf5uAce+qeyYym7F+PHbGTk+tCEdkCW6RD7DX/gBZw==}
     engines: {node: '>=20'}
 
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -1571,9 +1542,6 @@ packages:
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
-
-  idb@7.1.1:
-    resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
 
   import-meta-resolve@4.2.0:
     resolution: {integrity: sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg==}
@@ -1721,12 +1689,6 @@ packages:
 
   locate-character@3.0.0:
     resolution: {integrity: sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA==}
-
-  lodash.debounce@4.0.8:
-    resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
-
-  lodash.throttle@4.1.1:
-    resolution: {integrity: sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==}
 
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
@@ -2013,6 +1975,16 @@ packages:
 
   pkg-types@2.3.0:
     resolution: {integrity: sha512-SIqCzDRg0s9npO5XQ3tNZioRY1uK06lA41ynBC1YmFTmnY6FjUjVt6s4LoADmwoig1qqD0oK8h1p/8mlMx8Oig==}
+
+  playwright-core@1.62.1:
+    resolution: {integrity: sha512-wPYSwEBJY9GHraISXqyqtx0na0LpO3XEX7jNDhntbex7tzUS7kLnZsOlFruFJB4Hi/rhDMjXGqHewDZ68nYZVw==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.62.1:
+    resolution: {integrity: sha512-0M+L3LAD8/nm554LOla9Ayx0j0tmFZ0FBcoQ7F1VuVHpM/XpiC8RcDzBQB8W5+hA8L22THxELzeF+2WcUzvcLg==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   postcss@8.5.12:
     resolution: {integrity: sha512-W62t/Se6rA0Az3DfCL0AqJwXuKwBeYg6nOaIgzP+xZ7N5BFCI7DYi1qs6ygUYT6rvfi6t9k65UMLJC+PHZpDAA==}
@@ -2751,16 +2723,6 @@ snapshots:
 
   '@fontsource/eb-garamond@5.2.7': {}
 
-  '@fontsource/noto-serif-sc@5.2.9': {}
-
-  '@fontsource/playfair-display@5.2.8': {}
-
-  '@fontsource/source-serif-4@5.2.9': {}
-
-  '@iconify-json/fa6-brands@1.2.6':
-    dependencies:
-      '@iconify/types': 2.0.0
-
   '@iconify-json/fa6-solid@1.2.4':
     dependencies:
       '@iconify/types': 2.0.0
@@ -2776,15 +2738,6 @@ snapshots:
   '@iconify-json/simple-icons@1.2.80':
     dependencies:
       '@iconify/types': 2.0.0
-
-  '@iconify-json/vscode-icons@1.2.46':
-    dependencies:
-      '@iconify/types': 2.0.0
-
-  '@iconify/svelte@5.2.1(svelte@5.55.5)':
-    dependencies:
-      '@iconify/types': 2.0.0
-      svelte: 5.55.5
 
   '@iconify/tools@4.2.0':
     dependencies:
@@ -2980,10 +2933,6 @@ snapshots:
       '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl': 0.7.0-rc2
       '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc': 0.7.0-rc2
       '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc': 0.7.0-rc2
-
-  '@myriaddreamin/typst.ts@0.7.0-rc2':
-    dependencies:
-      idb: 7.1.1
 
   '@nodable/entities@2.1.0': {}
 
@@ -3277,12 +3226,6 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.2
 
-  aos@2.3.4:
-    dependencies:
-      classlist-polyfill: 1.2.0
-      lodash.debounce: 4.0.8
-      lodash.throttle: 4.1.1
-
   argparse@2.0.1: {}
 
   aria-query@5.3.1: {}
@@ -3466,8 +3409,6 @@ snapshots:
   chownr@3.0.0: {}
 
   ci-info@4.4.0: {}
-
-  classlist-polyfill@1.2.0: {}
 
   cli-boxes@3.0.0: {}
 
@@ -3723,6 +3664,9 @@ snapshots:
     dependencies:
       tiny-inflate: 1.0.3
 
+  fsevents@2.3.2:
+    optional: true
+
   fsevents@2.3.3:
     optional: true
 
@@ -3867,8 +3811,6 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
-  idb@7.1.1: {}
-
   import-meta-resolve@4.2.0: {}
 
   iron-webcrypto@1.2.1: {}
@@ -3974,10 +3916,6 @@ snapshots:
       quansync: 0.2.11
 
   locate-character@3.0.0: {}
-
-  lodash.debounce@4.0.8: {}
-
-  lodash.throttle@4.1.1: {}
 
   longest-streak@3.1.0: {}
 
@@ -4495,6 +4433,14 @@ snapshots:
       confbox: 0.2.4
       exsolve: 1.0.8
       pathe: 2.0.3
+
+  playwright-core@1.62.1: {}
+
+  playwright@1.62.1:
+    dependencies:
+      playwright-core: 1.62.1
+    optionalDependencies:
+      fsevents: 2.3.2
 
   postcss@8.5.12:
     dependencies:

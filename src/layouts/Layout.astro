@@ -3,8 +3,6 @@ import { siteConfig, profileConfig } from '@/config';
 import "@styles/global.css"
 import '@fontsource/eb-garamond/latin-400.css';
 import '@fontsource/eb-garamond/latin-700.css';
-import ebGaramondRegularUrl from '@fontsource/eb-garamond/files/eb-garamond-latin-400-normal.woff2?url';
-import ebGaramondBoldUrl from '@fontsource/eb-garamond/files/eb-garamond-latin-700-normal.woff2?url';
 import lxgwLatinUrl from '@chinese-fonts/lxgwwenkaibright/dist/LXGWBright-Medium/b1c260c070803c9291a231be96cb6d14.woff2?url';
 import lxgwCommonCjkUrl from '@chinese-fonts/lxgwwenkaibright/dist/LXGWBright-Medium/5e5ecd64a37da195508b682bdcbbb126.woff2?url';
 import { i18n } from "astro:config/client";
@@ -33,10 +31,6 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     <script is:inline>
       (function() {
         const root = document.documentElement;
-        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          root.classList.add('reveal-enabled');
-        }
-
         let savedTheme = 'system';
         try {
           const storedTheme = localStorage.getItem('theme');
@@ -71,9 +65,7 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     )}
     <link rel="icon" href={siteConfig.favicon} type="image/x-icon">
     <link rel="preload" href={lxgwLatinUrl} as="font" type="font/woff2" crossorigin="anonymous">
-    <link rel="preload" href={lxgwCommonCjkUrl} as="font" type="font/woff2" crossorigin="anonymous">
-    <link rel="preload" href={ebGaramondRegularUrl} as="font" type="font/woff2" crossorigin="anonymous">
-    <link rel="preload" href={ebGaramondBoldUrl} as="font" type="font/woff2" crossorigin="anonymous">
+    {pageLang.startsWith('zh') && <link rel="preload" href={lxgwCommonCjkUrl} as="font" type="font/woff2" crossorigin="anonymous">}
     <title>{pageTitle}</title>
     <ClientRouter fallback="swap" />
     <script is:inline>
@@ -82,18 +74,13 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
         document.addEventListener('astro:before-swap', (e) => {
             const theme = document.documentElement.getAttribute('data-theme');
             const sysTheme = document.documentElement.classList.contains('system-theme');
-            const revealEnabled = document.documentElement.classList.contains('reveal-enabled');
             if (theme) {
                 e.newDocument.documentElement.setAttribute('data-theme', theme);
             }
             if (sysTheme) {
                 e.newDocument.documentElement.classList.add('system-theme');
             }
-            if (revealEnabled) {
-                e.newDocument.documentElement.classList.add('reveal-enabled');
-            }
-            // The initial visit keeps its reveal animation. Internal route
-            // changes render at their final state immediately.
+            // Internal route changes render at their final state immediately.
             e.newDocument.documentElement.classList.add('route-fast-swap');
         });
       }
@@ -178,8 +165,7 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     scroll-behavior: smooth;
   }
 
-  html.reveal-enabled [data-aos],
-  html.reveal-enabled .markdown-content.onload-animation > * {
+  .reveal-pending {
     opacity: 0;
     transform: translateY(1rem);
     transition:
@@ -187,8 +173,7 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
       transform 600ms ease var(--reveal-delay, 0ms);
   }
 
-  html.reveal-enabled [data-aos].aos-animate,
-  html.reveal-enabled .markdown-content.onload-animation > *.aos-animate {
+  .reveal-pending.aos-animate {
     opacity: 1;
     transform: translateY(0);
   }
@@ -235,6 +220,7 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-aos]'));
     if (
       elements.length === 0
+      || document.documentElement.classList.contains('route-fast-swap')
       || window.matchMedia('(prefers-reduced-motion: reduce)').matches
       || !('IntersectionObserver' in window)
     ) {
@@ -254,6 +240,8 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
       if (element.getBoundingClientRect().top < window.innerHeight) {
         element.classList.add('aos-animate');
       } else {
+        // First paint stays readable even if scripts are slow or fail.
+        element.classList.add('reveal-pending');
         observer.observe(element);
       }
     });

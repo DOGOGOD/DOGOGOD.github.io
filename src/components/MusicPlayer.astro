@@ -33,8 +33,6 @@ const initialLabels = isEnglish
   data-tracks={encodedTracks}
   transition:persist="music-player"
 >
-  <audio data-music-audio preload="metadata" playsinline></audio>
-
   <div class="music-player-shell" data-music-shell>
     <button
       class="music-player-button music-player-primary"
@@ -117,7 +115,7 @@ const initialLabels = isEnglish
     __astroMusicPlayerInteractionInitialiser?: (event: Event) => void;
   };
 
-  const PLAYER_SCRIPT_VERSION = '2';
+  const PLAYER_SCRIPT_VERSION = '3';
   const PLAYBACK_KEY = '__music_state__';
   const POSITION_KEY = '__music_pos__';
   const BUTTON_SIZE = 44;
@@ -193,15 +191,18 @@ const initialLabels = isEnglish
     root.__musicPlayerCleanup?.();
     delete root.dataset.playerReady;
 
-    const audioElement = root.querySelector<HTMLAudioElement>('[data-music-audio]');
     const primaryButtonElement = root.querySelector<HTMLButtonElement>('[data-music-primary]');
     const nextButton = root.querySelector<HTMLButtonElement>('[data-music-next]');
     const detailsElement = root.querySelector<HTMLElement>('[data-music-details]');
     const titleElement = root.querySelector<HTMLElement>('[data-music-title]');
     const tracks = parseTracks(root);
-    if (!audioElement || !primaryButtonElement || !detailsElement || !titleElement) return;
+    if (!primaryButtonElement || !detailsElement || !titleElement) return;
 
-    const audio = audioElement;
+    // A detached media element cannot be interrupted by Astro moving the
+    // persisted player wrapper between documents during navigation.
+    const audio = new Audio();
+    audio.preload = 'none';
+    audio.setAttribute('playsinline', '');
     const primaryButton = primaryButtonElement;
     const details = detailsElement;
     const title = titleElement;
@@ -223,7 +224,8 @@ const initialLabels = isEnglish
     let originX = 0;
     let originY = 0;
     let lastStateSave = 0;
-    let loadGeneration = 0;
+    let playGeneration = 0;
+    let wantsPlayback = false;
     let pendingResumeTime = 0;
     let resizeFrame = 0;
     let resizeSaveTimer = 0;
@@ -351,7 +353,7 @@ const initialLabels = isEnglish
 
     function updatePlaybackUI() {
       const track = currentTrack();
-      const playing = Boolean(track) && !audio.paused && !audio.ended;
+      const playing = Boolean(track) && !audio.error && !audio.paused && !audio.ended;
       const labels = currentLabels();
       root.classList.toggle('is-playing', playing);
       primaryButton.setAttribute('aria-pressed', String(playing));
@@ -391,25 +393,51 @@ const initialLabels = isEnglish
       }
     }
 
+    function seekToResumeTime() {
+      if (pendingResumeTime <= 0) return;
+      const upperBound = Number.isFinite(audio.duration)
+        ? Math.max(0, audio.duration - 0.05)
+        : pendingResumeTime;
+      try {
+        audio.currentTime = Math.min(pendingResumeTime, upperBound);
+        pendingResumeTime = 0;
+      } catch {
+        // Keep the target for the next metadata/canplay event.
+      }
+    }
+
     async function startPlayback() {
       const track = currentTrack();
       if (!track) return;
       clearPlaybackFailure();
+      const request = ++playGeneration;
+      wantsPlayback = true;
 
       const resolvedSource = resolveTrackSource(track);
       if (!resolvedSource) {
+        wantsPlayback = false;
         savePlaybackState(true);
         return;
       }
 
-      if (!audio.currentSrc || audio.error || audio.src !== resolvedSource) {
+      // currentSrc can be empty during source selection. Reloading then
+      // would abort an outstanding play() promise.
+      if (audio.src !== resolvedSource) {
         audio.src = resolvedSource;
+      } else if (audio.error) {
+        pendingResumeTime = audio.currentTime || pendingResumeTime;
         audio.load();
       }
 
       try {
         await audio.play();
       } catch (error) {
+        if (request !== playGeneration || signal.aborted) return;
+        wantsPlayback = false;
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          updatePlaybackUI();
+          return;
+        }
         reportPlaybackFailure(error);
         savePlaybackState(true);
       }
@@ -430,7 +458,8 @@ const initialLabels = isEnglish
       const track = currentTrack();
       if (!track) return;
 
-      const generation = ++loadGeneration;
+      ++playGeneration;
+      wantsPlayback = autoplay;
       clearPlaybackFailure();
       const resolvedSource = resolveTrackSource(track);
       if (!resolvedSource) {
@@ -441,30 +470,11 @@ const initialLabels = isEnglish
       const sourceChanged = audio.src !== resolvedSource;
       if (sourceChanged) {
         audio.src = resolvedSource;
-        audio.load();
       }
 
-      const safeResumeTime = Math.max(0, resumeTime);
-      pendingResumeTime = safeResumeTime;
-      const seek = () => {
-        if (generation !== loadGeneration || safeResumeTime <= 0) return;
-        const upperBound = Number.isFinite(audio.duration)
-          ? Math.max(0, audio.duration - 0.05)
-          : safeResumeTime;
-        try {
-          audio.currentTime = Math.min(safeResumeTime, upperBound);
-          pendingResumeTime = 0;
-        } catch {
-          // Metadata can still be unavailable on slow connections.
-        }
-      };
-
-      if (safeResumeTime > 0) {
-        if (audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
-          seek();
-        } else {
-          audio.addEventListener('loadedmetadata', seek, { once: true, signal });
-        }
+      pendingResumeTime = Math.max(0, resumeTime);
+      if (!sourceChanged && audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+        seekToResumeTime();
       }
 
       updatePlaybackUI();
@@ -479,14 +489,19 @@ const initialLabels = isEnglish
       }
 
       const saved = readPlaybackState();
-      loadTrack(saved?.index ?? 0, saved?.time ?? 0, saved?.playing === true, false);
+      // Full reloads require a fresh gesture on autoplay-restricted browsers.
+      // ClientRouter navigation keeps this live instance and its playback.
+      loadTrack(saved?.index ?? 0, saved?.time ?? 0, false, false);
     }
 
     function togglePlayback() {
       if (suppressClick || !currentTrack()) return;
-      if (audio.paused || audio.ended) {
+      if (audio.error || root.classList.contains('has-playback-error')
+        || (!wantsPlayback && (audio.paused || audio.ended))) {
         void startPlayback();
       } else {
+        wantsPlayback = false;
+        ++playGeneration;
         audio.pause();
       }
     }
@@ -544,7 +559,7 @@ const initialLabels = isEnglish
     nextButton?.addEventListener('click', (event) => {
       event.stopPropagation();
       if (suppressClick || tracks.length <= 1) return;
-      const keepPlaying = !audio.paused && !audio.ended;
+      const keepPlaying = wantsPlayback || (!audio.paused && !audio.ended);
       loadTrack(index + 1, 0, keepPlaying);
     }, { signal });
 
@@ -617,6 +632,9 @@ const initialLabels = isEnglish
       setExpandedState();
     }, { signal });
 
+    audio.addEventListener('loadedmetadata', seekToResumeTime, { signal });
+    audio.addEventListener('canplay', seekToResumeTime, { signal });
+
     audio.addEventListener('play', () => {
       clearPlaybackFailure();
       updatePlaybackUI();
@@ -624,12 +642,12 @@ const initialLabels = isEnglish
     }, { signal });
 
     audio.addEventListener('pause', () => {
+      if (audio.paused) wantsPlayback = false;
       updatePlaybackUI();
       savePlaybackState(true);
     }, { signal });
 
     audio.addEventListener('timeupdate', () => {
-      pendingResumeTime = 0;
       savePlaybackState();
     }, { signal });
 
@@ -637,12 +655,14 @@ const initialLabels = isEnglish
       if (tracks.length > 1) {
         loadTrack(index + 1, 0, true);
       } else {
+        wantsPlayback = false;
         updatePlaybackUI();
         savePlaybackState(true);
       }
     }, { signal });
 
     audio.addEventListener('error', () => {
+      wantsPlayback = false;
       reportPlaybackFailure();
       savePlaybackState(true);
     }, { signal });
@@ -685,6 +705,10 @@ const initialLabels = isEnglish
       if (resizeSaveTimer) window.clearTimeout(resizeSaveTimer);
       if (suppressClickTimer) window.clearTimeout(suppressClickTimer);
       events.abort();
+      ++playGeneration;
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
       delete root.dataset.playerReady;
       delete root.dataset.playerVersion;
       delete root.__musicPlayerCleanup;

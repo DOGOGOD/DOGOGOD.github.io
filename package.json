@@ -4,8 +4,10 @@
   "version": "26.5.6",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && pagefind --site dist",
+    "build": "astro build && node script/optimize-audio.mjs && pagefind --site dist",
     "typecheck": "tsc --noEmit",
+    "test:audio": "node --test script/test-audio.mjs",
+    "test:browser": "node script/test-browser.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "newpost": "node script/newpost.js"
@@ -40,6 +42,7 @@
     "@iconify-json/fa6-solid": "^1.2.4",
     "@iconify-json/fluent": "^1.2.45",
     "@iconify-json/material-symbols": "^1.2.35",
-    "@iconify-json/simple-icons": "^1.2.48"
+    "@iconify-json/simple-icons": "^1.2.48",
+    "playwright": "1.62.1"
   }
 }
