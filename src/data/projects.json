@@ -4,7 +4,11 @@
     "description": "你正在看的这个站点——暖调纸质主题、陶土色点缀，支持双语切换、音乐播放、项目展示与全文搜索，基于 Astro 构建，静态部署于 GitHub Pages。",
     "descriptionEn": "The site you're viewing right now — warm paper-toned theme with clay accents, bilingual, with a persistent music player, project showcase, and full-text search. Built with Astro, deployed on GitHub Pages.",
     "githubUrl": "https://github.com/DOGOGOD/DOGOGOD.github.io",
-    "tags": ["Astro", "CSS", "TypeScript"],
+    "tags": [
+      "Astro",
+      "CSS",
+      "TypeScript"
+    ],
     "status": "active"
   },
   {
@@ -12,31 +16,12 @@
     "description": "面向个人与教学场景的本地 AI Agent Runtime，将多轮对话、工具调用、长期记忆、Skill、定时任务与桌面宠物整合于同一运行时，提供 Windows 桌面端、Web UI、TUI、CLI、REST API 与 QQ Bot。",
     "descriptionEn": "A local AI Agent Runtime for personal and educational use, unifying multi-turn chat, tool use, long-term memory, Skills, scheduled tasks, and desktop pets across Windows desktop, Web UI, TUI, CLI, REST API, and QQ Bot.",
     "githubUrl": "https://github.com/DOGOGOD/SJTUClaw",
-    "tags": ["Python", "React", "TypeScript", "FastAPI"],
-    "status": "active"
-  },
-  {
-    "name": "WeRead",
-    "description": "微信公众号文章定时爬取与 AI 智能摘要工具。订阅你关注的公众号，定时抓取最新文章，由 AI 自动生成结构化阅读简报。",
-    "descriptionEn": "A WeChat official account scraper with AI-powered summarization. Subscribe to accounts and receive structured reading digests automatically.",
-    "githubUrl": "https://github.com/DOGOGOD/WeRead",
-    "tags": ["Python", "Skill", "Playwright"],
-    "status": "maintained"
-  },
-  {
-    "name": "Office-Preview",
-    "description": "Obsidian 插件：在 Obsidian 中预览 Office 文档（Word、Excel、PowerPoint）。",
-    "descriptionEn": "Obsidian plugin: preview Office documents (Word, Excel, PowerPoint) directly inside Obsidian.",
-    "githubUrl": "https://github.com/DOGOGOD/Office-Preview",
-    "tags": ["TypeScript", "CSS", "Obsidian"],
-    "status": "experiment"
-  },
-  {
-    "name": "MineSweeper",
-    "description": "经典的扫雷游戏，使用 C++ 编写。该项目为C++学习练手项目，旨在帮助初学者理解面向对象编程和游戏开发的基本概念。",
-    "descriptionEn": "Classic Minesweeper game written in C++. A learning project aimed at helping beginners understand OOP and game development fundamentals.",
-    "githubUrl": "https://github.com/DOGOGOD/MineSweeper",
-    "tags": ["C++"],
+    "tags": [
+      "Python",
+      "React",
+      "TypeScript",
+      "FastAPI"
+    ],
     "status": "maintained"
   },
   {
@@ -44,7 +29,58 @@
     "description": "复现 Autodom 论文的足式机器人里程计系统。基于 Isaac Sim 训练强化学习行走策略，从关节角度、IMU 等本体感知数据中学习里程计预测，支持 Booster T1 和 MagicBot Z1 双平台，含 ROS2 实物采集管线。",
     "descriptionEn": "A legged-robot odometry system reproducing the Autodom paper. Trains RL locomotion policies in Isaac Sim, learns odometry from proprioception (joint angles, IMU), supports Booster T1 & MagicBot Z1 platforms, with ROS2 real-world data collection pipeline.",
     "githubUrl": "https://github.com/DOGOGOD/AutoOdom",
-    "tags": ["Python", "C++", "ROS2", "Isaac Sim"],
+    "tags": [
+      "Python",
+      "C++",
+      "ROS2",
+      "Isaac Sim"
+    ],
+    "status": "maintained"
+  },
+  {
+    "name": "MineSweeper",
+    "description": "经典的扫雷游戏，使用 C++ 编写。该项目为C++学习练手项目，旨在帮助初学者理解面向对象编程和游戏开发的基本概念。",
+    "descriptionEn": "Classic Minesweeper game written in C++. A learning project aimed at helping beginners understand OOP and game development fundamentals.",
+    "githubUrl": "https://github.com/DOGOGOD/MineSweeper",
+    "tags": [
+      "C++"
+    ],
+    "status": "maintained"
+  },
+  {
+    "name": "SJTU-Sync",
+    "description": "基于上海交通大学云盘的 Obsidian 双向同步插件，可同步整个仓库或指定文件夹，支持冲突处理、中断恢复与可选端到端加密。",
+    "descriptionEn": "An Obsidian plugin for two-way sync with SJTU Cloud. Sync a whole vault or selected folders, with conflict handling, interrupted-sync recovery, and optional end-to-end encryption.",
+    "githubUrl": "https://github.com/DOGOGOD/SJTU-Sync",
+    "tags": [
+      "TypeScript",
+      "Obsidian",
+      "SJTU Cloud"
+    ],
     "status": "experiment"
+  },
+  {
+    "name": "WeRead",
+    "description": "微信公众号文章定时爬取与 AI 智能摘要工具。订阅你关注的公众号，定时抓取最新文章，由 AI 自动生成结构化阅读简报。",
+    "descriptionEn": "A WeChat official account scraper with AI-powered summarization. Subscribe to accounts and receive structured reading digests automatically.",
+    "githubUrl": "https://github.com/DOGOGOD/WeRead",
+    "tags": [
+      "Python",
+      "Skill",
+      "Playwright"
+    ],
+    "status": "maintained"
+  },
+  {
+    "name": "Office-Preview",
+    "description": "Obsidian 插件：在 Obsidian 中预览 Office 文档（Word、Excel、PowerPoint）。",
+    "descriptionEn": "Obsidian plugin: preview Office documents (Word, Excel, PowerPoint) directly inside Obsidian.",
+    "githubUrl": "https://github.com/DOGOGOD/Office-Preview",
+    "tags": [
+      "TypeScript",
+      "CSS",
+      "Obsidian"
+    ],
+    "status": "maintained"
   }
 ]

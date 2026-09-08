@@ -1,0 +1,123 @@
+---
+import i18nit from '@i18n/translation';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  remaining: number;
+  lang: string;
+  grid?: boolean;
+}
+
+const { remaining, lang, grid = false } = Astro.props;
+const t = i18nit(lang);
+const listClasses = grid ? 'grid gap-6 sm:grid-cols-2' : undefined;
+---
+
+<div class={listClasses}>
+  <slot />
+</div>
+{remaining > 0 && (
+  <details class="more-works" data-work-disclosure>
+    <summary>
+      <span class="when-closed sr-only">{t('projects.showMore', { count: remaining })}</span>
+      <span class="when-open sr-only">{t('projects.showLess')}</span>
+      <span class="disclosure-arrow" aria-hidden="true">
+        <Icon name="fa6-solid:angle-right" width="16" height="16" />
+      </span>
+    </summary>
+    <div class="remaining-viewport">
+      <div class:list={['remaining-works', listClasses]}>
+        <slot name="more" />
+      </div>
+    </div>
+  </details>
+)}
+
+<script>
+  const animations = new WeakMap<HTMLDetailsElement, Animation>();
+
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    const summary = event.target.closest('summary');
+    const details = summary?.parentElement;
+    if (!(details instanceof HTMLDetailsElement)
+      || !details.hasAttribute('data-work-disclosure')) return;
+
+    event.preventDefault();
+    const startHeight = details.getBoundingClientRect().height;
+    const expanded = details.dataset.expanded === undefined
+      ? !details.open
+      : details.dataset.expanded !== 'true';
+    animations.get(details)?.cancel();
+    // Restore natural content flow before measuring a reversed animation.
+    delete details.dataset.animating;
+    details.dataset.expanded = String(expanded);
+
+    const finish = () => {
+      details.open = expanded;
+      delete details.dataset.animating;
+      animations.delete(details);
+    };
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finish();
+      return;
+    }
+
+    // Leave the content rendered until the closing animation finishes. The
+    // bottom-positioned summary follows the animated height in both directions.
+    details.open = true;
+    const endHeight = expanded ? details.getBoundingClientRect().height : summary!.offsetHeight;
+    details.dataset.animating = 'true';
+    const animation = details.animate(
+      [{ height: `${startHeight}px` }, { height: `${endHeight}px` }],
+      { duration: 300, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+    );
+    animations.set(details, animation);
+    animation.onfinish = () => {
+      if (animations.get(details) === animation) finish();
+    };
+  });
+</script>
+
+<style>
+  .more-works {
+    position: relative;
+    box-sizing: border-box;
+    margin-top: 1.5rem;
+    padding-bottom: 44px;
+  }
+  /* Clip only the cards, above the summary's 44px footer. Clipping the
+     entire details element would let cards paint underneath the arrow. */
+  .more-works[data-animating] .remaining-viewport {
+    position: absolute;
+    inset: 0 0 44px;
+    overflow: clip;
+  }
+  summary {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    border-radius: 50%;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { background: var(--button-hover-color); }
+  summary:focus-visible { outline: 2px solid var(--link-color); outline-offset: 4px; }
+  .when-open { display: none; }
+  .more-works[open] .when-open { display: inline; }
+  .more-works[open] .when-closed { display: none; }
+  .disclosure-arrow { display: inline-flex; transform: rotate(90deg); }
+  .more-works[open] .disclosure-arrow { transform: rotate(-90deg); }
+  .more-works[data-expanded="false"] .disclosure-arrow { transform: rotate(90deg); }
+  .remaining-works { padding-bottom: 1.5rem; }
+</style>

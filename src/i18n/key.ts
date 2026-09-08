@@ -75,6 +75,18 @@ export interface Translation {
         dark: string;
         system: string;
     },
+    projects: {
+        navigation: string;
+        sideProjects: string;
+        sideDescription: string;
+        researchWorks: string;
+        researchDescription: string;
+        researchEmpty: string;
+        paper: string;
+        website: string;
+        showMore: string;
+        showLess: string;
+    };
     projectStatus: {
         active: string;
         maintained: string;

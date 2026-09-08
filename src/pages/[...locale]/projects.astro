@@ -1,11 +1,14 @@
 ---
 import MainPageLayout from '@layouts/MainPageLayout.astro';
-import Cover from '@components/Cover.astro';
 import ProjectCard from '@components/ProjectCard.astro';
+import ResearchCard from '@components/ResearchCard.astro';
+import WorkList from '@components/WorkList.astro';
 import { siteConfig } from '@/config';
 import { i18n } from "astro:config/client";
 import i18nit from '@i18n/translation';
 import projects from '@/data/projects.json';
+import research from '@/data/research.json';
+import type { ResearchWork } from '@/types/research';
 
 export async function getStaticPaths() {
   const locales = i18n?.locales || [i18n?.defaultLocale || 'zh-cn'];
@@ -27,15 +30,65 @@ const currentLang = Astro.currentLocale || i18n!.defaultLocale;
 const t = i18nit(currentLang);
 
 const all = projects as Project[];
+const researchWorks: ResearchWork[] = research;
+const initialCount = 4;
 const pageTitle = t("header.projects") + " - " + siteConfig.title;
 ---
 
 <MainPageLayout title={pageTitle} lang={currentLang}>
-  <div class="mx-auto w-full max-w-[var(--page-width)]">
-    <Cover title={t("cover.title.projects")} subTitle={t("cover.subTitle.projects")} />
+  <div class="projects-page mx-auto w-full max-w-[var(--page-width)]">
+    <header class="text-center pt-5 pb-8 md:mt-0 mt-28">
+      <h1 class="text-[var(--text-color)] text-3xl py-5 font-bold">{t('cover.title.projects')}</h1>
+      <p class="text-[var(--text-color-70)]">{t('cover.subTitle.projects')}</p>
+    </header>
 
-    <div class="mb-12 grid gap-6 sm:grid-cols-2">
-      {all.map((p) => <ProjectCard {...p} lang={currentLang} />)}
-    </div>
+    <nav class="section-navigation" aria-label={t('projects.navigation')}>
+      <a href="#side-projects">{t('projects.sideProjects')}</a>
+      <a href="#research-works">{t('projects.researchWorks')}</a>
+    </nav>
+
+    <section id="side-projects" aria-labelledby="side-projects-title">
+      <header class="section-heading">
+        <h2 id="side-projects-title">{t('projects.sideProjects')}</h2>
+        <p>{t('projects.sideDescription')}</p>
+      </header>
+      <WorkList remaining={all.length - initialCount} lang={currentLang} grid>
+        {all.slice(0, initialCount).map((p) => <ProjectCard {...p} lang={currentLang} />)}
+        <Fragment slot="more">
+          {all.slice(initialCount).map((p) => <ProjectCard {...p} lang={currentLang} />)}
+        </Fragment>
+      </WorkList>
+    </section>
+
+    <section id="research-works" aria-labelledby="research-works-title">
+      <header class="section-heading">
+        <h2 id="research-works-title">{t('projects.researchWorks')}</h2>
+        <p>{t('projects.researchDescription')}</p>
+      </header>
+      {researchWorks.length > 0 ? (
+        <WorkList remaining={researchWorks.length - initialCount} lang={currentLang}>
+          {researchWorks.slice(0, initialCount).map((work) => <ResearchCard {...work} lang={currentLang} />)}
+          <Fragment slot="more">
+            {researchWorks.slice(initialCount).map((work) => <ResearchCard {...work} lang={currentLang} />)}
+          </Fragment>
+        </WorkList>
+      ) : (
+        <p class="research-empty">{t('projects.researchEmpty')}</p>
+      )}
+    </section>
   </div>
 </MainPageLayout>
+
+<style>
+  .projects-page { padding-bottom: 3rem; }
+  .section-navigation { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem 2rem; margin-bottom: 2.5rem; }
+  .section-navigation a { display: inline-flex; align-items: center; min-height: 44px; padding: 0.25rem 0; color: var(--text-color); border-bottom: 1px solid var(--button-border-color); text-decoration: none; }
+  .section-navigation a:hover { border-color: var(--link-color); }
+  .section-navigation a:focus-visible { outline: 2px solid var(--link-color); outline-offset: 4px; border-radius: 2px; }
+  section { scroll-margin-top: 8rem; }
+  section + section { margin-top: 3.5rem; }
+  .section-heading { margin-bottom: 1.5rem; }
+  .section-heading h2 { margin: 0; font-size: 1.5rem; font-weight: 700; line-height: 1.4; color: var(--text-color); }
+  .section-heading p { margin: 0.65rem 0 0; font-size: 0.9rem; line-height: 1.8; color: var(--text-color-70); }
+  .research-empty { border-top: 1px solid var(--button-border-color); padding: 1.5rem 0; color: var(--text-color-70); font-size: 0.9rem; }
+</style>

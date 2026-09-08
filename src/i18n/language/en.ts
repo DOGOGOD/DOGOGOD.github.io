@@ -15,7 +15,7 @@ const translation: Translation = {
         },
         subTitle: {
             archive: "Total of {count} articles",
-            projects: "Things I've built with my own hands",
+            projects: "Side projects I've built and research I've contributed to",
             about: "O ever youthful, O ever weeping",
         }
     },
@@ -76,6 +76,18 @@ const translation: Translation = {
         light: "Switch to Light Mode",
         dark: "Switch to Dark Mode",
         system: "Switch to System Mode"
+    },
+    projects: {
+        navigation: "Project categories",
+        sideProjects: "Side Projects",
+        sideDescription: "Small tools and playful things, built out of curiosity.",
+        researchWorks: "Research Works",
+        researchDescription: "Research I've contributed to, with related papers and open-source code.",
+        researchEmpty: "Research works are being gathered here.",
+        paper: "Paper",
+        website: "Project website",
+        showMore: "Show more ({count})",
+        showLess: "Show less",
     },
     projectStatus: {
         active: "Active",

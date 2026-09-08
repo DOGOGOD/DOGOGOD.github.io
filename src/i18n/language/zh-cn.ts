@@ -15,7 +15,7 @@ const translation: Translation = {
         },
         subTitle: {
             archive: "共 {count} 篇文章",
-            projects: "一些我亲手做过的东西",
+            projects: "动手做的小项目，也有参与的科研工作",
             about: "永远年轻，永远热泪盈眶",
         }
     },
@@ -76,6 +76,18 @@ const translation: Translation = {
         light: "切换到 浅色 模式",
         dark: "切换到 深色 模式",
         system: "切换到 跟随系统 模式"
+    },
+    projects: {
+        navigation: "项目分类",
+        sideProjects: "个人项目",
+        sideDescription: "一些出于兴趣做的小工具、小玩意。",
+        researchWorks: "科研成果",
+        researchDescription: "参与的科研工作，以及相关论文与开源代码。",
+        researchEmpty: "相关成果整理中。",
+        paper: "论文",
+        website: "项目主页",
+        showMore: "展开剩余 {count} 项",
+        showLess: "收起更多",
     },
     projectStatus: {
         active: "进行中",
