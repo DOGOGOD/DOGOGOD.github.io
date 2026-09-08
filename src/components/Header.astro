@@ -556,6 +556,10 @@ function attachSearchListener() {
   });
 }
 
-document.addEventListener('astro:page-load', attachSearchListener);
+// Inline scripts run again after each swap; bind this global listener once.
+if (!window.__blogPagefindListenerBound) {
+  window.__blogPagefindListenerBound = true;
+  document.addEventListener('astro:page-load', attachSearchListener);
+}
 </script>
 }

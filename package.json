@@ -9,6 +9,7 @@
     "test:audio": "node --test script/test-audio.mjs",
     "test:browser": "node script/test-browser.mjs",
     "test:seasonal": "node script/test-seasonal.mjs",
+    "benchmark": "node script/benchmark-browser.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "newpost": "node script/newpost.js"

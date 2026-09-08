@@ -55,6 +55,15 @@ try {
   assert.equal(requests.filter((url) => /\/(archives|about|projects|blog)\//.test(url)).length, 0, 'no bulk route prefetch');
   const css = await page.evaluate(() => performance.getEntriesByType('resource').filter((r) => r.name.includes('.css')).map((r) => ({ url: r.name.split('/').at(-1), bytes: r.decodedBodySize })));
   console.log('Home CSS:', css);
+  assert.ok(css.reduce((total, item) => total + item.bytes, 0) < 260000, 'font shards stay out of blocking home CSS');
+  await page.locator('#nav-bar a[href="/projects/"]').hover();
+  await page.waitForFunction(() => document.querySelector('link[data-intent-prefetch][href*="projects."]'));
+  assert.equal(requests.filter((url) => url.includes('/projects/')).length, 1, 'only one intended route request');
+  assert.equal(requests.filter((url) => /\/(archives|about|blog)\//.test(url)).length, 0, 'hover does not crawl other pages');
+  assert.equal(requests.filter((url) => url.includes('/audio/')).length, 0, 'intent prefetch never starts audio');
+  const focusedRoute = page.waitForRequest(base + '/archives/');
+  await page.locator('#nav-bar a[href="/archives/"]').focus();
+  await focusedRoute;
   await page.locator('[data-music-primary]').click();
   await page.waitForFunction(() => window.testAudios[0].currentTime > 0.15);
   const start = await page.evaluate(() => window.testAudios[0].currentTime);
@@ -131,7 +140,18 @@ try {
   await touchPage.waitForFunction(() => document.querySelector('[data-music-title]').textContent === 'For River');
   await touchPage.locator('[data-music-primary]').tap();
   await touchPage.waitForFunction(() => document.querySelector('[data-music-primary]').getAttribute('aria-pressed') === 'false');
-  console.log('PASS: lazy audio, selective prefetch, persistent playback, back/forward, rapid skips, refresh/seek, stale rejection, failure retry, no-JS text, touch play/skip/pause.');
+  const limited = await browser.newContext();
+  await limited.addInitScript(() => Object.defineProperty(navigator, 'connection', { value: { saveData: true, effectiveType: '4g' } }));
+  const limitedPage = await limited.newPage();
+  const limitedRequests = [];
+  limitedPage.on('request', request => limitedRequests.push(request.url()));
+  await limitedPage.goto(base);
+  await limitedPage.locator('#nav-bar a[href="/projects/"]').hover();
+  await limitedPage.waitForTimeout(350);
+  assert.equal(limitedRequests.filter(url => url.includes('/projects/')).length, 0, 'data saver disables speculative requests');
+  await limitedPage.locator('#nav-bar a[href="/projects/"]').click();
+  await limitedPage.waitForURL(base + '/projects/');
+  console.log('PASS: font CSS budget, hover/focus style prefetch, data saver navigation, lazy audio, persistent playback, back/forward, rapid skips, refresh/seek, stale rejection, failure retry, no-JS text, touch play/skip/pause.');
 } finally {
   await browser?.close();
   server.closeAllConnections();

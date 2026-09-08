@@ -26,7 +26,8 @@ import { siteConfig } from './src/config';
 export default defineConfig({
   site: 'https://dogogod.github.io', // Root URL of site
   prefetch: {
-    prefetchAll: true,
+    // The intent prefetcher also warms the target page's styles.
+    prefetchAll: false,
     // Warm the route the visitor intends to open without competing with
     // the current page's fonts, images, or audio on constrained connections.
     defaultStrategy: 'hover',
@@ -99,6 +100,9 @@ export default defineConfig({
       // Keep reusable interaction code cacheable across Astro page transitions.
       // CSS keeps Vite's default inline threshold to avoid extra render-blocking requests.
       assetsInlineLimit(filePath, content) {
+        // Rare font shards used to be embedded in the blocking global CSS,
+        // even when the page never displayed any of their characters.
+        if (/\.(woff2?|ttf|otf)$/i.test(filePath)) return false;
         return filePath.endsWith('.js') ? content.length < 1024 : undefined;
       },
     },

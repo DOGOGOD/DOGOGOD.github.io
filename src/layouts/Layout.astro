@@ -70,6 +70,9 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     {pageLang.startsWith('zh') && <link rel="preload" href={lxgwCommonCjkUrl} as="font" type="font/woff2" crossorigin="anonymous">}
     <title>{pageTitle}</title>
     <ClientRouter fallback="swap" />
+    <script>
+      import '../scripts/intent-prefetch';
+    </script>
     <script is:inline>
       if (!window.__blogThemeSwapBound) {
         window.__blogThemeSwapBound = true;
