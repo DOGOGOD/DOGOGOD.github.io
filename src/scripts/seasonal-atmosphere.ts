@@ -205,7 +205,7 @@ function initAtmosphere() {
         ? (isEnglish ? 'Seasonal motion follows reduced motion settings' : '季节动画已跟随系统减少动态效果')
         : (isEnglish ? 'Seasonal motion' : '季节动画');
       button.setAttribute('aria-label', label);
-      button.title = reduced.matches ? label : `${label} · ${enabled ? (isEnglish ? 'On' : '已开启') : (isEnglish ? 'Off' : '已暂停')}`;
+      button.dataset.tooltip = reduced.matches ? label : `${label} · ${enabled ? (isEnglish ? 'On' : '已开启') : (isEnglish ? 'Off' : '已暂停')}`;
     });
   }
 

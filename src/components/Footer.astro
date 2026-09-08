@@ -7,14 +7,32 @@ import { Icon } from "astro-icon/components";
     <div class="mb-1 md:mb-0"></div>
     <div class="right">
         <p>Powered by 
-        <a target="_blank" rel="noopener noreferrer" href="https://astro.build" title="Astro" class="tooltip-wrapper"><Icon name="simple-icons:astro" class="inline-block" /></a>
-        <a target="_blank" rel="noopener noreferrer" href="https://svelte.dev/" title="Svelte" class="tooltip-wrapper"><Icon name="simple-icons:svelte" class="inline-block"/></a>
-        <a target="_blank" rel="noopener noreferrer" href="https://tailwindcss.com/" title="tailwindcss" class="tooltip-wrapper"><Icon name="simple-icons:tailwindcss" class="inline-block"/></a>
-        <a target="_blank" rel="noopener noreferrer" href="https://github.com/DOGOGOD" title="Guztchian" class="tooltip-wrapper"><Icon name="simple-icons:github" class="inline-block"/></a>
+        <a target="_blank" rel="noopener noreferrer" href="https://astro.build" aria-label="Astro" class="tooltip-wrapper"><Icon name="simple-icons:astro" class="inline-block" /></a>
+        <a target="_blank" rel="noopener noreferrer" href="https://svelte.dev/" aria-label="Svelte" class="tooltip-wrapper"><Icon name="simple-icons:svelte" class="inline-block"/></a>
+        <a target="_blank" rel="noopener noreferrer" href="https://tailwindcss.com/" aria-label="tailwindcss" class="tooltip-wrapper"><Icon name="simple-icons:tailwindcss" class="inline-block"/></a>
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/DOGOGOD" aria-label="Guztchian" class="tooltip-wrapper"><Icon name="simple-icons:github" class="inline-block"/></a>
          | 
-        <a href="/rss.xml" target="_self" title="RSS" class="tooltip-wrapper"><Icon name="simple-icons:rss" class="inline-block" /></a>
-        <button type="button" data-season-toggle hidden aria-pressed="false" aria-label="Seasonal motion">
-          <Icon name="fa6-solid:leaf" class="inline-block h-3.5 w-3.5" />
+        <a href="/rss.xml" target="_self" aria-label="RSS" class="tooltip-wrapper"><Icon name="simple-icons:rss" class="inline-block" /></a>
+        <button type="button" class="tooltip-wrapper" data-season-toggle hidden aria-pressed="false" aria-label="Seasonal motion">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <g data-season-icon="spring" fill="currentColor" stroke="none">
+              {[0, 72, 144, 216, 288].map(angle => (
+                <path transform={`rotate(${angle} 12 12)`} d="M12 11.5C8.5 10 7.7 6.4 9 3.5L12 5L15 3.5C16.3 6.4 15.5 10 12 11.5Z" />
+              ))}
+              <circle cx="12" cy="12" r="1.6" />
+            </g>
+            <g data-season-icon="summer">
+              <path d="M3 3L11 11M9 2L15 8M2 9L8 15" />
+              <path d="M17 11L18.7 14.3L22 16L18.7 17.7L17 21L15.3 17.7L12 16L15.3 14.3Z" fill="currentColor" stroke="none" />
+            </g>
+            <g data-season-icon="autumn">
+              <path d="M4 15C3 7 11 5 20 3C22 13 17 20 7 18" fill="currentColor" stroke="none" />
+              <path d="M3 21C6 14 11 10 17 7" />
+            </g>
+            <g data-season-icon="winter">
+              <path d="M12 2V22M3.34 7L20.66 17M3.34 17L20.66 7M9 4L12 7L15 4M9 20L12 17L15 20M3.6 10.6L7.67 9.5L6.6 5.4M17.4 18.6L16.33 14.5L20.4 13.4M6.6 18.6L7.67 14.5L3.6 13.4M20.4 10.6L16.33 9.5L17.4 5.4" />
+            </g>
+          </svg>
         </button>
         </p>
     </div>
@@ -38,11 +56,11 @@ import { Icon } from "astro-icon/components";
     
     .tooltip-wrapper {
         position: relative;
-        display: inline-block;
     }
 
-    .tooltip-wrapper:hover::after {
-        content: attr(title);
+    .tooltip-wrapper:hover::after,
+    .tooltip-wrapper:focus-visible::after {
+        content: attr(aria-label);
         position: absolute;
         bottom: 80%;
         left: 50%;
@@ -59,17 +77,25 @@ import { Icon } from "astro-icon/components";
         animation: fadeInTooltip 0.3s forwards;
         margin-bottom: 5px;
         text-align: center;
+        pointer-events: none;
     }
 
-    /* 隐藏浏览器默认的title提示 */
-    .tooltip-wrapper {
-        text-decoration: none !important;
+    [data-season-toggle].tooltip-wrapper:hover::after,
+    [data-season-toggle].tooltip-wrapper:focus-visible::after {
+        content: attr(data-tooltip);
+        left: auto;
+        right: 0;
+        transform: none;
+        max-width: min(260px, calc(100vw - 32px));
+        white-space: normal;
+        width: max-content;
     }
 
-    .tooltip-wrapper:hover {
-        outline: none !important;
-        border: none !important;
-    }
+    [data-season-icon] { display: none; }
+    :global([data-season="spring"]) [data-season-icon="spring"],
+    :global([data-season="summer"]) [data-season-icon="summer"],
+    :global([data-season="autumn"]) [data-season-icon="autumn"],
+    :global([data-season="winter"]) [data-season-icon="winter"] { display: inline; }
 
     @keyframes fadeInTooltip {
         to {
