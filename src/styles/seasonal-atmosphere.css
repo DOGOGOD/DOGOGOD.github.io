@@ -3,14 +3,16 @@
   --petal-color: #bb8586;
   --leaf-color: #aa714b;
   --snow-color: #86979c;
-  --meteor-color: #a38a60;
+  --meteor-color: #986c35;
+  --meteor-glow: rgb(177 132 64 / .38);
 }
 
 :root[data-theme="dark"] {
   --petal-color: #d2a0a0;
   --leaf-color: #cd9b69;
   --snow-color: #c3cdd0;
-  --meteor-color: #d6c5a3;
+  --meteor-color: #f3dfb5;
+  --meteor-glow: rgb(241 208 145 / .65);
 }
 
 #seasonal-particles {
@@ -98,9 +100,11 @@
 .seasonal-snow > i::after { transform: rotate(-60deg); }
 
 .seasonal-meteor > i {
-  height: 1px;
+  height: 2px;
   top: 50%;
-  background: linear-gradient(90deg, transparent, var(--meteor-color));
+  background: linear-gradient(90deg, transparent, var(--meteor-color) 85%);
+  border-radius: 2px;
+  filter: drop-shadow(0 0 3px var(--meteor-glow));
   transform-origin: right center;
   transform: rotate(var(--angle));
 }
@@ -109,10 +113,11 @@
   position: absolute;
   right: 0;
   top: -1px;
-  width: 3px;
-  height: 3px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--meteor-color);
+  box-shadow: 0 0 6px 1px var(--meteor-glow);
 }
 
 html:not([data-season-motion="running"]) #seasonal-particles { visibility: hidden; }
@@ -141,5 +146,39 @@ html:not([data-season-motion="running"]) #seasonal-particles { visibility: hidde
 }
 
 @media print {
-  #seasonal-particles, [data-season-toggle] { display: none; }
+  #seasonal-particles, [data-season-toggle], #seasonal-preview { display: none; }
 }
+
+#seasonal-preview {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: calc(100vw - 80px);
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-color);
+  color: var(--text-color-70);
+  font-size: 13px;
+  box-shadow: 0 4px 18px var(--shadow-color);
+}
+#seasonal-preview[hidden] { display: none; }
+#seasonal-preview select, #seasonal-preview button {
+  min-height: 32px;
+  padding: 2px 6px;
+  color: var(--text-color);
+  background: var(--button-hover-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+#seasonal-preview button { color: var(--link-color); }
+#seasonal-preview :focus-visible { outline: 1px solid var(--link-color); outline-offset: 2px; }
+#seasonal-preview button:disabled { cursor: default; opacity: .5; }
+[data-season-preview-status]:empty { display: none; }
+@media print { #seasonal-preview { display: none; } }

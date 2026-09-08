@@ -61,7 +61,8 @@ try {
     // A virtual timeout jump starts one naturally scheduled shower, without waiting in real time.
     await page.clock.fastForward(13000);
     const count = await page.locator('.seasonal-particle').count();
-    assert.ok(season === 'summer' ? count >= 2 && count <= 3 : count >= 4 && count <= 7, `${season}: modestly fuller shower`);
+    assert.ok(season === 'summer' ? count >= 2 && count <= 3
+      : season === 'winter' ? count >= 8 && count <= 12 : count >= 4 && count <= 7, `${season}: bounded seasonal shower`);
     assert.equal(await page.locator(`.seasonal-${kind}`).count(), count);
     if (season === 'spring') assert.equal(await page.locator('.seasonal-petal > i > b').count(), count * 5, 'five notched petals per sakura');
     if (season === 'summer') {

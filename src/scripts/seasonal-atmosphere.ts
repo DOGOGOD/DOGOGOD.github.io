@@ -25,11 +25,34 @@ function initAtmosphere() {
   let disposed = false;
   let enabled = true;
   try { enabled = localStorage.getItem(preferenceKey) !== 'off'; } catch { /* Session-only preference. */ }
+  // Local review tools never override the public site's real calendar.
+  const canPreview = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  const previewKey = 'seasonal-preview';
+  const isSeason = (value: string | null): value is Season => ['spring', 'summer', 'autumn', 'winter'].includes(value || '');
+  let previewSeason: Season | null = null;
+  if (canPreview) {
+    try {
+      const saved = sessionStorage.getItem(previewKey);
+      if (isSeason(saved)) previewSeason = saved;
+    } catch { /* In-memory preview still works. */ }
+    const requested = new URL(location.href).searchParams.get('season');
+    if (isSeason(requested)) previewSeason = requested;
+    else if (requested === 'auto') previewSeason = null;
+    savePreview();
+    if (previewSeason) enabled = true;
+  }
+
+  function savePreview() {
+    try {
+      if (previewSeason) sessionStorage.setItem(previewKey, previewSeason);
+      else sessionStorage.removeItem(previewKey);
+    } catch { /* In-memory preview still works. */ }
+  }
 
   layer.dataset.reading = String(!!document.querySelector('.markdown-content'));
 
   function syncSeason(): Season {
-    const season = getSeason();
+    const season = previewSeason ?? getSeason();
     root.dataset.season = season;
     const greeting = seasonalGreetings[root.lang.startsWith('en') ? 'en' : 'zh'][season];
     const title = document.querySelector('#seasonal-greeting-title');
@@ -74,11 +97,12 @@ function initAtmosphere() {
     layer!.append(particle);
 
     const duration = meteor ? random(1200, 2100) : random(11000, 18000);
-    const opacity = meteor ? random(.4, .65) : random(.4, .64);
+    const opacity = meteor ? random(.82, .98) : random(.4, .64);
     let frames: Keyframe[];
 
     if (meteor) {
-      const angle = random(24, 42);
+      // A shared direction keeps every meteor's trajectory and tail parallel.
+      const angle = 32;
       const distance = random(width * .26, width * .48);
       const x = random(-size, width * .6);
       const y = random(16, height * .27);
@@ -128,19 +152,25 @@ function initAtmosphere() {
     flight.onfinish = () => removeParticle(particle);
   }
 
+  function shower() {
+    if (!running()) return;
+    const season = syncSeason();
+    const count = season === 'summer' ? Math.floor(random(2, 4))
+      : season === 'winter' ? Math.floor(compact.matches ? random(5, 8) : random(8, 13))
+      : compact.matches ? Math.floor(random(3, 5)) : Math.floor(random(4, 8));
+    const cap = season === 'winter' ? (compact.matches ? 8 : 14) : compact.matches ? 5 : 9;
+    for (let index = 0; index < count && particles.size < cap; index++) {
+      spawn(season, random(0, season === 'summer' ? 500 : 2200));
+    }
+  }
+
   function schedule(first = false) {
     clearTimeout(timer);
     if (!running()) return;
     // No continuous JS render loop. One randomized timeout between sparse showers.
     timer = setTimeout(() => {
       if (!running()) return;
-      const season = syncSeason();
-      const count = season === 'summer' ? Math.floor(random(2, 4))
-        : compact.matches ? Math.floor(random(3, 5)) : Math.floor(random(4, 8));
-      const cap = compact.matches ? 5 : 9;
-      for (let index = 0; index < count && particles.size < cap; index++) {
-        spawn(season, random(0, season === 'summer' ? 500 : 2200));
-      }
+      shower();
       schedule();
     }, first ? random(5000, 12000) : random(24000, 52000));
   }
@@ -150,6 +180,23 @@ function initAtmosphere() {
     layer!.dataset.reading = String(!!document.querySelector('.markdown-content'));
     root.dataset.seasonMotion = running() ? 'running' : 'paused';
     const isEnglish = root.lang.startsWith('en');
+    const panel = document.querySelector<HTMLElement>('#seasonal-preview');
+    if (panel && canPreview) {
+      panel.hidden = false;
+      const label = isEnglish ? 'Season preview' : '季节预览';
+      panel.setAttribute('aria-label', label);
+      panel.querySelector('label')!.textContent = label;
+      const select = panel.querySelector<HTMLSelectElement>('select')!;
+      select.value = previewSeason ?? 'auto';
+      const labels = isEnglish ? ['Actual season', 'Spring · Sakura', 'Summer · Meteors', 'Autumn · Leaves', 'Winter · Snow']
+        : ['实际季节', '春 · 樱花', '夏 · 流星', '秋 · 落叶', '冬 · 雪花'];
+      [...select.options].forEach((option, index) => { option.textContent = labels[index]; });
+      const replay = panel.querySelector<HTMLButtonElement>('[data-season-replay]')!;
+      replay.textContent = isEnglish ? 'Replay' : '再看一次';
+      replay.disabled = reduced.matches;
+      panel.querySelector('[data-season-preview-status]')!.textContent = reduced.matches
+        ? (isEnglish ? 'System reduced motion is on' : '系统已开启减少动态效果') : '';
+    }
     document.querySelectorAll<HTMLButtonElement>('[data-season-toggle]').forEach(button => {
       button.hidden = false;
       button.disabled = reduced.matches;
@@ -168,6 +215,44 @@ function initAtmosphere() {
     syncPage();
     schedule(true);
   }
+
+  function previewOnce() {
+    if (!canPreview || reduced.matches) return;
+    enabled = true;
+    clearParticles();
+    syncPage();
+    shower();
+    schedule();
+  }
+
+  function updatePage() {
+    if (canPreview) {
+      const requested = new URL(location.href).searchParams.get('season');
+      const next = isSeason(requested) ? requested : requested === 'auto' ? null : previewSeason;
+      if (next !== previewSeason) {
+        previewSeason = next;
+        savePreview();
+        syncMotion();
+        previewOnce();
+        return;
+      }
+    }
+    syncPage();
+  }
+
+  document.addEventListener('change', event => {
+    if (!canPreview || !(event.target instanceof HTMLSelectElement) || event.target.id !== 'seasonal-preview-select') return;
+    previewSeason = isSeason(event.target.value) ? event.target.value : null;
+    savePreview();
+    const url = new URL(location.href);
+    url.searchParams.set('season', previewSeason ?? 'auto');
+    history.replaceState(history.state, '', url);
+    syncMotion();
+    previewOnce();
+  }, { signal: abort.signal });
+  document.addEventListener('click', event => {
+    if (event.target instanceof Element && event.target.closest('[data-season-replay]')) previewOnce();
+  }, { signal: abort.signal });
 
   document.addEventListener('visibilitychange', syncMotion, { signal: abort.signal });
   reduced.addEventListener('change', syncMotion, { signal: abort.signal });
@@ -205,8 +290,9 @@ function initAtmosphere() {
     abort.abort();
     root.dataset.seasonMotion = 'paused';
   };
-  controller = { layer, syncPage, cleanup };
+  controller = { layer, syncPage: updatePage, cleanup };
   syncMotion();
+  if (previewSeason) previewOnce();
 }
 
 document.addEventListener('astro:after-swap', initAtmosphere);

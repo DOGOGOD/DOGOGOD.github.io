@@ -4,6 +4,18 @@ import '@styles/seasonal-atmosphere.css';
 
 <!-- Decorative layers never receive focus or intercept links and gestures. -->
 <div id="seasonal-particles" aria-hidden="true" inert transition:persist="seasonal-particles" transition:animate="none"></div>
+<aside id="seasonal-preview" hidden transition:persist="seasonal-preview" aria-label="季节预览">
+  <label for="seasonal-preview-select">季节预览</label>
+  <select id="seasonal-preview-select">
+    <option value="auto">实际季节</option>
+    <option value="spring">春 · 樱花</option>
+    <option value="summer">夏 · 流星</option>
+    <option value="autumn">秋 · 落叶</option>
+    <option value="winter">冬 · 雪花</option>
+  </select>
+  <button type="button" data-season-replay>再看一次</button>
+  <span data-season-preview-status role="status"></span>
+</aside>
 
 <script>
   import '../scripts/seasonal-atmosphere';
