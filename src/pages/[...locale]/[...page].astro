@@ -7,6 +7,7 @@ import FabMenu from '@components/control/FabMenu.astro';
 import { getBlogEntrySort } from '@utils/content-utils';
 import { getRelativeLocaleUrl } from '@utils/url-utils';
 import { formatFullDate } from '@/utils/time';
+import { getSeason, seasonalGreetings } from '@/utils/season';
 import { siteConfig, profileConfig } from '@/config';
 import { i18n } from 'astro:config/client';
 import type { CollectionEntry } from 'astro:content';
@@ -46,28 +47,7 @@ export const getStaticPaths = (async ({ paginate }) => {
 const isFirstPage = page.currentPage === 1;
 const pageTitle = `${siteConfig.title} - ${siteConfig.subTitle}`;
 const archivesUrl = getRelativeLocaleUrl(currentLang, '/archives/');
-const month = new Date().getMonth() + 1;
-const seasonKey = month >= 3 && month <= 5
-  ? 'spring'
-  : month >= 6 && month <= 8
-    ? 'summer'
-    : month >= 9 && month <= 11
-      ? 'autumn'
-      : 'winter';
-const seasonalGreetings = {
-  zh: {
-    spring: { title: '春日安好', message: '愿新一季的阅读，带来清醒与从容。' },
-    summer: { title: '盛夏安好', message: '愿你在漫长白昼里，读到片刻清凉。' },
-    autumn: { title: '新秋安好', message: '愿每一次翻页，都有所收获。' },
-    winter: { title: '冬日安好', message: '愿灯下的文字，带来一点温暖。' },
-  },
-  en: {
-    spring: { title: 'Spring greetings', message: 'May the new season bring clear and thoughtful reading.' },
-    summer: { title: 'High summer greetings', message: 'May these pages offer a quiet pause in the long daylight.' },
-    autumn: { title: 'Autumn greetings', message: 'May every page leave something worth keeping.' },
-    winter: { title: 'Winter greetings', message: 'May these words bring a little warmth to the reading hour.' },
-  },
-} as const;
+const seasonKey = getSeason();
 const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
 ---
 

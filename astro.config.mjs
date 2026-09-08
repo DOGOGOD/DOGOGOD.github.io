@@ -45,7 +45,7 @@ export default defineConfig({
         "align-justify", "angle-right", "arrow-down", "arrow-left", "arrow-right",
         "arrow-up", "book-bookmark", "calendar-days", "circle", "circle-info",
         "clock", "diagram-project", "dice-three", "ellipsis", "globe", "hashtag",
-        "house", "list-ul", "magnifying-glass", "pen-nib", "triangle-exclamation",
+        "house", "leaf", "list-ul", "magnifying-glass", "pen-nib", "triangle-exclamation",
         "user", "xmark"
       ],
       "simple-icons": ["astro", "github", "rss", "svelte", "tailwindcss"],

@@ -8,6 +8,7 @@ import lxgwCommonCjkUrl from '@chinese-fonts/lxgwwenkaibright/dist/LXGWBright-Me
 import { i18n } from "astro:config/client";
 import { ClientRouter } from "astro:transitions";
 import MusicPlayer from '@components/MusicPlayer.astro';
+import SeasonalAtmosphere from '@components/SeasonalAtmosphere.astro';
 
 interface Props {
   title: string;
@@ -31,6 +32,7 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     <script is:inline>
       (function() {
         const root = document.documentElement;
+        root.dataset.season = ['winter', 'spring', 'summer', 'autumn'][Math.floor((new Date().getMonth() + 1) % 12 / 3)];
         let savedTheme = 'system';
         try {
           const storedTheme = localStorage.getItem('theme');
@@ -74,6 +76,8 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
         document.addEventListener('astro:before-swap', (e) => {
             const theme = document.documentElement.getAttribute('data-theme');
             const sysTheme = document.documentElement.classList.contains('system-theme');
+            e.newDocument.documentElement.dataset.season = document.documentElement.dataset.season;
+            e.newDocument.documentElement.dataset.seasonMotion = document.documentElement.dataset.seasonMotion;
             if (theme) {
                 e.newDocument.documentElement.setAttribute('data-theme', theme);
             }
@@ -87,6 +91,7 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     </script>
 </head>
 <body class="h-full bg-[var(--bg-color)]">
+    <SeasonalAtmosphere />
 
     <div id="loading-overlay" aria-hidden="true">
       <div class="spinner"></div>

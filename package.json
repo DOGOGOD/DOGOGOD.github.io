@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit",
     "test:audio": "node --test script/test-audio.mjs",
     "test:browser": "node script/test-browser.mjs",
+    "test:seasonal": "node script/test-seasonal.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "newpost": "node script/newpost.js"
