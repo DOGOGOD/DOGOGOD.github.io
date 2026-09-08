@@ -156,9 +156,9 @@ function initAtmosphere() {
     if (!running()) return;
     const season = syncSeason();
     const count = season === 'summer' ? Math.floor(random(2, 4))
-      : season === 'winter' ? Math.floor(compact.matches ? random(5, 8) : random(8, 13))
+      : season === 'winter' ? Math.floor(compact.matches ? random(7, 10) : random(12, 17))
       : compact.matches ? Math.floor(random(3, 5)) : Math.floor(random(4, 8));
-    const cap = season === 'winter' ? (compact.matches ? 8 : 14) : compact.matches ? 5 : 9;
+    const cap = season === 'winter' ? (compact.matches ? 11 : 18) : compact.matches ? 5 : 9;
     for (let index = 0; index < count && particles.size < cap; index++) {
       spawn(season, random(0, season === 'summer' ? 500 : 2200));
     }
