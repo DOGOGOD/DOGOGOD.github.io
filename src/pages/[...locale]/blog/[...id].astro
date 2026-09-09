@@ -3,7 +3,6 @@ import { siteConfig, licenseConfig } from '@/config'
 import MainPageLayout from '@layouts/MainPageLayout.astro'
 import Markdown from '@components/misc/Markdown.astro'
 import ImageModule from '@components/misc/ImageModule.astro'
-import FabMenu from '@components/control/FabMenu.astro'
 import TOC from '@components/TOC.svelte'
 import LicenseCard from '@components/misc/LicenseCard.astro'
 import BlogNavi from '@components/control/BlogNavi.astro'
@@ -153,7 +152,6 @@ const categoryUrl = getRelativeLocaleUrl(
         </article>
     </section>
 
-    <FabMenu showBackBottom={true} />
 </MainPageLayout>
 
 <style>
