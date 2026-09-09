@@ -236,4 +236,4 @@ src/
 
 在仓库 Settings → Pages 中选择 **GitHub Actions** 作为发布来源。构建输出 `dist/` 通过 Pages artifact 上传并发布，不需要单独维护 `gh-pages` 分支。更换域名时同步修改 `astro.config.mjs` 中的 `site` 和相关个人主页配置。
 
-更多维护记录：[性能优化](./PERFORMANCE.md) · [季节动画设计](./SEASONAL-DESIGN.md) · [内容维护说明](./Use.md)。
+更多维护记录：[性能优化](./PERFORMANCE.md) · [季节动画设计](./SEASONAL-DESIGN.md) 。
