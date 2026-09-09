@@ -3,7 +3,7 @@
 
 Hi, I'm **Guztchian**. 
 
-I wander between technology and literature, describing the world with math, reshaping it with code, and occasionally trying to understand it with words. 
+Wandering between technology and literature, describing the world with math, reshaping it with code, and occasionally trying to understand it with words. 
 
 This site is my notebook and a quiet place to land — where technical reflections, project notes, and small moments worth keeping all find their way onto the page.
 

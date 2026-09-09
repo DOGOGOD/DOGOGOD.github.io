@@ -1,0 +1,9 @@
+{
+  "id": "guztchian-blog-preview",
+  "name": "Guztchian Blog Preview",
+  "version": "1.0.0",
+  "minAppVersion": "1.8.7",
+  "description": "在 Obsidian 中使用 Blog 的 Astro 渲染器，实时预览文章的网页排版。",
+  "author": "Guztchian",
+  "isDesktopOnly": true
+}

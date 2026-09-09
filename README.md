@@ -201,6 +201,20 @@ pinTop: 0      # 置顶优先级，越大越靠前
 
 项目和科研数据格式见 [数据说明](./src/data/README.md)。两个板块各默认展示前 4 项，更多内容通过无文字箭头展开；科研数组为空时显示待整理提示。文章许可卡的显示名称与链接由 `src/config.ts` 中的 `licenseConfig` 控制。
 
+## Obsidian 实时预览
+
+项目内置了 [Guztchian Blog Preview](./Plugin/README.md) Obsidian 插件。它会直接启动 Blog 的 Astro 开发渲染器，在 Obsidian 右侧分栏中显示接近正式发布页面的效果，支持 Blog 当前使用的字体、代码高亮、公式、提示框、GitHub 卡片和音乐卡片。
+
+安装时，将 `Plugin/release/guztchian-blog-preview/` 中的 `main.js`、`manifest.json` 和 `styles.css` 复制到 Obsidian 插件目录下的 `guztchian-blog-preview` 文件夹，然后在 Obsidian 的第三方插件设置中启用。首次使用前，请在 Blog 根目录安装依赖：
+
+```text
+pnpm install
+```
+
+插件设置中的 **Blog 根目录** 可以留空，插件会从当前文章自动识别；也可以填写相对于 Obsidian 仓库的路径。**渲染范围** 用逗号分隔多个文件夹，默认是 `src/content/blog` 和 `src/content/spec/about`。范围外的文件不会启动 Blog 预览，继续使用 Obsidian 原生渲染。预览默认使用本地 `4323` 端口，并在关闭预览分栏、停止预览或退出 Obsidian 时释放自己启动的 Node/Astro 服务。
+
+编辑文章时，插件使用 Obsidian 原生保存接口，停止输入后由 Astro HMR 更新预览，不会直接覆盖编辑器内容。完整设置、故障提示和构建方法见 [插件说明](./Plugin/README.md)。
+
 ## 📁 项目结构
 
 ```

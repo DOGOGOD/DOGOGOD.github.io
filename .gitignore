@@ -8,6 +8,12 @@ dist/
 # dependencies
 node_modules/
 .pnpm-store/
+Plugin/node_modules/
+
+# Obsidian plugin local state and temporary checks
+Plugin/data.json
+Plugin/.test-*
+Plugin/*.zip
 
 # logs
 npm-debug.log*
