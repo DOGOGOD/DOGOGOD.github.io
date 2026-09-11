@@ -12,6 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test:audio": "node --test script/test-audio.mjs",
     "test:browser": "node script/test-browser.mjs",
+    "test:images": "node script/test-images.mjs",
+    "test:preview-images": "node script/test-preview-images.mjs",
     "test:seasonal": "node script/test-seasonal.mjs",
     "benchmark": "node script/benchmark-browser.mjs",
     "preview": "astro preview",

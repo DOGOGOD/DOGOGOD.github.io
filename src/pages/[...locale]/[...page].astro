@@ -1,10 +1,11 @@
 ---
 import MainPageLayout from '@layouts/MainPageLayout.astro';
 import PostPage from '@components/PostPage.astro';
+import ImageModule from '@components/misc/ImageModule.astro';
 import Navi from '@components/control/Navi.astro';
 
 import { getBlogEntrySort } from '@utils/content-utils';
-import { getRelativeLocaleUrl } from '@utils/url-utils';
+import { blogCoverUrl, getRelativeLocaleUrl } from '@utils/url-utils';
 import { formatFullDate } from '@/utils/time';
 import { getSeason, seasonalGreetings } from '@/utils/season';
 import { siteConfig, profileConfig } from '@/config';
@@ -89,22 +90,33 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
                     class="article-entry"
                     href={getRelativeLocaleUrl(currentLang, `/blog/${entry.id}/`)}
                   >
-                    <div class="article-copy">
-                      <h3>{entry.data.title}</h3>
-                      {entry.data.description && <p>{entry.data.description}</p>}
-                      <div class="article-meta">
-                        <time datetime={entry.data.pubDate.toISOString()}>
-                          {formatFullDate(entry.data.pubDate, currentLang)}
-                        </time>
-                        {entry.data.category && (
-                          <span class="article-category">#{entry.data.category}</span>
-                        )}
+                    {entry.data.image && (
+                      <div class="article-preview-cover">
+                        <ImageModule
+                          src={blogCoverUrl(entry.data.image, entry.id)}
+                          alt={entry.data.title}
+                          class="w-full h-full object-cover"
+                        />
                       </div>
+                    )}
+                    <div class="article-details">
+                      <div class="article-copy">
+                        <h3>{entry.data.title}</h3>
+                        {entry.data.description && <p>{entry.data.description}</p>}
+                        <div class="article-meta">
+                          <time datetime={entry.data.pubDate.toISOString()}>
+                            {formatFullDate(entry.data.pubDate, currentLang)}
+                          </time>
+                          {entry.data.category && (
+                            <span class="article-category">#{entry.data.category}</span>
+                          )}
+                        </div>
+                      </div>
+                      <span class="read-label">
+                        {isEn ? 'Read' : '阅读全文'}
+                        <span class="read-arrow" aria-hidden="true">›</span>
+                      </span>
                     </div>
-                    <span class="read-label">
-                      {isEn ? 'Read' : '阅读全文'}
-                      <span class="read-arrow" aria-hidden="true">›</span>
-                    </span>
                   </a>
                 </li>
               ))}
@@ -181,15 +193,10 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
 
   .article-entry {
     position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-    gap: 2rem;
-    min-height: 10rem;
+    display: block;
     overflow: hidden;
     border: 1px solid var(--button-border-color);
     border-radius: 0.75rem;
-    padding: 1.5rem 1.65rem;
     background: var(--button-hover-color);
     background: color-mix(in srgb, var(--button-hover-color) 72%, var(--bg-color));
     color: inherit;
@@ -239,6 +246,20 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
 
   .article-copy {
     min-width: 0;
+  }
+
+  .article-preview-cover {
+    height: clamp(10rem, 26vw, 15rem);
+    overflow: hidden;
+  }
+
+  .article-details {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 2rem;
+    min-height: 10rem;
+    padding: 1.5rem 1.65rem;
   }
 
   .article-copy h3 {
@@ -374,7 +395,7 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
       width: min(90vw, var(--page-width));
     }
 
-    .article-entry {
+    .article-details {
       grid-template-columns: 1fr;
       gap: 1.15rem;
       min-height: 0;

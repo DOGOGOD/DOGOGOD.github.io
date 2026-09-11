@@ -119,6 +119,39 @@ pinTop: 0      # 置顶优先级，越大越靠前
 
 `draft: true` 的文章在开发模式可见，正式构建中不展示；准备发布时改为 `false`。`pinTop` 大于 0 时在首页置顶，数值越大越靠前。英文翻译与中文放在同一目录；英文缺失时会回退到中文内容。
 
+### 封面与正文图片
+
+图片可以和文章的 `.md` 文件放在同一目录，也可以放在该目录的子文件夹中：
+
+```text
+src/content/blog/my-article/
+├── zh-cn.md
+├── en.md
+├── cover.jpg
+└── images/
+    └── landscape.jpg
+```
+
+Frontmatter 中使用 `image`（不是 `imge`）设置首页文章卡片的封面，路径相对于当前 Markdown 文件：
+
+```yaml
+image: "./cover.jpg"
+```
+
+封面仅在首页及文章列表分页显示，不会自动插入文章正文。留空或省略 `image` 时，卡片只显示文字。中英文文章可以共用同一目录内的图片。
+
+正文使用标准 Markdown 图片语法，无需移动到 `public` 或使用 HTML：
+
+```markdown
+![风景说明](./images/landscape.jpg)
+
+![带图注的风景](./images/landscape.jpg "这里是图片下方的图注")
+
+![含空格的文件名](<./images/旅行 照片.jpg>)
+```
+
+路径使用 `/`，文件名及大小写须与实际文件一致。正文图片会在构建时由 Astro 处理并输出到网站资源目录。如果希望正文也显示封面，需要在正文中另写 `![封面说明](./cover.jpg)`。
+
 ### 自定义 Markdown 语法
 
 **Admonition 提示框：**

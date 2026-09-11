@@ -43,7 +43,18 @@ export default defineConfig({
       redirectToDefaultLocale: false
     }
   },
-  integrations: [icon({
+  integrations: [{
+    name: 'local-image-preview',
+    hooks: {
+      'astro:config:setup': ({ command, updateConfig }) => {
+        // Preview the original local files in dev (including Obsidian).
+        // Production builds retain Astro's Sharp optimization.
+        if (command === 'dev') updateConfig({
+          image: { service: { entrypoint: './src/utils/dev-image-service.mjs' } },
+        });
+      },
+    },
+  }, icon({
     include: {
       "fa6-solid": [
         "align-justify", "angle-right", "arrow-down", "arrow-left", "arrow-right",

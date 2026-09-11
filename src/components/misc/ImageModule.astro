@@ -60,7 +60,6 @@ if (isLocal) {
             loading="lazy"
             decoding="async"
             class=""
-            onload="this.parentElement.dataset.loaded = 'true'" 
         />
         )
     }
@@ -76,11 +75,32 @@ if (isLocal) {
             loading="lazy"
             decoding="async"
             class=""
-            onload="this.parentElement.dataset.loaded = 'true'"
         />
         )
     }
 </div>
+
+<script>
+  function updateImagePlaceholder(img: HTMLImageElement) {
+    if (img.complete && img.naturalWidth > 0) {
+      const wrapper = img.closest<HTMLElement>('.image-wrapper');
+      if (wrapper) wrapper.dataset.loaded = 'true';
+    }
+  }
+
+  // Capture also handles lazy images inserted by Astro page transitions.
+  document.addEventListener('load', (event) => {
+    if (event.target instanceof HTMLImageElement) updateImagePlaceholder(event.target);
+  }, true);
+
+  function syncLoadedImages() {
+    document.querySelectorAll<HTMLImageElement>('.image-wrapper img').forEach(updateImagePlaceholder);
+  }
+
+  // Cached images may have finished loading before this script was installed.
+  syncLoadedImages();
+  document.addEventListener('astro:page-load', syncLoadedImages);
+</script>
 
 <style>
 .image-wrapper {
@@ -103,7 +123,7 @@ if (isLocal) {
     transition: opacity 0.8s ease;
 }
 
-.image-wrapper img {
+.image-wrapper :global(img) {
     position: relative;
     z-index: 1;
     display: block;
@@ -111,12 +131,7 @@ if (isLocal) {
     height: 100%;
     object-fit: cover;
     object-position: center;
-    opacity: 0;
-    transition: opacity 0.6s ease-in-out;
-}
-
-/* 图片加载完成后 */
-.image-wrapper[data-loaded="true"] img {
+    /* The real image must remain visible even if a load event is missed. */
     opacity: 1;
 }
 
@@ -128,7 +143,4 @@ if (isLocal) {
     display: none; /* 禁用 LQIP 时不显示模糊背景 */
 }
 
-.image-wrapper[data-lqip-enabled="false"] img {
-    opacity: 1; /* 禁用 LQIP 时直接显示图片 */
-}
 </style>
