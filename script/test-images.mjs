@@ -77,6 +77,13 @@ pinTop: 99999
         return img && getComputedStyle(img).opacity === '1';
       }, undefined, { timeout: 3000 });
       assert.ok(await cover.evaluate((img) => img.getBoundingClientRect().height >= 150));
+      const coverSize = await cover.evaluate((img) => ({
+        image: img.getBoundingClientRect().height,
+        container: img.closest('.article-preview-cover').getBoundingClientRect().height,
+        max: 15 * parseFloat(getComputedStyle(document.documentElement).fontSize),
+      }));
+      assert.ok(coverSize.container <= coverSize.max + 1, 'cover has a bounded height');
+      assert.ok(Math.abs(coverSize.image - coverSize.container) <= 1, 'image fills the cropped cover');
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no horizontal overflow');
       if (!locale) await card.screenshot({ path: resolve(root, `.astro/image-card-${width}.png`) });
       await card.click();

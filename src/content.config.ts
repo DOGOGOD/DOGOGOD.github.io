@@ -10,7 +10,8 @@ const blogCollection = defineCollection({
         draft: z.boolean().optional().default(false),
         description: z.string().optional().default(''),
         epigraphAuthor: z.string().optional().default(''),
-        image: z.string().optional().default(''),
+        // Obsidian saves an emptied property as `image:` (YAML null).
+        image: z.string().nullish().transform(value => value ?? ''),
         slugId: z.string(),
         category: z.string().optional(),
         pinTop: z.number().optional().default(0),

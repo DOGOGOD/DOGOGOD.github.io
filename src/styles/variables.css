@@ -20,23 +20,23 @@
 /*
  * 纸质样式（Paper Theme）— 灵感来自 guztchian-blog
  * 暖调的象牙纸、温暖墨水、单一陶土色点缀（Anthropic clay #CC785C）
- * 颜色值从 guztchian-blog 的设计令牌逐字迁移而来。
+ * 浅色表面采用明亮暖白，保留墨色正文与陶土色点缀。
  */
 :root {
-    /* 纸张色 — 暖象牙纸 */
-    --bg-color: #f6f4ee;
+    /* 明亮暖白纸面 */
+    --bg-color: #fcfbf8;
     /* 墨水色 — 暖调近黑色（Warm near-black ink） */
     --text-color: #211f1c;
     /* 次要文本 — 暖灰色 */
     --text-color-70: #6d675f;
-    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.06);
     /* 陶土色点缀（Anthropic clay） */
     --link-color: #cc7a5c;
     /* 卡片/悬浮表面 — 略暖的提亮白 */
-    --button-hover-color: #fcfbf7;
+    --button-hover-color: #ffffff;
     /* 暖调细线（Hairline warm） */
-    --button-border-color: #e3ded3;
-    --border-color: #e3ded3;
+    --button-border-color: #e8e4dc;
+    --border-color: #e8e4dc;
 
     --warning-text-color: #4d3800;
     --warning-bg-color: #fff7ed;
@@ -49,7 +49,7 @@
     /* 滚动条 — 暖灰调 */
     --scrollbar-thumb: #d4cfc5;
     --scrollbar-thumb-hover: #bab5ab;
-    --scrollbar-track: #ede9e0;
+    --scrollbar-track: #f5f2ec;
 
     /* 选中背景 — 陶土色半透明 */
     --selection-bg-color: #cc7a5c2E;

@@ -26,6 +26,19 @@ pinTop: 99999
 
 ![preview-body](<./中文 图片.png>)
 `);
+  const emptyCovers = { blank: 'image:', omitted: '', quoted: 'image: ""' };
+  for (const [name, field] of Object.entries(emptyCovers)) {
+    await mkdir(resolve(fixture, name));
+    await writeFile(resolve(fixture, name, 'zh-cn.md'), `---
+title: Empty cover ${name}
+pubDate: 2026-09-11
+slugId: ${slug}/${name}
+${field}
+pinTop: 99998
+---
+No cover.
+`);
+  }
   // Run the plugin's actual bundled launcher, isolating only its test caches.
   const runner = (await runnerSource()).replaceAll('./node_modules/.cache/obsidian-blog-preview/', './.astro/plugin-image-test/');
   child = spawn(process.execPath, ['--input-type=module', '-e', runner, root, '0', 'image-test'], {
@@ -62,9 +75,26 @@ pinTop: 99999
   }
   const card = frame.locator(`.article-entry[href="/blog/${slug}/"]`);
   await checkImage(card.locator('img'));
+  async function checkCoverSize(card) {
+    const size = await card.evaluate((element) => {
+      const cover = element.querySelector('.article-preview-cover');
+      return { height: cover.getBoundingClientRect().height,
+        image: cover.querySelector('img').getBoundingClientRect().height,
+        max: 15 * parseFloat(getComputedStyle(document.documentElement).fontSize) };
+    });
+    assert.ok(size.height <= size.max + 1, 'preview cover stays within 15rem');
+    assert.ok(Math.abs(size.height - size.image) <= 1, 'preview image fits its container');
+  }
+  await checkCoverSize(card);
+  for (const name of Object.keys(emptyCovers)) {
+    const emptyCard = frame.locator(`.article-entry[href="/blog/${slug}/${name}/"]`);
+    assert.equal(await emptyCard.count(), 1, `${name} cover does not block preview startup`);
+    assert.equal(await emptyCard.locator('img').count(), 0, `${name} renders as a text-only card`);
+  }
   const realCard = frame.locator('.article-entry[href="/blog/guizhou-trip/"]');
-  if (await realCard.count()) {
+  if (await realCard.locator('img').count()) {
     await checkImage(realCard.locator('img'));
+    await checkCoverSize(realCard);
     await realCard.screenshot({ path: resolve(root, '.astro/plugin-image-preview.png') });
   }
   await card.click();

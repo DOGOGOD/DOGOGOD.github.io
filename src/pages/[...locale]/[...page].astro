@@ -91,7 +91,7 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
                     href={getRelativeLocaleUrl(currentLang, `/blog/${entry.id}/`)}
                   >
                     {entry.data.image && (
-                      <div class="article-preview-cover">
+                      <div class="article-preview-cover" style="height: clamp(10rem, 26vw, 15rem); max-height: 15rem; overflow: hidden;">
                         <ImageModule
                           src={blogCoverUrl(entry.data.image, entry.id)}
                           alt={entry.data.title}
@@ -208,7 +208,7 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
       transform 180ms ease;
   }
 
-  .article-entry::before {
+  .article-details::before {
     position: absolute;
     inset-block: 1.25rem;
     left: 0;
@@ -230,7 +230,7 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
     transform: translateY(-2px);
   }
 
-  .article-entry:hover::before {
+  .article-entry:hover .article-details::before {
     opacity: 0.85;
     transform: scaleY(1);
   }
@@ -248,12 +248,8 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
     min-width: 0;
   }
 
-  .article-preview-cover {
-    height: clamp(10rem, 26vw, 15rem);
-    overflow: hidden;
-  }
-
   .article-details {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
@@ -418,7 +414,7 @@ const seasonalGreeting = seasonalGreetings[isEn ? 'en' : 'zh'][seasonKey];
 
   @media (prefers-reduced-motion: reduce) {
     .article-entry,
-    .article-entry::before,
+    .article-details::before,
     .read-arrow,
     .archive-link {
       transition: none;
