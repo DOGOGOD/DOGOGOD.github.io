@@ -56,7 +56,9 @@ const pageTitle = `${entry.data.title} - ${siteConfig.title}`
 const category = entry.data.category || ''
 const categoryLabels: Record<string, { zh: string; en: string; zhType: string; enType: string }> = {
     life: { zh: '生活随笔', en: 'Life', zhType: '随想', enType: 'Essay' },
-    guide: { zh: '阅读指南', en: 'Guide', zhType: '文档', enType: 'Reference' }
+    guide: { zh: '阅读指南', en: 'Guide', zhType: '文档', enType: 'Reference' },
+    study: { zh: '学习随笔', en: 'Study', zhType: '札记', enType: 'Learning Notes' },
+    research: { zh: '科研随笔', en: 'Academic', zhType: '研途', enType: 'Works' }
 }
 const isEnglish = currentLang === 'en'
 const categoryMeta = categoryLabels[category]

@@ -16,11 +16,12 @@ interface PreviewSettings {
   port: number;
   autoSave: boolean;
   saveDelay: number;
+  saveTimingVersion: number;
   theme: Theme;
   viewport: 'responsive' | 'mobile' | 'desktop';
 }
 const DEFAULTS: PreviewSettings = {
-  projectPath: '', scopePaths: ['src/content/blog', 'src/content/spec/about'], nodePath: '', port: 4323, autoSave: true, saveDelay: 800,
+  projectPath: '', scopePaths: ['src/content/blog', 'src/content/spec/about'], nodePath: '', port: 4323, autoSave: true, saveDelay: 300, saveTimingVersion: 1,
   theme: 'system', viewport: 'responsive',
 };
 
@@ -35,12 +36,17 @@ export default class BlogPreviewPlugin extends Plugin {
   async onload(): Promise<void> {
     const stored = await this.loadData();
     this.settings = { ...DEFAULTS, ...stored };
+    // Migrate the old default once; keep custom delays and later user choices.
+    const migrateSaveTiming = stored?.saveTimingVersion !== DEFAULTS.saveTimingVersion;
+    if (migrateSaveTiming && Number(stored?.saveDelay) === 800) this.settings.saveDelay = DEFAULTS.saveDelay;
+    this.settings.saveTimingVersion = DEFAULTS.saveTimingVersion;
     this.settings.scopePaths = Array.isArray(stored?.scopePaths) ? stored.scopePaths.filter((item: unknown): item is string => typeof item === 'string') : [...DEFAULTS.scopePaths];
     // Recover gracefully if settings were edited by hand or came from another version.
     try { this.settings.port = validPort(this.settings.port); } catch { this.settings.port = DEFAULTS.port; }
-    this.settings.saveDelay = Math.max(300, Math.min(5000, Number(this.settings.saveDelay) || 800));
+    this.settings.saveDelay = Math.max(300, Math.min(5000, Number(this.settings.saveDelay) || DEFAULTS.saveDelay));
     if (!['light', 'dark', 'system'].includes(this.settings.theme)) this.settings.theme = 'system';
     if (!['responsive', 'mobile', 'desktop'].includes(this.settings.viewport)) this.settings.viewport = 'responsive';
+    if (migrateSaveTiming) await this.saveData(this.settings);
     this.registerView(VIEW, leaf => new BlogPreviewView(leaf, this));
     this.addRibbonIcon('panels-left-right', '打开 Blog 预览', () => void this.openPreview());
     this.addCommand({ id: 'open-preview', name: '打开文章预览（右侧分栏）', callback: () => void this.openPreview() });
@@ -382,7 +388,7 @@ class BlogPreviewSettings extends PluginSettingTab {
         await this.plugin.saveSettings();
       }));
     new Setting(this.containerEl).setName('停止输入后的保存间隔').setDesc('单位为毫秒；适当延迟可避免每个按键都重新编译。')
-      .addDropdown(dropdown => dropdown.addOptions({ '500': '500 ms', '800': '800 ms', '1500': '1500 ms', '2500': '2500 ms' })
+      .addDropdown(dropdown => dropdown.addOptions({ '300': '300 ms', '500': '500 ms', '800': '800 ms', '1500': '1500 ms', '2500': '2500 ms' })
         .setValue(String(this.plugin.settings.saveDelay)).onChange(async value => {
           this.plugin.settings.saveDelay = Number(value);
           await this.plugin.saveSettings();

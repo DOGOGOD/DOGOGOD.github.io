@@ -1,9 +1,10 @@
 ---
-title: "Function Summary"
+title: Function Summary
 pubDate: 2026-06-25
-slugId: "function-summary"
-description: "A summary of all article features supported by the blog system, with live rendered examples"
-category: "guide"
+slugId: function-summary
+description: A summary of all article features supported by the blog system, with live rendered examples
+category: guide
+draft: true
 ---
 
 This document summarizes all article features supported by the blog system, with live-rendered examples.

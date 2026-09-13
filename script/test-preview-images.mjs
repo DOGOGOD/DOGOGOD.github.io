@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -18,6 +18,7 @@ try {
     .png().toFile(resolve(fixture, '中文 图片.png'));
   await writeFile(resolve(fixture, 'zh-cn.md'), `---
 title: Preview image check
+category: life
 pubDate: 2026-09-11
 slugId: ${slug}
 image: "./中文 图片.png"
@@ -100,6 +101,14 @@ No cover.
   await card.click();
   await checkImage(frame.locator('article img[alt="preview-body"]'));
   assert.equal(await frame.locator('.article-cover').count(), 0);
+  const note = resolve(fixture, 'zh-cn.md');
+  for (const [category, label] of [['study', '学习随笔'], ['research', '科研随笔']]) {
+    const source = await readFile(note, 'utf8');
+    const start = Date.now();
+    await writeFile(note, source.replace(/^category: .*$/m, `category: ${category}`));
+    await frame.locator('.chapter-category', { hasText: label }).waitFor({ timeout: 15000 });
+    console.log(`Saved category -> ${category} visible: ${Date.now() - start}ms`);
+  }
   console.log('Plugin runner + sandboxed iframe: cover, Markdown image, Chinese/space paths, HTTP status, MIME and visible pixels passed.');
 } finally {
   await browser?.close();

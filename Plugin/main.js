@@ -272,7 +272,8 @@ var DEFAULTS = {
   nodePath: "",
   port: 4323,
   autoSave: true,
-  saveDelay: 800,
+  saveDelay: 300,
+  saveTimingVersion: 1,
   theme: "system",
   viewport: "responsive"
 };
@@ -286,15 +287,19 @@ var BlogPreviewPlugin = class extends import_obsidian.Plugin {
   async onload() {
     const stored = await this.loadData();
     this.settings = { ...DEFAULTS, ...stored };
+    const migrateSaveTiming = stored?.saveTimingVersion !== DEFAULTS.saveTimingVersion;
+    if (migrateSaveTiming && Number(stored?.saveDelay) === 800) this.settings.saveDelay = DEFAULTS.saveDelay;
+    this.settings.saveTimingVersion = DEFAULTS.saveTimingVersion;
     this.settings.scopePaths = Array.isArray(stored?.scopePaths) ? stored.scopePaths.filter((item) => typeof item === "string") : [...DEFAULTS.scopePaths];
     try {
       this.settings.port = validPort(this.settings.port);
     } catch {
       this.settings.port = DEFAULTS.port;
     }
-    this.settings.saveDelay = Math.max(300, Math.min(5e3, Number(this.settings.saveDelay) || 800));
+    this.settings.saveDelay = Math.max(300, Math.min(5e3, Number(this.settings.saveDelay) || DEFAULTS.saveDelay));
     if (!["light", "dark", "system"].includes(this.settings.theme)) this.settings.theme = "system";
     if (!["responsive", "mobile", "desktop"].includes(this.settings.viewport)) this.settings.viewport = "responsive";
+    if (migrateSaveTiming) await this.saveData(this.settings);
     this.registerView(VIEW, (leaf) => new BlogPreviewView(leaf, this));
     this.addRibbonIcon("panels-left-right", "\u6253\u5F00 Blog \u9884\u89C8", () => void this.openPreview());
     this.addCommand({ id: "open-preview", name: "\u6253\u5F00\u6587\u7AE0\u9884\u89C8\uFF08\u53F3\u4FA7\u5206\u680F\uFF09", callback: () => void this.openPreview() });
@@ -644,7 +649,7 @@ var BlogPreviewSettings = class extends import_obsidian.PluginSettingTab {
       this.plugin.cancelSave();
       await this.plugin.saveSettings();
     }));
-    new import_obsidian.Setting(this.containerEl).setName("\u505C\u6B62\u8F93\u5165\u540E\u7684\u4FDD\u5B58\u95F4\u9694").setDesc("\u5355\u4F4D\u4E3A\u6BEB\u79D2\uFF1B\u9002\u5F53\u5EF6\u8FDF\u53EF\u907F\u514D\u6BCF\u4E2A\u6309\u952E\u90FD\u91CD\u65B0\u7F16\u8BD1\u3002").addDropdown((dropdown) => dropdown.addOptions({ "500": "500 ms", "800": "800 ms", "1500": "1500 ms", "2500": "2500 ms" }).setValue(String(this.plugin.settings.saveDelay)).onChange(async (value) => {
+    new import_obsidian.Setting(this.containerEl).setName("\u505C\u6B62\u8F93\u5165\u540E\u7684\u4FDD\u5B58\u95F4\u9694").setDesc("\u5355\u4F4D\u4E3A\u6BEB\u79D2\uFF1B\u9002\u5F53\u5EF6\u8FDF\u53EF\u907F\u514D\u6BCF\u4E2A\u6309\u952E\u90FD\u91CD\u65B0\u7F16\u8BD1\u3002").addDropdown((dropdown) => dropdown.addOptions({ "300": "300 ms", "500": "500 ms", "800": "800 ms", "1500": "1500 ms", "2500": "2500 ms" }).setValue(String(this.plugin.settings.saveDelay)).onChange(async (value) => {
       this.plugin.settings.saveDelay = Number(value);
       await this.plugin.saveSettings();
     }));
