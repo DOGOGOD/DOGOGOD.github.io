@@ -14,6 +14,7 @@
     "test:browser": "node script/test-browser.mjs",
     "test:images": "node script/test-images.mjs",
     "test:preview-images": "node script/test-preview-images.mjs",
+    "test:lqip": "node script/test-lqip-cache.mjs",
     "test:seasonal": "node script/test-seasonal.mjs",
     "benchmark": "node script/benchmark-browser.mjs",
     "preview": "astro preview",
@@ -48,6 +49,7 @@
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
+    "@types/node": "25.6.0",
     "@iconify-json/fa6-solid": "^1.2.4",
     "@iconify-json/fluent": "^1.2.45",
     "@iconify-json/material-symbols": "^1.2.35",

@@ -12,6 +12,7 @@ const slug = `preview-images-check-${Date.now()}`;
 const fixture = resolve(root, 'src/content/blog', slug);
 let child;
 let browser;
+let logs = '';
 try {
   await mkdir(fixture);
   await sharp({ create: { width: 960, height: 320, channels: 3, background: '#3185a1' } })
@@ -46,7 +47,6 @@ No cover.
     cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
     env: { ...process.env, NODE_ENV: 'development', ASTRO_TELEMETRY_DISABLED: '1' },
   });
-  let logs = '';
   child.stdout.on('data', (data) => { logs += data; });
   child.stderr.on('data', (data) => { logs += data; });
   const origin = await new Promise((resolveReady, reject) => {
@@ -60,6 +60,7 @@ No cover.
   });
   browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || 'chrome', headless: true });
   const page = await browser.newPage({ viewport: { width: 900, height: 1100 } });
+  page.on('console', message => { logs += `\nBrowser: ${message.text()}`; });
   await page.route('**/*', (route) => route.request().url().startsWith(origin) ? route.continue() : route.abort());
   await page.setContent(`<iframe title="Plugin preview" sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="no-referrer" src="${origin}/" style="width:850px;height:1000px"></iframe>`);
   const frame = page.frameLocator('iframe');
@@ -110,6 +111,9 @@ No cover.
     console.log(`Saved category -> ${category} visible: ${Date.now() - start}ms`);
   }
   console.log('Plugin runner + sandboxed iframe: cover, Markdown image, Chinese/space paths, HTTP status, MIME and visible pixels passed.');
+} catch (error) {
+  console.error(logs);
+  throw error;
 } finally {
   await browser?.close();
   if (child?.connected) {

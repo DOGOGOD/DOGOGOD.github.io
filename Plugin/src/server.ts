@@ -12,12 +12,15 @@ export class PreviewServer {
   running: RunningServer | null = null;
   private cancelStart: (() => void) | null = null;
   readonly logs: string[] = [];
+  private logLength = 0;
 
   constructor(private onStatus: (text: string) => void = () => {}) {}
 
   private log(text: string): void {
-    this.logs.push(text.replace(/\u001b\[[0-9;]*m/g, ''));
-    while (this.logs.join('').length > 18000) this.logs.shift();
+    const clean = text.replace(/\u001b\[[0-9;]*m/g, '').slice(-18000);
+    this.logs.push(clean);
+    this.logLength += clean.length;
+    while (this.logLength > 18000) this.logLength -= this.logs.shift()!.length;
   }
 
   start(root: string, nodePath: string, port: number): Promise<RunningServer> {
@@ -30,6 +33,7 @@ export class PreviewServer {
     this.stop();
     const token = randomBytes(24).toString('hex');
     this.logs.length = 0;
+    this.logLength = 0;
     this.onStatus('正在启动 Blog 预览，首次编译需要一些时间…');
     const operation = new Promise<RunningServer>((resolve, reject) => {
       let ready = false;

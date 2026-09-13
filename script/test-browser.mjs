@@ -49,6 +49,8 @@ try {
   page.on('request', (request) => requests.push(request.url()));
   await page.route('**/*', (route) => route.request().url().startsWith(base) ? route.continue() : route.abort());
   await page.goto(base);
+  const articlePath = await page.locator('a.article-entry').first().getAttribute('href');
+  assert.ok(articlePath?.startsWith('/blog/'), 'a published article is available for navigation checks');
   await page.waitForFunction(() => document.querySelector('[data-player-ready="true"]'));
   await page.waitForTimeout(700);
   assert.equal(requests.filter((url) => url.includes('/audio/')).length, 0, 'no audio before a gesture');
@@ -67,7 +69,7 @@ try {
   await page.locator('[data-music-primary]').click();
   await page.waitForFunction(() => window.testAudios[0].currentTime > 0.15);
   const start = await page.evaluate(() => window.testAudios[0].currentTime);
-  for (const path of ['/archives/', '/about/', '/en/', '/blog/function-summary/', '/']) {
+  for (const path of ['/archives/', '/about/', '/en/', articlePath, '/']) {
     await page.evaluate((path) => {
       const link = document.createElement('a'); link.href = path; document.body.append(link); link.click();
     }, path);
@@ -78,7 +80,7 @@ try {
   }
   assert.ok(await page.evaluate(() => window.testAudios[0].currentTime) > start);
   await page.goBack();
-  await page.waitForURL(base + '/blog/function-summary/');
+  await page.waitForURL(base + articlePath);
   await page.goForward();
   await page.waitForURL(base + '/');
   assert.equal(await page.evaluate(() => window.testAudios.length === 1 && !window.testAudios[0].paused), true);
@@ -128,7 +130,7 @@ try {
   // First-screen text must remain visible with JavaScript disabled.
   const noJS = await browser.newContext({ javaScriptEnabled: false });
   const article = await noJS.newPage();
-  await article.goto(base + '/blog/function-summary/');
+  await article.goto(base + articlePath);
   assert.equal(await article.locator('.markdown-content').evaluate((el) => getComputedStyle(el.firstElementChild).opacity), '1');
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const touchPage = await mobile.newPage();

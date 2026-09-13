@@ -1,6 +1,5 @@
 // remark-typst.mjs
 import { visit } from 'unist-util-visit';
-import { NodeCompiler } from '@myriaddreamin/typst-ts-node-compiler';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,14 +9,14 @@ const cetzWorkspace = fileURLToPath(
   new URL('../vendor/typst-packages/preview/cetz/0.4.2', import.meta.url),
 );
 const cetzVirtualRoot = '/__typst_packages/cetz/0.4.2';
-const projectCompiler = NodeCompiler.create({ workspace: projectWorkspace });
+let compilerPromise;
 const cetzImportPattern = (
   /^([\t ]*#\s*import\s+)"@preview\/cetz:0\.4\.2"(?=[\t ]*(?::|as\b|$))/gm
 );
 const cetzRootImportPattern = /^([\t ]*#?[\t ]*import\s+)"\/src\//gm;
 const localCetzImport = `"${cetzVirtualRoot}/src/lib.typ"`;
 
-function mapCetzPackage(directory, relativeDirectory = '') {
+function mapCetzPackage(projectCompiler, directory, relativeDirectory = '') {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const relativePath = relativeDirectory
       ? `${relativeDirectory}/${entry.name}`
@@ -25,7 +24,7 @@ function mapCetzPackage(directory, relativeDirectory = '') {
     const sourcePath = join(directory, entry.name);
 
     if (entry.isDirectory()) {
-      mapCetzPackage(sourcePath, relativePath);
+      mapCetzPackage(projectCompiler, sourcePath, relativePath);
       continue;
     }
     if (!entry.name.endsWith('.typ') && !entry.name.endsWith('.wasm')) continue;
@@ -47,7 +46,17 @@ function mapCetzPackage(directory, relativeDirectory = '') {
   }
 }
 
-mapCetzPackage(cetzWorkspace);
+function getCompiler() {
+  // Most notes contain no Typst: defer native startup and package reads until needed.
+  if (!compilerPromise) {
+    compilerPromise = import('@myriaddreamin/typst-ts-node-compiler').then(({ NodeCompiler }) => {
+      const compiler = NodeCompiler.create({ workspace: projectWorkspace });
+      mapCetzPackage(compiler, cetzWorkspace);
+      return compiler;
+    }).catch(error => { compilerPromise = undefined; throw error; });
+  }
+  return compilerPromise;
+}
 
 function prepareTypstSource(source) {
   return source.replace(cetzImportPattern, `$1${localCetzImport}`);
@@ -72,6 +81,7 @@ export function remarkTypst() {
         const source = prepareTypstSource(node.value);
         // Resolve the supported package import to the vendored source while
         // keeping the project workspace available to every Typst document.
+        const projectCompiler = await getCompiler();
         const svg = await projectCompiler.svg({
           mainFileContent: source,
         });

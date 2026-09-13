@@ -32,6 +32,7 @@ export default class BlogPreviewPlugin extends Plugin {
   private projectRoot: string | null = null;
   private saveTimer: ReturnType<typeof setTimeout> | null = null;
   private disposed = false;
+  private idleTimer: ReturnType<typeof setTimeout> | null = null;
 
   async onload(): Promise<void> {
     const stored = await this.loadData();
@@ -53,6 +54,7 @@ export default class BlogPreviewPlugin extends Plugin {
     this.addCommand({ id: 'refresh-preview', name: '刷新文章预览', callback: () => this.views().forEach(view => void view.refresh()) });
     this.addCommand({ id: 'stop-preview', name: '停止预览服务', callback: () => {
       this.cancelSave();
+      this.cancelIdleStop();
       this.views().forEach(view => view.clearFrame());
       this.server.stop();
       this.views().forEach(view => view.status('预览已停止；点击刷新可重新启动。'));
@@ -107,6 +109,7 @@ export default class BlogPreviewPlugin extends Plugin {
     this.disposed = true;
     this.cancelSave();
     this.app.workspace.detachLeavesOfType(VIEW);
+    this.cancelIdleStop();
     this.server.stop();
   }
 
@@ -119,10 +122,21 @@ export default class BlogPreviewPlugin extends Plugin {
     return this.app.workspace.getLeavesOfType(VIEW).map(leaf => leaf.view).filter((view): view is BlogPreviewView => view instanceof BlogPreviewView);
   }
 
+  cancelIdleStop(): void {
+    if (this.idleTimer) clearTimeout(this.idleTimer);
+    this.idleTimer = null;
+  }
+
   maybeStopServer(): void {
-    // A view can remain open while the user browses ordinary notes. Once no
-    // iframe is active, release Astro/Node instead of keeping an idle watcher.
-    if (!this.views().some(view => view.hasFrame())) this.server.stop();
+    this.cancelIdleStop();
+    const views = this.views().filter(view => !view.isClosed());
+    if (views.some(view => view.hasFrame())) return;
+    if (!views.length) { this.server.stop(); return; }
+    // Brief trips to ordinary notes should not force another Astro cold start.
+    this.idleTimer = setTimeout(() => {
+      this.idleTimer = null;
+      if (!this.views().some(view => view.hasFrame())) this.server.stop();
+    }, 30000);
   }
 
   vaultPath(): string {
@@ -169,6 +183,7 @@ export default class BlogPreviewPlugin extends Plugin {
     await this.saveData(this.settings);
     if (restart) {
       this.cancelSave();
+      this.cancelIdleStop();
       this.projectRoot = null;
       this.server.stop();
       this.views().forEach(view => { view.clearFrame(); view.status('设置已保存，点击刷新以重新启动预览。'); });
@@ -260,9 +275,10 @@ class BlogPreviewView extends ItemView {
   }
 
   hasFrame(): boolean { return this.frame !== null; }
+  isClosed(): boolean { return this.closed; }
   status(text: string): void {
     if (this.closed || !this.statusEl) return;
-    this.statusEl.setText(text);
+    if (this.statusEl.textContent !== text) this.statusEl.setText(text);
     if (!this.logsEl.hidden) this.logsEl.setText(this.plugin.server.logs.join(''));
   }
   clearFrame(): void {
@@ -315,6 +331,7 @@ class BlogPreviewView extends ItemView {
     }
     try {
       const { root, route } = this.plugin.route(file);
+      this.plugin.cancelIdleStop();
       this.routeEl.setText(`${file.path} → ${route}`);
       const session = await this.plugin.server.start(root, this.plugin.settings.nodePath, this.plugin.settings.port);
       if (this.closed || revision !== this.revision) return;

@@ -1,10 +1,34 @@
 import sharp from 'sharp';
+import { stat } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+const gradients = new Map<string, { stamp: string; result: Promise<string> }>();
+const fallback = 'linear-gradient(110deg, #e2e8f0, #f8fafc, #e2e8f0)';
 
 /**
  * 提取图片颜色并返回 CSS 弥散渐变 (多层径向渐变叠加)
  */
 export async function getLqipGradient(fsPath: string): Promise<string> {
+  const key = resolve(fsPath);
   try {
+    const metadata = await stat(key);
+    const stamp = `${metadata.mtimeMs}:${metadata.ctimeMs}:${metadata.size}`;
+    const cached = gradients.get(key);
+    if (cached?.stamp === stamp) return await cached.result;
+    const entry = { stamp, result: extractGradient(key) };
+    gradients.delete(key);
+    gradients.set(key, entry);
+    // Bound memory in long-running previews; failures must be retried.
+    if (gradients.size > 256) gradients.delete(gradients.keys().next().value!);
+    void entry.result.catch(() => { if (gradients.get(key) === entry) gradients.delete(key); });
+    return await entry.result;
+  } catch (error) {
+    console.error(`[LQIP Error]: ${fsPath}`, error);
+    return fallback;
+  }
+}
+
+async function extractGradient(fsPath: string): Promise<string> {
     // 采样 3 个像素点
     const { data, info } = await sharp(fsPath)
       .toColourspace('srgb')
@@ -37,9 +61,4 @@ export async function getLqipGradient(fsPath: string): Promise<string> {
     `.replace(/\s+/g, ' '); // 压缩成一行
 
     return meshGradient;
-  } catch (error) {
-    console.error(`[LQIP Error]: ${fsPath}`, error);
-    // 兜底渐变
-    return 'linear-gradient(110deg, #e2e8f0, #f8fafc, #e2e8f0)';
-  }
 }

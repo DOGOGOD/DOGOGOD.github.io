@@ -116,9 +116,12 @@ var PreviewServer = class {
   running = null;
   cancelStart = null;
   logs = [];
+  logLength = 0;
   log(text) {
-    this.logs.push(text.replace(/\u001b\[[0-9;]*m/g, ""));
-    while (this.logs.join("").length > 18e3) this.logs.shift();
+    const clean = text.replace(/\u001b\[[0-9;]*m/g, "").slice(-18e3);
+    this.logs.push(clean);
+    this.logLength += clean.length;
+    while (this.logLength > 18e3) this.logLength -= this.logs.shift().length;
   }
   start(root, nodePath, port) {
     if (this.running?.root === root) return Promise.resolve(this.running);
@@ -130,6 +133,7 @@ var PreviewServer = class {
     this.stop();
     const token = (0, import_node_crypto.randomBytes)(24).toString("hex");
     this.logs.length = 0;
+    this.logLength = 0;
     this.onStatus("\u6B63\u5728\u542F\u52A8 Blog \u9884\u89C8\uFF0C\u9996\u6B21\u7F16\u8BD1\u9700\u8981\u4E00\u4E9B\u65F6\u95F4\u2026");
     const operation = new Promise((resolve, reject) => {
       let ready = false;
@@ -284,6 +288,7 @@ var BlogPreviewPlugin = class extends import_obsidian.Plugin {
   projectRoot = null;
   saveTimer = null;
   disposed = false;
+  idleTimer = null;
   async onload() {
     const stored = await this.loadData();
     this.settings = { ...DEFAULTS, ...stored };
@@ -306,6 +311,7 @@ var BlogPreviewPlugin = class extends import_obsidian.Plugin {
     this.addCommand({ id: "refresh-preview", name: "\u5237\u65B0\u6587\u7AE0\u9884\u89C8", callback: () => this.views().forEach((view) => void view.refresh()) });
     this.addCommand({ id: "stop-preview", name: "\u505C\u6B62\u9884\u89C8\u670D\u52A1", callback: () => {
       this.cancelSave();
+      this.cancelIdleStop();
       this.views().forEach((view) => view.clearFrame());
       this.server.stop();
       this.views().forEach((view) => view.status("\u9884\u89C8\u5DF2\u505C\u6B62\uFF1B\u70B9\u51FB\u5237\u65B0\u53EF\u91CD\u65B0\u542F\u52A8\u3002"));
@@ -361,6 +367,7 @@ var BlogPreviewPlugin = class extends import_obsidian.Plugin {
     this.disposed = true;
     this.cancelSave();
     this.app.workspace.detachLeavesOfType(VIEW);
+    this.cancelIdleStop();
     this.server.stop();
   }
   cancelSave() {
@@ -370,8 +377,22 @@ var BlogPreviewPlugin = class extends import_obsidian.Plugin {
   views() {
     return this.app.workspace.getLeavesOfType(VIEW).map((leaf) => leaf.view).filter((view) => view instanceof BlogPreviewView);
   }
+  cancelIdleStop() {
+    if (this.idleTimer) clearTimeout(this.idleTimer);
+    this.idleTimer = null;
+  }
   maybeStopServer() {
-    if (!this.views().some((view) => view.hasFrame())) this.server.stop();
+    this.cancelIdleStop();
+    const views = this.views().filter((view) => !view.isClosed());
+    if (views.some((view) => view.hasFrame())) return;
+    if (!views.length) {
+      this.server.stop();
+      return;
+    }
+    this.idleTimer = setTimeout(() => {
+      this.idleTimer = null;
+      if (!this.views().some((view) => view.hasFrame())) this.server.stop();
+    }, 3e4);
   }
   vaultPath() {
     const adapter = this.app.vault.adapter;
@@ -412,6 +433,7 @@ var BlogPreviewPlugin = class extends import_obsidian.Plugin {
     await this.saveData(this.settings);
     if (restart) {
       this.cancelSave();
+      this.cancelIdleStop();
       this.projectRoot = null;
       this.server.stop();
       this.views().forEach((view) => {
@@ -511,9 +533,12 @@ var BlogPreviewView = class extends import_obsidian.ItemView {
   hasFrame() {
     return this.frame !== null;
   }
+  isClosed() {
+    return this.closed;
+  }
   status(text) {
     if (this.closed || !this.statusEl) return;
-    this.statusEl.setText(text);
+    if (this.statusEl.textContent !== text) this.statusEl.setText(text);
     if (!this.logsEl.hidden) this.logsEl.setText(this.plugin.server.logs.join(""));
   }
   clearFrame() {
@@ -569,6 +594,7 @@ var BlogPreviewView = class extends import_obsidian.ItemView {
     }
     try {
       const { root, route } = this.plugin.route(file);
+      this.plugin.cancelIdleStop();
       this.routeEl.setText(`${file.path} \u2192 ${route}`);
       const session = await this.plugin.server.start(root, this.plugin.settings.nodePath, this.plugin.settings.port);
       if (this.closed || revision !== this.revision) return;
