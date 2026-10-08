@@ -38,7 +38,7 @@ draft: false
 ### 字节序
 - 小端：最低有效字节位于最低地址。x86-64 与 ARM 的默认配置
 - 大端：最低有效字节位于最高地址。TCP/IP 首部与部分平台采用
-![[Attachments/byte-order.svg]]
+![byte-order](./Attachments/byte-order.svg)
 - **文件格式**：GGUF、ELF、PNG 各自规定字节序，跨机器读取才有确定结果
 - **网络传输**：TCP/IP 首部采用大端，`htons` / `htonl` 完成本机序与网络序的转换
 - **强制类型转换**：以另一种类型解释同一段字节时，排列方式随之暴露
@@ -254,7 +254,7 @@ $$
 ## 三、浮点数的编码
 ### IEEE 浮点表示的数值形式与编码
 
-![[Attachments/bit-fields.svg]]
+![bit-fields](./Attachments/bit-fields.svg)
 
 对于规格化数，数值形式为
 
@@ -433,7 +433,7 @@ $$
 2^{-149}.
 $$
 
-![[Attachments/ulp-spacing.svg]]
+![ulp-spacing](./Attachments/ulp-spacing.svg)
 
 ### 浮点加法：阶码对齐、GRS 位与吸收现象
 
@@ -571,7 +571,7 @@ $L=0$ 已为偶数，**不进位**，结果 $\boxed{1.1100\times2^{5}}$。
     - 当两个相近的浮点数执行减法时，高位有效数字完全抵消，尾部因有限精度产生的舍入误差被提升为主导有效位，导致有效数字位数断崖式下跌。
 
 
-![[Attachments/cancellation.svg]]
+![cancellation](./Attachments/cancellation.svg)
 
 - **十进制有限小数与二进制循环小数的鸿沟**：
     - $0.1_{10}=0.000110011\ldots_2$，在二进制中为无限循环小数，无法用有限位精确表示，故字面量 `0.1` 存储在内存中即为不可逆的近似截断值。
@@ -586,7 +586,7 @@ $L=0$ 已为偶数，**不进位**，结果 $\boxed{1.1100\times2^{5}}$。
 - **越界未定义行为与底层硬件处理**：
     - 当浮点数数值超出目标整型表示范围（如 `(int)3e9`），ISO C 标准定义其为未定义行为。
     - x86-64 体系结构下，转换指令对越界或无效浮点数统一输出固定的特殊值：`0x80000000`（即 $-2^{31}$，即 `INT_MIN`）。
-![[Attachments/cast-paths.svg]]
+![cast-paths](./Attachments/cast-paths.svg)
 #### 现代体系结构扩展：动态范围与相对精度的折中
 
 **位宽约束下的设计权衡公理**：FP16 总位宽固定为 16 位，划分为 $1+5+10$，两种资源此消彼长：
@@ -673,7 +673,7 @@ $$T_{\max}=\frac{B}{Q}=\frac{\text{峰值带宽}}{\text{权重数据量}}$$
 
 #### 问题实测：自回归推理深陷访存受限
 
-![[Attachments/roofline-latency.svg]]
+![roofline-latency](./Attachments/roofline-latency.svg)
 
 IEEE Micro 2024 实测（序列长度 4096）：
 
@@ -691,7 +691,7 @@ IEEE Micro 2024 实测（序列长度 4096）：
 
 **量化的作用**：权重压到 4 位，数据量降至约 $1/4$，工作点在 Roofline 上右移、算术强度约提高 4 倍，直接缓解访存瓶颈。
 
-![[Attachments/roofline-shift.svg]]
+![roofline-shift](./Attachments/roofline-shift.svg)
 
 **Roofline 模型**（Williams et al., 2009）：以算术强度 $I=W/Q$ 为横轴、性能为纵轴，上限为
 
@@ -735,7 +735,7 @@ $$P_{\max}=\min\left(P,\ B\times I\right).$$
 
 **为什么能省**：权重是静态的、分布平滑且近似对称的，冗余精度可换成更粗的格子——同一批数用更少的位记下，字节数自然变少。文件保存整数，计算时再映射回浮点近似值参与运算。大大减少了数据的访存开销。
 
-**代价与边界**：还原值与原点之间有误差；且**不一定省计算**——权重-only（W4A16）仍在 FP16 上算、甚至多一步反量化，只有连激活一起量化（W8A8）或进入大 batch / prefill 的算力受限场景，整数单元的面积与能耗优势才显现。![[Attachments/model-load-path.svg]]
+**代价与边界**：还原值与原点之间有误差；且**不一定省计算**——权重-only（W4A16）仍在 FP16 上算、甚至多一步反量化，只有连激活一起量化（W8A8）或进入大 batch / prefill 的算力受限场景，整数单元的面积与能耗优势才显现。![model-load-path](./Attachments/model-load-path.svg)
 
 ---
 
@@ -853,7 +853,7 @@ $$
 
 以 GGUF 4 位为例：一个块覆盖 **32 个权重**，即 $g=32$。块头是 fp16 的 $d（scale)$（非对称再多一个 fp16 的 $m$），其后 16 字节打包 32 个 4 位权重——一个字节装两个。
 
-![[Attachments/gguf-q4-blocks.svg]]
+![gguf-q4-blocks](./Attachments/gguf-q4-blocks.svg)
 对于每一个字节中装的两个权重在GGUF 4位量化中并不是相邻配对的，而是采用了**交叉配对**。
 
 | 排法 | 字节 $j$ 装 | 抽低半字节 | 抽高半字节 |
@@ -881,7 +881,7 @@ $$
 Q4_0 对称省空间但非对称数据下精度差；Q4_1 精度好但多占了 11 % 的空间。
 我们考虑以下问题：能否用 Q4_0 的体积，实现接近 Q4_1的非对称高精度？
 
-![[Attachments/q4k-superblock.svg]]
+![q4k-superblock](./Attachments/q4k-superblock.svg)
 - Q4_K 的破局之道：超块与二级量化：
     - **超块规模**：每个超块包含 **256 个权重**，细分为 **8 个子块（各 32 个权重）**。
     - 8 个子块各需一个步长与一个偏移量，共 **16 个参数**。若按 fp16 原样存，要占 $16\times2=32$ 字节——几乎赶上权重数据（128 字节）的四分之一。
@@ -957,7 +957,7 @@ $$
 
 从这一部分也可以看出来，对于量化而言，节省的算力是有限的，重点是节省访存开销。
 #### 权重的搬运路径：从磁盘到计算单元
-![[Attachments/quant-path.svg]]
+![quant-path](./Attachments/quant-path.svg)
 
 权重从磁盘走到计算单元，要经过三级存储，分三步：
 
@@ -1009,7 +1009,7 @@ $$
 ### 系统视图：取指、计算与输出 Token
 这张图反映了 CPU 从内存中获取指令和数据计算并输出 Token 的过程：
 
-![[Attachments/system-view.svg]]
+![system-view](./Attachments/system-view.svg)
 >磁盘上的程序与数据都只是比特序列：先载入内存，再由 CPU 逐条取指、取数、计算，最终输出 Token。
 
 ### 编译：源码到二进制指令
@@ -1020,7 +1020,7 @@ $$
 2. **汇编指令（Assembly）**：通过 `objdump -d` 反汇编或 `gcc -S` 直接生成，与机器码对应。
 3. **目标机器码（Object Code）**：经 `gcc -c` 生成的纯二进制目标文件（ELF），通过 `hexdump` / `xxd` 观察，呈现为十六进制机器字节流。
 
-![[Attachments/compile-mapping.svg]]
+![compile-mapping](./Attachments/compile-mapping.svg)
 #### 编译流程：预处理、编译、汇编与链接
 
 **GNU 编译系统四阶段**：
@@ -1038,7 +1038,7 @@ $$
     - 命令：`gcc dot.o main.o -o dot_product`
     - 动作：解析跨文件符号引用，重定位函数与全局变量地址，合并代码段与数据段，生成最终可执行二进制文件。
 
-  ![[Attachments/toolchain.svg]]
+  ![toolchain](./Attachments/toolchain.svg)
 ### 指令集架构
 
 程序编译之后得到的是二进制机器码。但 CPU 执行需要能够认识这段二进制所代表的指令，因此二进制编码与 CPU 指令之间的约定必不可少。
@@ -1055,7 +1055,7 @@ $$
 >**ISA 是接口（Interface）**：规定处理器能执行什么；
   **微架构是实现（Implementation）**：规定处理器在物理电路层面如何执行。
 
-![[Attachments/isa-contract.svg]]
+![isa-contract](./Attachments/isa-contract.svg)
 
 
 ## 二、执行计算
@@ -1069,7 +1069,7 @@ $$
     - **条件标志位寄存器（RFLAGS）**：存放最近一次算术逻辑运算的状态结果；
     - **虚拟内存空间**：通过地址总线访问的代码、全局变量与栈内存。
 
-![[Attachments/visible-state.svg]]
+![visible-state](./Attachments/visible-state.svg)
 
 **为什么通用寄存器只有16个？**
 - **指令编码字段限制**：指令中寄存器字段的位数有限，在定长字段中指定一个寄存器，16 个寄存器只需 4 位二进制（ $2^4=16$ ），若扩展到上千个，指令编码将急剧膨胀；
@@ -1080,7 +1080,7 @@ $$
 
 >如果说寄存器解决了数据"放到哪"的问题，那么寻址则解决了数据"从哪取"的问题。
 #### 寻址模式：x86-64 的八种操作数寻址形态
-![[Attachments/addressing-modes.svg]]
+![addressing-modes](./Attachments/addressing-modes.svg)
 
 **操作数**是指令作用的对象，按「值的来源」分两类，共八种形态。
 

@@ -3,11 +3,10 @@ import { Icon } from 'astro-icon/components'
 
 interface Props {
   urls: string[]
-  label: string
   ariaLabel: string
 }
 
-const { urls, label, ariaLabel } = Astro.props
+const { urls, ariaLabel } = Astro.props
 const candidates = [...new Set(urls.filter(Boolean))]
 const fallbackUrl = candidates[0]
 ---
@@ -19,7 +18,6 @@ const fallbackUrl = candidates[0]
     data-random-read
     data-random-urls={JSON.stringify(candidates)}
     aria-label={ariaLabel}
-    title={label}
   >
     <Icon name="fa6-solid:dice-three" class="random-read-icon" aria-hidden="true" />
   </a>
