@@ -281,13 +281,15 @@
 	}
 
 	.toc-list {
-		max-height: calc(100dvh - 13rem);
+		max-height: max(12rem, calc(60dvh - 7.8rem));
 		margin: 0;
 		padding: 0.15rem 0;
 		overflow-y: auto;
 		border-left: 1px solid var(--border-color);
 		list-style: none;
 		scrollbar-width: none;
+		mask-image: linear-gradient(to bottom, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
+		-webkit-mask-image: linear-gradient(to bottom, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
 	}
 
 	.toc-list::-webkit-scrollbar {
