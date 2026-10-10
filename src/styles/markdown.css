@@ -195,8 +195,23 @@
   line-height: 1.5;
 }
 
-[data-theme="dark"] .markdown-content pre {
-  background-color: rgba(0, 0, 0, 0.2);
+/* Shiki emits both palettes as CSS variables; follow the site's theme toggle. */
+.markdown-content pre.astro-code {
+  background-color: var(--shiki-light-bg) !important;
+  color: var(--shiki-light) !important;
+}
+
+.markdown-content pre.astro-code span {
+  color: var(--shiki-light) !important;
+}
+
+[data-theme="dark"] .markdown-content pre.astro-code {
+  background-color: var(--shiki-dark-bg) !important;
+  color: var(--shiki-dark) !important;
+}
+
+[data-theme="dark"] .markdown-content pre.astro-code span {
+  color: var(--shiki-dark) !important;
 }
 
 .markdown-content pre code {

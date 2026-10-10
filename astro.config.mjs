@@ -73,8 +73,12 @@ export default defineConfig({
   }), svelte()],
   markdown: {
     shikiConfig: {
-      theme: 'one-dark-pro', // code theme
-      // theme: 'github-dark',
+      themes: {
+        light: 'github-light',
+        dark: 'one-dark-pro',
+      },
+      // Let the site's explicit light/dark theme select Shiki's token colors.
+      defaultColor: false,
       wrap: false
     },
     processor: unified({

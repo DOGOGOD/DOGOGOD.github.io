@@ -1,33 +1,11 @@
-<%*
-/* =====================================================================
- * Guztchian Blog · Obsidian 文章模板（Templater）
- * ---------------------------------------------------------------------
- * 用法：
- *   1. 在 src/content/blog/ 下建好文章目录，例如 my-first-post/
- *   2. 在目录里新建 zh-cn.md（中文）或 en.md（英文）
- *   3. 运行命令 "Templater: Insert template"，选择本文件
- *      （或在 Templater 设置里配置 Folder Template 自动套用）
- *
- * 说明：
- *   - slugId 自动取「文章所在目录名」，与站点路由保持一致
- *   - pubDate 自动填今天，保持不加引号的 YAML 日期格式
- *   - draft 默认 true，正式发布前改为 false
- * ===================================================================== */
-const folder = tp.file.folder(false);                 // 文章目录名
-const fileBase = tp.file.title;                       // zh-cn / en / 其他
-const isLangFile = fileBase === "zh-cn" || fileBase === "en";
-const slug = isLangFile ? folder : (folder || fileBase);
-const today = tp.date.now("YYYY-MM-DD");
-const title = (slug || "untitled").replace(/[-_]+/g, " ").trim() || "未命名文章";
--%>
 ---
-title: <% title %>
-pubDate: <% today %>
-slugId: <% slug %>
-description: ""
+title: "ICS Lab 0: NanoQuant"
+pubDate: 2026-10-10
+slugId: quantlab-reflecting
+description: NanoQuant Lab 实验总结
 image: ""
 draft: true
-category: ""
+category: study
 pinTop: 0
 ---
 

@@ -1,9 +1,11 @@
 // remark-typst.mjs
 import { visit } from 'unist-util-visit';
 import { readdirSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const require = createRequire(import.meta.url);
 const projectWorkspace = fileURLToPath(new URL('../../', import.meta.url));
 const cetzWorkspace = fileURLToPath(
   new URL('../vendor/typst-packages/preview/cetz/0.4.2', import.meta.url),
@@ -49,7 +51,12 @@ function mapCetzPackage(projectCompiler, directory, relativeDirectory = '') {
 function getCompiler() {
   // Most notes contain no Typst: defer native startup and package reads until needed.
   if (!compilerPromise) {
-    compilerPromise = import('@myriaddreamin/typst-ts-node-compiler').then(({ NodeCompiler }) => {
+    // This plugin runs inside Vite's module runner during content syncing.
+    // A dynamic import there can happen after the runner has closed, leaving
+    // Typst fences as plain code. Resolve the native CommonJS package through
+    // Node directly while keeping initialization lazy for pages without Typst.
+    compilerPromise = Promise.resolve().then(() => {
+      const { NodeCompiler } = require('@myriaddreamin/typst-ts-node-compiler');
       const compiler = NodeCompiler.create({ workspace: projectWorkspace });
       mapCetzPackage(compiler, cetzWorkspace);
       return compiler;
