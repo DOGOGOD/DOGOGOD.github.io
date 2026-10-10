@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="524" viewBox="0 0 1240 524" role="img" aria-labelledby="qkt qkd">
+<title id="qkt">Q4_K 的两级分层缩放结构</title>
+<desc id="qkd">256 个权重组成一个 144 字节超块，分为 8 个 32 权重的子块；每个子块使用一对 6 位缩放与偏移，乘以超块共享的 fp16 系数还原。</desc>
+<defs><style>
+ text{font-family:"Helvetica Neue",Helvetica,Arial,"Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#1F2933}
+ .t{font-size:21px;font-weight:700}
+ .st{font-size:13px;fill:#5B6B7B}
+ .b{font-size:12.5px}
+ .bi{font-size:12.5px;font-weight:700}
+ .s{font-size:11.5px;fill:#5B6B7B}
+ .c{font-size:10.5px;fill:#8B98A5}
+ .v{font-family:"Times New Roman",Georgia,"Songti SC",serif;font-style:italic}
+ .eq{font-family:"Times New Roman",Georgia,"Songti SC",serif;font-style:italic;font-size:14.5px}
+</style></defs>
+<rect width="1240" height="524" fill="#ffffff"/>
+<text class="t" x="44" y="46">Q4_K：256 个权重的两级分层缩放</text>
+<text class="st" x="44" y="70">超块 = 8 个子块 × 32 权重；子块各自缩放，整体仍为 144 B · 4.5 bit/权重</text>
+<line x1="44" y1="84" x2="1196" y2="84" stroke="#E5EAF0" stroke-width="1.5"/>
+
+<text class="bi" x="44" y="120">超块内存布局（偏移单位：字节）</text>
+<text class="c" x="44" y="146">0</text>
+<text class="c" x="159" y="146">2</text>
+<text class="c" x="282" y="146">4</text>
+<text class="c" x="535" y="146">16</text>
+<text class="c" x="1196" y="146" text-anchor="end">144</text>
+<rect x="44" y="152" width="112" height="56" rx="5" fill="#DCE9F7" stroke="#7FA8CF" stroke-width="1.2"/>
+<rect x="159" y="152" width="120" height="56" rx="5" fill="#FBE7CC" stroke="#E0A75A" stroke-width="1.2"/>
+<rect x="282" y="152" width="250" height="56" rx="5" fill="#E7E1F4" stroke="#A696D6" stroke-width="1.2"/>
+<rect x="535" y="152" width="661" height="56" rx="5" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.2"/>
+<text class="v" x="100" y="182" text-anchor="middle" font-size="15" font-weight="700">d</text>
+<text class="c" x="100" y="200" text-anchor="middle">FP16 · 2 B</text>
+<text x="219" y="182" text-anchor="middle"><tspan class="v" font-size="15" font-weight="700">d</tspan><tspan class="v" font-size="10" dy="3">min</tspan></text>
+<text class="c" x="219" y="200" text-anchor="middle">FP16 · 2 B</text>
+<text class="b" x="407" y="180" text-anchor="middle">scales / mins</text>
+<text class="c" x="407" y="200" text-anchor="middle">12 B · 8×(6+6) bit</text>
+<text class="b" x="865" y="180" text-anchor="middle">q codes</text>
+<text class="c" x="865" y="200" text-anchor="middle">128 B · 256×4 bit</text>
+
+<text class="bi" x="44" y="240">两级缩放结构（8 个子块，各带一对 6 位参数）</text>
+<rect x="44" y="256" width="1152" height="28" rx="6" fill="#DCE9F7" stroke="#7FA8CF" stroke-width="1.2"/>
+<text class="b" x="620" y="275" text-anchor="middle">超块共享 fp16：d（缩放）、dmin（最小偏移）</text>
+
+<g>
+ <rect x="44" y="306" width="138.75" height="44" rx="5" fill="#E7E1F4" stroke="#A696D6" stroke-width="1.1"/>
+ <rect x="44" y="355" width="138.75" height="52" rx="5" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.1"/>
+ <text class="b" x="113.375" y="330" text-anchor="middle"><tspan class="v" font-size="12.5">sc</tspan><tspan class="v" font-size="9" dy="2">j</tspan><tspan dy="-2">, </tspan><tspan class="v" font-size="12.5">m</tspan><tspan class="v" font-size="9" dy="2">j</tspan></text>
+ <text class="c" x="113.375" y="344" text-anchor="middle">6 + 6 bit</text>
+ <text class="b" x="113.375" y="385" text-anchor="middle">32 × 4 bit</text>
+</g>
+<g>
+ <rect x="188.75" y="306" width="138.75" height="44" rx="5" fill="#E7E1F4" stroke="#A696D6" stroke-width="1.1"/>
+ <rect x="188.75" y="355" width="138.75" height="52" rx="5" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.1"/>
+ <text class="b" x="258.125" y="330" text-anchor="middle"><tspan class="v" font-size="12.5">sc</tspan><tspan class="v" font-size="9" dy="2">j</tspan><tspan dy="-2">, </tspan><tspan class="v" font-size="12.5">m</tspan><tspan class="v" font-size="9" dy="2">j</tspan></text>
+ <text class="c" x="258.125" y="344" text-anchor="middle">6 + 6 bit</text>
+ <text class="b" x="258.125" y="385" text-anchor="middle">32 × 4 bit</text>
+</g>
+<g>
+ <rect x="333.5" y="306" width="138.75" height="44" rx="5" fill="#E7E1F4" stroke="#A696D6" stroke-width="1.1"/>
+ <rect x="333.5" y="355" width="138.75" height="52" rx="5" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.1"/>
+ <text class="b" x="402.875" y="330" text-anchor="middle"><tspan class="v" font-size="12.5">sc</tspan><tspan class="v" font-size="9" dy="2">j</tspan><tspan dy="-2">, </tspan><tspan class="v" font-size="12.5">m</tspan><tspan class="v" font-size="9" dy="2">j</tspan></text>
+ <text class="c" x="402.875" y="344" text-anchor="middle">6 + 6 bit</text>
+ <text class="b" x="402.875" y="385" text-anchor="middle">32 × 4 bit</text>
+</g>
+<g>
+ <rect x="478.25" y="306" width="138.75" height="44" rx="5" fill="#E7E1F4" stroke="#A696D6" stroke-width="1.1"/>
+ <rect x="478.25" y="355" width="138.75" height="52" rx="5" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.1"/>
+ <text class="b" x="547.625" y="330" text-anchor="middle"><tspan class="v" font-size="12.5">sc</tspan><tspan class="v" font-size="9" dy="2">j</tspan><tspan dy="-2">, </tspan><tspan class="v" font-size="12.5">m</tspan><tspan class="v" font-size="9" dy="2">j</tspan></text>
+ <text class="c" x="547.625" y="344" text-anchor="middle">6 + 6 bit</text>
+ <text class="b" x="547.625" y="385" text-anchor="middle">32 × 4 bit</text>
+</g>
+<g>
+ <rect x="623" y="306" width="138.75" height="44" rx="5" fill="#E7E1F4" stroke="#A696D6" stroke-width="1.1"/>
+ <rect x="623" y="355" width="138.75" height="52" rx="5" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.1"/>
+ <text class="b" x="692.375" y="330" text-anchor="middle"><tspan class="v" font-size="12.5">sc</tspan><tspan class="v" font-size="9" dy="2">j</tspan><tspan dy="-2">, </tspan><tspan class="v" font-size="12.5">m</tspan><tspan class="v" font-size="9" dy="2">j</tspan></text>
+ <text class="c" x="692.375" y="344" text-anchor="middle">6 + 6 bit</text>
+ <text class="b" x="692.375" y="385" text-anchor="middle">32 × 4 bit</text>
+</g>
+<g>
+ <rect x="767.75" y="306" width="138.75" height="44" rx="5" fill="#E7E1F4" stroke="#A696D6" stroke-width="1.1"/>
+ <rect x="767.75" y="355" width="138.75" height="52" rx="5" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.1"/>
+ <text class="b" x="837.125" y="330" text-anchor="middle"><tspan class="v" font-size="12.5">sc</tspan><tspan class="v" font-size="9" dy="2">j</tspan><tspan dy="-2">, </tspan><tspan class="v" font-size="12.5">m</tspan><tspan class="v" font-size="9" dy="2">j</tspan></text>
+ <text class="c" x="837.125" y="344" text-anchor="middle">6 + 6 bit</text>
+ <text class="b" x="837.125" y="385" text-anchor="middle">32 × 4 bit</text>
+</g>
+<g>
+ <rect x="912.5" y="306" width="138.75" height="44" rx="5" fill="#E7E1F4" stroke="#A696D6" stroke-width="1.1"/>
+ <rect x="912.5" y="355" width="138.75" height="52" rx="5" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.1"/>
+ <text class="b" x="981.875" y="330" text-anchor="middle"><tspan class="v" font-size="12.5">sc</tspan><tspan class="v" font-size="9" dy="2">j</tspan><tspan dy="-2">, </tspan><tspan class="v" font-size="12.5">m</tspan><tspan class="v" font-size="9" dy="2">j</tspan></text>
+ <text class="c" x="981.875" y="344" text-anchor="middle">6 + 6 bit</text>
+ <text class="b" x="981.875" y="385" text-anchor="middle">32 × 4 bit</text>
+</g>
+<g>
+ <rect x="1057.25" y="306" width="138.75" height="44" rx="5" fill="#E7E1F4" stroke="#A696D6" stroke-width="1.1"/>
+ <rect x="1057.25" y="355" width="138.75" height="52" rx="5" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.1"/>
+ <text class="b" x="1126.625" y="330" text-anchor="middle"><tspan class="v" font-size="12.5">sc</tspan><tspan class="v" font-size="9" dy="2">j</tspan><tspan dy="-2">, </tspan><tspan class="v" font-size="12.5">m</tspan><tspan class="v" font-size="9" dy="2">j</tspan></text>
+ <text class="c" x="1126.625" y="344" text-anchor="middle">6 + 6 bit</text>
+ <text class="b" x="1126.625" y="385" text-anchor="middle">32 × 4 bit</text>
+</g>
+
+<rect x="44" y="424" width="1152" height="46" rx="8" fill="#F4F7FA" stroke="#E5EAF0" stroke-width="1"/>
+<text class="eq" x="66" y="453">x̂ = (d·sc<tspan font-size="9.5" dy="3">j</tspan><tspan dy="-3">)·q − (d</tspan><tspan font-size="9.5" dy="3">min</tspan><tspan dy="-3">·m</tspan><tspan font-size="9.5" dy="3">j</tspan><tspan dy="-3">)</tspan></text>
+<text class="b" x="1174" y="453" text-anchor="end">位宽 = 1152 bit = 144 B → 4.5 bit/权重</text>
+
+<text class="c" x="44" y="500">偏移自超块首字节计；其中 sc、m 为 6 位无符号整数。</text>
+</svg>

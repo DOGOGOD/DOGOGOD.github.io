@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="548" viewBox="0 0 1240 548" role="img" aria-labelledby="q0t q0d">
+<title id="q0t">Q4_0 与 Q4_1 的块内存布局与解码刻度</title>
+<desc id="q0d">Q4_0 每块 18 字节，采用对称格点，零点恰好落在格点上；Q4_1 每块 20 字节，含 fp16 最小值偏移，仿射格点使零点偏离格点。</desc>
+<defs><style>
+ text{font-family:"Helvetica Neue",Helvetica,Arial,"Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#1F2933}
+ .t{font-size:21px;font-weight:700}
+ .st{font-size:13px;fill:#5B6B7B}
+ .h{font-size:14.5px;font-weight:700}
+ .b{font-size:12.5px}
+ .bi{font-size:12.5px;font-weight:700}
+ .s{font-size:11.5px;fill:#5B6B7B}
+ .c{font-size:10.5px;fill:#8B98A5}
+ .v{font-family:"Times New Roman",Georgia,"Songti SC",serif;font-style:italic}
+ .eq{font-family:"Times New Roman",Georgia,"Songti SC",serif;font-style:italic;font-size:15px}
+</style></defs>
+<rect width="1240" height="548" fill="#ffffff"/>
+<text class="t" x="44" y="46">Q4_0 与 Q4_1：块内存布局与解码刻度</text>
+<text class="st" x="44" y="70">每块 32 个权重，仅缩放参数不同 —— 对称格点 vs. 仿射格点</text>
+<line x1="44" y1="84" x2="1196" y2="84" stroke="#E5EAF0" stroke-width="1.5"/>
+
+<!-- ================= Q4_0 ================= -->
+<rect x="44" y="100" width="560" height="372" rx="10" fill="#FFFFFF" stroke="#DCE3EA" stroke-width="1.5"/>
+<rect x="66" y="120" width="4" height="17" rx="2" fill="#5B8FC9"/>
+<text class="h" x="80" y="134">Q4_0 · 对称量化</text>
+<text class="s" x="80" y="155">对称 · 零均值 · 无偏</text>
+<text class="c" x="582" y="134" text-anchor="end">18 B / 块 · 4.5 bit</text>
+
+<text class="c" x="66" y="180">0</text>
+<text class="c" x="165" y="180">2</text>
+<text class="c" x="582" y="180" text-anchor="end">18</text>
+<rect x="66" y="186" width="96" height="52" rx="4" fill="#DCE9F7" stroke="#7FA8CF" stroke-width="1.2"/>
+<rect x="165" y="186" width="417" height="52" rx="4" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.2"/>
+<text class="v" x="114" y="212" text-anchor="middle" font-size="15" font-weight="700">d</text>
+<text class="c" x="114" y="230" text-anchor="middle">FP16 缩放</text>
+<text class="b" x="373" y="210" text-anchor="middle">q[0…15]</text>
+<text class="c" x="373" y="230" text-anchor="middle">16 B 码</text>
+
+<rect x="66" y="252" width="516" height="32" rx="6" fill="#F4F7FA"/>
+<text class="s" x="80" y="273">打包：低半字节 → x[j]，高半字节 → x[j+16]</text>
+
+<text class="bi" x="66" y="314">解码格点（16 个）</text>
+<line x1="104" y1="374" x2="548" y2="374" stroke="#CBD5E1" stroke-width="1.5"/>
+<g fill="#64748B">
+ <circle cx="104" cy="374" r="3"/><circle cx="133.6" cy="374" r="3"/><circle cx="163.2" cy="374" r="3"/><circle cx="192.8" cy="374" r="3"/><circle cx="222.4" cy="374" r="3"/><circle cx="252" cy="374" r="3"/><circle cx="281.6" cy="374" r="3"/><circle cx="311.2" cy="374" r="3"/><circle cx="370.4" cy="374" r="3"/><circle cx="400" cy="374" r="3"/><circle cx="429.6" cy="374" r="3"/><circle cx="459.2" cy="374" r="3"/><circle cx="488.8" cy="374" r="3"/><circle cx="518.4" cy="374" r="3"/><circle cx="548" cy="374" r="3"/>
+</g>
+<line x1="340.8" y1="358" x2="340.8" y2="390" stroke="#28527E" stroke-width="1.4"/>
+<circle cx="340.8" cy="374" r="4.6" fill="#28527E" stroke="#ffffff" stroke-width="1.4"/>
+<text class="s" x="340.8" y="350" text-anchor="middle">0</text>
+<text class="v" x="104" y="398" text-anchor="middle" font-size="12.5">−8d</text>
+<text class="v" x="548" y="398" text-anchor="middle" font-size="12.5">7d</text>
+<text class="eq" x="66" y="432">x̂ = d·(q − 8)</text>
+<text class="s" x="66" y="454">误差零均值，跨层相互抵消 → 无系统性偏置</text>
+
+<!-- ================= Q4_1 ================= -->
+<rect x="636" y="100" width="560" height="372" rx="10" fill="#FFFFFF" stroke="#DCE3EA" stroke-width="1.5"/>
+<rect x="658" y="120" width="4" height="17" rx="2" fill="#E0A75A"/>
+<text class="h" x="672" y="134">Q4_1 · 仿射量化</text>
+<text class="s" x="672" y="155">仿射 · 带最小值偏移 m</text>
+<text class="c" x="1174" y="134" text-anchor="end">20 B / 块 · 5.0 bit</text>
+
+<text class="c" x="658" y="180">0</text>
+<text class="c" x="745" y="180">2</text>
+<text class="c" x="832" y="180">4</text>
+<text class="c" x="1174" y="180" text-anchor="end">20</text>
+<rect x="658" y="186" width="84" height="52" rx="4" fill="#DCE9F7" stroke="#7FA8CF" stroke-width="1.2"/>
+<rect x="745" y="186" width="84" height="52" rx="4" fill="#FBE7CC" stroke="#E0A75A" stroke-width="1.2"/>
+<rect x="832" y="186" width="342" height="52" rx="4" fill="#D4EBE4" stroke="#63B0A0" stroke-width="1.2"/>
+<text class="v" x="700" y="212" text-anchor="middle" font-size="15" font-weight="700">d</text>
+<text class="c" x="700" y="230" text-anchor="middle">FP16 步长</text>
+<text class="v" x="787" y="212" text-anchor="middle" font-size="15" font-weight="700">m</text>
+<text class="c" x="787" y="230" text-anchor="middle">FP16 偏移</text>
+<text class="b" x="1003" y="210" text-anchor="middle">q[0…15]</text>
+<text class="c" x="1003" y="230" text-anchor="middle">16 B 码</text>
+
+<rect x="658" y="252" width="516" height="32" rx="6" fill="#F4F7FA"/>
+<text class="s" x="672" y="273">打包顺序同 Q4_0：低 4 位 → x[j]，高 4 位 → x[j+16]</text>
+
+<text class="bi" x="658" y="314">解码格点（覆盖 [m, m+15d]）</text>
+<line x1="682" y1="374" x2="1126" y2="374" stroke="#CBD5E1" stroke-width="1.5"/>
+<g fill="#64748B">
+ <circle cx="682" cy="374" r="3"/><circle cx="711.6" cy="374" r="3"/><circle cx="741.2" cy="374" r="3"/><circle cx="770.8" cy="374" r="3"/><circle cx="800.4" cy="374" r="3"/><circle cx="830" cy="374" r="3"/><circle cx="859.6" cy="374" r="3"/><circle cx="889.2" cy="374" r="3"/><circle cx="918.8" cy="374" r="3"/><circle cx="948.4" cy="374" r="3"/><circle cx="978" cy="374" r="3"/><circle cx="1007.6" cy="374" r="3"/><circle cx="1037.2" cy="374" r="3"/><circle cx="1066.8" cy="374" r="3"/><circle cx="1096.4" cy="374" r="3"/><circle cx="1126" cy="374" r="3"/>
+</g>
+<line x1="815.2" y1="358" x2="815.2" y2="390" stroke="#E0A75A" stroke-width="1.5" stroke-dasharray="3 3"/>
+<text class="s" x="815.2" y="350" text-anchor="middle">0</text>
+<text class="v" x="682" y="398" text-anchor="middle" font-size="12.5">m = lo</text>
+<text class="v" x="1126" y="398" text-anchor="middle" font-size="12.5">hi = m + 15d</text>
+<text class="eq" x="658" y="432">x̂ = d·q + m</text>
+<text class="s" x="658" y="454">零点偏在格点之间 → 引入系统性偏移</text>
+
+<text class="c" x="44" y="522">FP16 参数小端存放；字节偏移自块首计。</text>
+</svg>
