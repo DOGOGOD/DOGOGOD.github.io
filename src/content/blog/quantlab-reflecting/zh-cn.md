@@ -665,7 +665,7 @@ q4_0 是“高方差、零偏差”，q4_k 是“低方差、大偏差”。在�
 ## 附录 A. 统一输入下的逐模型对照
 
 > 同一 prompt、同一 greedy 解码（seed=0），用于直观比较“细微差别”。
-### A.1 翻译用词差异 —— `trans-01`
+### A.1 翻译用词差异 
 
 > Translate into Chinese: “The quick brown fox jumps over the lazy dog.”
 
@@ -679,7 +679,7 @@ q4_0 是“高方差、零偏差”，q4_k 是“低方差、大偏差”。在�
 
 **判读**：`q4_0` 用更口语的“懒狗”，`q4_k_m` 加完成体“了”，其余逐字一致。属 **① 语义等价噪声**。
 
-### A.2 同义动词差异 —— `trans-02`
+### A.2 同义动词差异 
 
 > 把“人工智能正在改变我们的生活方式”翻译成英文。
 
@@ -690,7 +690,7 @@ q4_0 是“高方差、零偏差”，q4_k 是“低方差、大偏差”。在�
 
 **判读**：只有 `q4_k` 用了更强的 `transforming`；都正确。**① 纯风格差异**。
 
-### A.3 数字精确度差异 —— `fact-03`
+### A.3 数字精确度差异 
 
 > 中国的首都是哪座城市？它大约有多少人口？请简要回答。
 
@@ -704,7 +704,7 @@ q4_0 是“高方差、零偏差”，q4_k 是“低方差、大偏差”。在�
 
 **判读**：仅 `q4_0` 说成 2200 万（**③ 事实偏移**），其余一致。
 
-### A.4 事实年份与自洽性 —— `fact-01`
+### A.4 事实年份与自洽性 
 
 > Who wrote the play Romeo and Juliet, and in what approximate year was it first performed?
 
@@ -718,7 +718,7 @@ q4_0 是“高方差、零偏差”，q4_k 是“低方差、大偏差”。在�
 
 **判读**：`q4_1` 最严谨（给出不确定性）；`q4_k_m` 年份偏；`q4_k` 崩成矛盾段落——**⑤ 灾难性退化的早期形态**。
 
-### A.5 摘要措辞 / 忠实度 —— `summ-01`
+### A.5 摘要措辞 / 忠实度 
 
 > Summarize in two sentences: The Industrial Revolution began in Britain in the late 18th century…
 
@@ -732,7 +732,7 @@ q4_0 是“高方差、零偏差”，q4_k 是“低方差、大偏差”。在�
 
 **判读**：全部正确、都恰好两句，但用词各偏一点（“平均收入”→“生活水平”、`harsh`→`severe`、`hand tools`→`handcraft`）。典型 **② 语义等价的措辞漂移**。
 
-### A.6 事实正确性 —— `common-01`
+### A.6 事实正确性 
 
 > If you put a glass of water in a freezer, what happens and why? Keep it under 80 words.
 
@@ -743,7 +743,7 @@ q4_0 是“高方差、零偏差”，q4_k 是“低方差、大偏差”。在�
 
 **判读**：`q4_k_m` 出现**物理错误**——冰其实比水轻（“denser”是反的），同句内“expansion + floats”方向对但自相矛盾。属 **④ 真错误**。
 
-### A.7 多语言事实 + 退化 —— `multi-01`
+### A.7 多语言事实 + 退化 
 
 > Give the word for “thank you” in five different languages.
 
