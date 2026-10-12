@@ -103,7 +103,7 @@ $$
 
 对称 vs 仿射的差别，可以从这张图中直观地理解：
 
-![Q4_0 对称格点与 Q4_1 仿射格点的对比](./Attatchments/q4_0_vs_q4_1.svg)
+![Q4_0 对称格点与 Q4_1 仿射格点的对比](q4_0_vs_q4_1.svg)
 
 ### 1.4 Q4_K：二级量化
 
@@ -136,7 +136,7 @@ $$
 省下的位数让“每 32 个权重就有一套自己的缩放”。这就是 Q4_K 能在**和 Q4_0 一样的 4.5 bit 下**
 换来更低量化误差的原因。它的结构：
 
-![Q4_K 的两级分层缩放结构](./Attatchments/q4_k.svg)
+![Q4_K 的两级分层缩放结构](q4_k.svg)
 
 Q4_K 的量化分三步：
 先用加权最小二乘（$w_i=\sqrt{\overline{x^2}}+|x_i|$，离 0 远的权重权重更大）拟合每子块的 $(s_j,o_j)$；
@@ -220,7 +220,7 @@ $$
 
 **为什么偏偏是 `ffn_down`？** 从数学上看，$ffn\_down$ 的输入是 FFN 中间激活 $\text{silu}(xW_{gate})\odot(xW_{up})$，其权重动态范围大、常含离群值（outlier）。Q6_K 有 **64 个量化格点**（对比 4 位的 16 个），码距更细，**恰好能罩住这些离群值的尾部**。一旦 `ffn_down` 的精度提高，汇入残差流的扰动就小了；而残差流是**逐层累加**的——在这里省下的误差，会被后面每一层“继承”。
 
-![Q4_K_M 混合量化的位分配规则](./Attatchments/q4_k_m.svg)
+![Q4_K_M 混合量化的位分配规则](q4_k_m.svg)
 
 最终 `q4_k_m` 输出里的格式分布：
 
@@ -415,7 +415,7 @@ GGUF 布局自洽——**实现正确性有了保障**。
 
 把质量和体积画在一起（横轴为模型张量数据区大小，纵轴为 PPL，误差棒是 PPL 估计不确定度）：
 
-![质量–体积 Pareto 前沿](./Attatchments/ppl_pareto.png)
+![质量–体积 Pareto 前沿](./Attachments/ppl_pareto.png)
 
 **消融：`q4_k_m` 的收益到底从哪来？**（用同一个 `f16.gguf`，`--pure` + `--tensor-type X=q6_K` 逐项升级）
 
@@ -445,7 +445,7 @@ GGUF 布局自洽——**实现正确性有了保障**。
 | q4_k | **0.0727** | **3.1e-04** | 100% | 12.99 |
 | q4_k_m | 0.0564 | 2.1e-04 | 93% | 11.33 |
 
-![误差 bias 统计量与 PPL 的关系](./Attatchments/bias_vs_ppl.png)
+![误差 bias 统计量与 PPL 的关系](./Attachments/bias_vs_ppl.png)
 
 > **RQ6 的答案**：
 > **rel_rms 与 PPL 反序，mean|bias| 与 PPL 同序。**
@@ -461,7 +461,7 @@ GGUF 布局自洽——**实现正确性有了保障**。
 
 把四个独立指标族（中/英 PPL、ARC、charF1）摆在一起，排序惊人地一致：
 
-![四个独立指标族的排序一致性](./Attatchments/metric_ranking.png)
+![四个独立指标族的排序一致性](./Attachments/metric_ranking.png)
 
 > **F16 ≫ q4_k_m > q4_0 > q4_1 > q4_k**
 
