@@ -1,5 +1,5 @@
 ---
-title: "Lab 0: NanoQuant Reflections"
+title: "Hands-on Lab 0: NanoQuant Reflections"
 pubDate: 2026-10-10
 slugId: quantlab-reflecting
 description: " 把一个 2B 大模型的权重塞进 1 GB：从 4 位量化实现到“AI 黑盒”的一次实验"
@@ -10,7 +10,7 @@ pinTop: 0
 ---
 ## Intro：一份 Lab 和它引出的疑问
 
-ICS 的第一份 Lab 名为 NanoQuant，顾名思义，便是实现一个 Nano 版的模型量化程序。
+ICS 的第一份 Hands-on Lab 名为 NanoQuant，顾名思义，便是实现一个 Nano 版的模型量化程序。
 
 Lab 的内容很朴素：**把 Qwen3-VL-2B-Instruct 的语言塔从 BF16 量化到 4 位**。这个模型原始权重有 **4 255 140 312 字节**（约 4.25 GB，625 个张量，BF16），其中语言部分 310 个张量、3.44 GB 需要被量化，视觉塔的 315 个张量暂时忽略。
 
